@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="DriveFleet.Api/DriveFleet.Api.csproj" />
+  <Project Path="DriveFleet.Application/DriveFleet.Application.csproj" />
+  <Project Path="DriveFleet.Domain/DriveFleet.Domain.csproj" />
+  <Project Path="DriveFleet.Infrastructure/DriveFleet.Infrastructure.csproj" />
+  <Project Path="DriveFleet.Web/DriveFleet.Web.csproj" />
+</Solution>
