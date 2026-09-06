@@ -1,4 +1,6 @@
-﻿using DriveFleet.Infrastructure.Data;
+﻿using DriveFleet.Application.Interfaces;
+using DriveFleet.Infrastructure.Data;
+using DriveFleet.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +18,9 @@ public static class DependencyInjection
         // Registers the DriveFleet database context using SQL Server.
         services.AddDbContext<DriveFleetDbContext>(options =>
             options.UseSqlServer(connectionString));
+
+        // Registers the password hashing service.
+        services.AddScoped<IPasswordHasher, PasswordHasherService>();
 
         return services;
     }
