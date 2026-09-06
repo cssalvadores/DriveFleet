@@ -28,12 +28,13 @@ public class PasswordResetTokenConfiguration
         builder.Property(t => t.UserId)
             .IsRequired();
 
-        // Reset tokens are required and must be unique.
-        builder.Property(t => t.Token)
+        // Only the token hash is persisted.
+        // The raw password reset token is never stored.
+        builder.Property(t => t.TokenHash)
             .IsRequired()
-            .HasMaxLength(255);
+            .HasMaxLength(128);
 
-        builder.HasIndex(t => t.Token)
+        builder.HasIndex(t => t.TokenHash)
             .IsUnique();
 
         // Defines when the token stops being valid.

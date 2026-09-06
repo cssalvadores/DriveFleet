@@ -1,8 +1,10 @@
-﻿using DriveFleet.Domain.Entities;
+﻿using DriveFleet.Infrastructure.Data.Seed;
+using DriveFleet.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+
 
 namespace DriveFleet.Infrastructure.Data;
 
@@ -71,5 +73,8 @@ public class DriveFleetDbContext : DbContext
         // implementations found in this assembly.
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(DriveFleetDbContext).Assembly);
+
+        // Applies the initial structural and catalogue data.
+        DatabaseSeed.Seed(modelBuilder);
     }
 }

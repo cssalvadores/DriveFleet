@@ -2,13 +2,19 @@
 
 namespace DriveFleet.Domain.Entities;
 
+/// <summary>
+/// Represents a token used to confirm a user's email address.
+/// Only the token hash is persisted for security reasons.
+/// </summary>
 public class EmailConfirmationToken
 {
     public int EmailConfirmationTokenId { get; set; }
 
     public int UserId { get; set; }
 
-    public string Token { get; set; } = null!;
+    // Stores only the hash of the confirmation token.
+    // The raw token is never persisted in the database.
+    public string TokenHash { get; set; } = null!;
 
     public DateTime ExpiresAt { get; set; }
 
