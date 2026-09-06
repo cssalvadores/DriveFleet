@@ -68,6 +68,14 @@ public class ReservationVehicleConfiguration
         })
         .IsUnique();
 
+        // Optimizes vehicle availability queries by vehicle and rental period.
+        builder.HasIndex(rv => new
+        {
+            rv.VehicleId,
+            rv.StartDate,
+            rv.EndDate
+        });
+
         // Each reserved vehicle belongs to exactly one reservation.
         // Reservation history must be preserved.
         builder.HasOne(rv => rv.Reservation)
