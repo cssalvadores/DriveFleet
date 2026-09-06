@@ -1,3 +1,4 @@
+using DriveFleet.Application;
 using DriveFleet.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +7,9 @@ var connectionString = builder.Configuration
     .GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
         "Connection string 'DefaultConnection' was not found.");
+
+// Registers application services.
+builder.Services.AddApplication();
 
 // Registers persistence and other infrastructure services.
 builder.Services.AddInfrastructure(connectionString);

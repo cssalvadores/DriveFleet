@@ -1,6 +1,59 @@
-@DriveFleet.Api_HostAddress = http://localhost:5021
+@DriveFleet.Api_HostAddress = https://localhost:7094
 
-GET {{DriveFleet.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Register a new client
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Bruno",
+  "lastName": "Costa",
+  "email": "Bruno@example.com",
+  "phone": "913453212",
+  "password": "Example134!"
+}
 
 ###
+
+### Invalid email
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Invalid",
+  "lastName": "Email",
+  "email": "not-an-email",
+  "phone": "911111111",
+  "password": "Example123!"
+}
+
+###
+
+### Password too short
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Short",
+  "lastName": "Password",
+  "email": "short@example.com",
+  "phone": "922222222",
+  "password": "123"
+}
+
+###
+
+### Missing first name
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "",
+  "lastName": "NoName",
+  "email": "noname@example.com",
+  "phone": "933333333",
+  "password": "Example123!"
+}
