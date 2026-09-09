@@ -22,4 +22,18 @@ public interface IAuthService
     Task<RegisterResponse> RegisterAsync(
         RegisterRequest request,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Confirms a user's email address using a confirmation token.
+    /// </summary>
+    /// <param name="token">
+    /// The raw email confirmation token received from the client.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation if needed.
+    /// </param>
+    Task ConfirmEmailAsync(
+        string token,
+        CancellationToken cancellationToken = default);
+
 }

@@ -6,10 +6,10 @@ POST {{DriveFleet.Api_HostAddress}}/api/auth/register
 Content-Type: application/json
 
 {
-  "firstName": "Bruno",
-  "lastName": "Costa",
-  "email": "Bruno@example.com",
-  "phone": "913453212",
+  "firstName": "Carla",
+  "lastName": "Ferreira",
+  "email": "carla@example.com",
+  "phone": "934444444",
   "password": "Example134!"
 }
 
@@ -56,4 +56,79 @@ Content-Type: application/json
   "email": "noname@example.com",
   "phone": "933333333",
   "password": "Example123!"
+}
+
+### Register client with email confirmation
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Tiago",
+  "lastName": "Neves",
+  "email": "tiago@example.com",
+  "phone": "936666666",
+  "password": "Example123!"
+}
+
+### Confirm email
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/confirm-email
+Content-Type: application/json
+
+{
+  "token": "E5946F3B624259FC0A94A157DCA1B70E45AFCFFD20E65A849AA517B9FFC8BCB7"
+}
+
+### Register client for email confirmation test
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Eva",
+  "lastName": "Martins",
+  "email": "eva@example.com",
+  "phone": "936666666",
+  "password": "Example123!"
+}
+
+### Confirm email with invalid token
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/confirm-email
+Content-Type: application/json
+
+{
+  "token": "U3UG3BFU3FHU3UIU43IJ499FUHJ43F4HF34HF439F34F93H4FFFH4IOF34JJHFOF"
+}
+
+### Confirm email without token
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/confirm-email
+Content-Type: application/json
+
+{
+  "token": ""
+}
+
+### Register client for expired token test
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Filipe",
+  "lastName": "Rocha",
+  "email": "filipe@example.com",
+  "phone": "937777777",
+  "password": "Example123!"
+}
+
+### Confirm email with expired token
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/confirm-email
+Content-Type: application/json
+
+{
+  "token": "68E3A2F9627B52B56E15A8A5A3EA67C691FC85DEA5CB1A516719338B44DBF545"
 }

@@ -65,4 +65,52 @@ public class AuthController : ControllerBase
             });
         }
     }
+
+    /// <summary>
+    /// Confirms a user's email address using a confirmation token.
+    /// </summary>
+    /// <param name="request">
+    /// The request containing the raw email confirmation token.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the request if the client disconnects.
+    /// </param>
+    /// <returns>
+    /// A successful response when the email address has been confirmed.
+    /// </returns>
+    [HttpPost("confirm-email")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ConfirmEmail(
+        ConfirmEmailRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _authService.ConfirmEmailAsync(
+                request.Token,
+                cancellationToken);
+
+            return NoContent();
+        }
+        catch (InvalidTokenException exception)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid confirmation token",
+                Detail = exception.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+        catch (ConflictException exception)
+        {
+            return Conflict(new ProblemDetails
+            {
+                Title = "Email confirmation conflict",
+                Detail = exception.Message,
+                Status = StatusCodes.Status409Conflict
+            });
+        }
+    }
 }
