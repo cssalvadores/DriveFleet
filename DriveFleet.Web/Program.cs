@@ -1,7 +1,28 @@
+using DriveFleet.Web.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpClient<AuthApiClient>(
+    (serviceProvider, httpClient) =>
+    {
+        var configuration =
+            serviceProvider.GetRequiredService<IConfiguration>();
+
+        var apiBaseUrl =
+            configuration["ApiSettings:BaseUrl"];
+
+        if (string.IsNullOrWhiteSpace(apiBaseUrl))
+        {
+            throw new InvalidOperationException(
+                "The DriveFleet API base URL is not configured.");
+        }
+
+        httpClient.BaseAddress =
+            new Uri(apiBaseUrl);
+    });
 
 var app = builder.Build();
 

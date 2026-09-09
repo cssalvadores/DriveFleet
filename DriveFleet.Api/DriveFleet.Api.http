@@ -132,3 +132,16 @@ Content-Type: application/json
 {
   "token": "68E3A2F9627B52B56E15A8A5A3EA67C691FC85DEA5CB1A516719338B44DBF545"
 }
+
+### Register client for browser confirmation test
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Gabriel",
+  "lastName": "Sousa",
+  "email": "gabriel@example.com",
+  "phone": "938888888",
+  "password": "Example123!"
+}
