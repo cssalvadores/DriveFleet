@@ -1,4 +1,6 @@
-﻿using DriveFleet.Application.DTOs.Auth;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using DriveFleet.Application.DTOs.Auth;
 using DriveFleet.Application.Exceptions;
 using DriveFleet.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +40,9 @@ public class AuthController : ControllerBase
     /// Information about the newly registered user.
     /// </returns>
     [HttpPost("register")]
-    [ProducesResponseType(typeof(RegisterResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(
+        typeof(RegisterResponse),
+        StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<RegisterResponse>> Register(
@@ -113,4 +117,104 @@ public class AuthController : ControllerBase
             });
         }
     }
+
+    /// <summary>
+    /// Authenticates a user using email and password credentials.
+    /// </summary>
+    /// <param name="request">
+    /// The credentials provided by the user.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the request if the client disconnects.
+    /// </param>
+    /// <returns>
+    /// The authenticated user's information and JWT access token.
+    /// </returns>
+    [HttpPost("login")]
+    [ProducesResponseType(
+        typeof(LoginResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<LoginResponse>> Login(
+        LoginRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await _authService.LoginAsync(
+                request,
+                cancellationToken);
+
+            return Ok(response);
+        }
+        catch (InvalidCredentialsException exception)
+        {
+            return Unauthorized(new ProblemDetails
+            {
+                Title = "Authentication failed",
+                Detail = exception.Message,
+                Status = StatusCodes.Status401Unauthorized
+            });
+        }
+        catch (EmailNotConfirmedException exception)
+        {
+            return StatusCode(
+                StatusCodes.Status403Forbidden,
+                new ProblemDetails
+                {
+                    Title = "Email confirmation required",
+                    Detail = exception.Message,
+                    Status = StatusCodes.Status403Forbidden
+                });
+        }
+    }
+
+    /// <summary>
+    /// Returns identity information for the currently authenticated user.
+    /// </summary>
+    /// <returns>
+    /// The authenticated user's identifier, email address and role.
+    /// </returns>
+    [Authorize]
+    [HttpGet("me")]
+    [ProducesResponseType(
+        typeof(CurrentUserResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public ActionResult<CurrentUserResponse> Me()
+    {
+        // Reads the authenticated user's identifier from the JWT claims.
+        var userIdValue =
+            User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+        // Reads the authenticated user's email address from the JWT claims.
+        var email =
+            User.FindFirstValue(
+                ClaimTypes.Email);
+
+        // Reads the authenticated user's role from the JWT claims.
+        var role =
+            User.FindFirstValue(
+                ClaimTypes.Role);
+
+        if (!int.TryParse(
+                userIdValue,
+                out var userId) ||
+            string.IsNullOrWhiteSpace(email) ||
+            string.IsNullOrWhiteSpace(role))
+        {
+            return Unauthorized();
+        }
+
+        return Ok(new CurrentUserResponse
+        {
+            UserId = userId,
+            Email = email,
+            Role = role
+        });
+    }
+
 }

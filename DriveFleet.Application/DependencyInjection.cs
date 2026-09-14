@@ -32,6 +32,9 @@ public static class DependencyInjection
         services.Configure<ApplicationUrlSettings>(
             configuration.GetSection("ApplicationUrls"));
 
+        services.Configure<JwtSettings>(
+            configuration.GetSection("Jwt"));
+
         // Registers the authentication application service
         // for the lifetime of the current HTTP request.
         services.AddScoped<IAuthService, AuthService>();

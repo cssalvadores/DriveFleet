@@ -36,4 +36,19 @@ public interface IAuthService
         string token,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Authenticates a user using email and password credentials.
+    /// </summary>
+    /// <param name="request">
+    /// The credentials provided by the user.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation if needed.
+    /// </param>
+    /// <returns>
+    /// The authenticated user's information and JWT access token.
+    /// </returns>
+    Task<LoginResponse> LoginAsync(
+        LoginRequest request,
+        CancellationToken cancellationToken = default);
 }

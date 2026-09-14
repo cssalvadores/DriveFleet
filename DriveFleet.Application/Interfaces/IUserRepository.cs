@@ -26,6 +26,22 @@ public interface IUserRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Retrieves a user by email address.
+    /// </summary>
+    /// <param name="email">
+    /// The normalized email address of the user to retrieve.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous database operation if needed.
+    /// </param>
+    /// <returns>
+    /// The matching user, or null if no user exists with the specified email.
+    /// </returns>
+    Task<User?> GetByEmailAsync(
+        string email,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Adds a new user and persists it to the data store.
     /// </summary>
     /// <param name="user">

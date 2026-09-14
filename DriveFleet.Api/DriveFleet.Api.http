@@ -1,5 +1,6 @@
 @DriveFleet.Api_HostAddress = https://localhost:7094
 
+
 ### Register a new client
 
 POST {{DriveFleet.Api_HostAddress}}/api/auth/register
@@ -145,3 +146,157 @@ Content-Type: application/json
   "phone": "938888888",
   "password": "Example123!"
 }
+
+### NEW TESTS
+
+### Login with valid credentials
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "Example123!"
+}
+
+
+### Login with invalid password
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "WrongPassword!"
+}
+
+
+### Login with unknown email
+
+POST {{DriveFleet.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "unknown@example.com",
+  "password": "Example123!"
+}
+
+### LOGIN-08.1 - Valid login
+
+POST https://localhost:7167/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "Example123!"
+}
+
+### LOGIN-08.1 - Valid login
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "Example123!"
+}
+
+### LOGIN-08.2 - Invalid password
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "WrongPassword123!"
+}
+
+### LOGIN-08.3 - Unknown email
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "does-not-exist@drivefleet.test",
+  "password": "Example123!"
+}
+
+### LOGIN-08.3 - Unknown email
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "does-not-exist@drivefleet.test",
+  "password": "Example123!"
+}
+
+### LOGIN-08.4 - Unconfirmed email
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ana@example.com",
+  "password": "Example123!"
+}
+
+### LOGIN-08.5 - Email normalization
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "GABRIEL@EXAMPLE.COM",
+  "password": "Example123!"
+}
+
+### LOGIN-08.6 - Invalid request
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "password": ""
+}
+
+### Login after JWT middleware configuration
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "Example123!"
+}
+
+### LOGIN-10.1 - Current user without token
+
+GET https://localhost:7094/api/auth/me
+
+
+### LOGIN-10 - Generate client token
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "Example123!"
+}
+
+### LOGIN-10.2 - Current user with valid token
+
+GET https://localhost:7094/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJnYWJyaWVsQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQ2xpZW50IiwianRpIjoiOGIyYzY4MjMtOWEzMi00NTIxLWJlZjMtNWFmYjRhOWZhMzI5IiwibmJmIjoxNzg5NDE0ODA2LCJleHAiOjE3ODk0MTg0MDYsImlzcyI6IkRyaXZlRmxlZXQuQXBpIiwiYXVkIjoiRHJpdmVGbGVldC5DbGllbnRzIn0.nksn68gWxS-oSimZ8t0-DmCmz9YO180SRWcgJIXxeKE
+
+### LOGIN-10.3 - Invalid token
+
+GET https://localhost:7094/api/auth/me
+Authorization: Bearer this-is-not-a-valid-jwt
+
+### LOGIN-10.4 - Tampered token
+
+GET https://localhost:7094/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJnYWJyaWVsQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQ2xpZW50IiwianRpIjoiOGIyYzY4MjMtOWEzMi00NTIxLWJlZjMtNWFmYjRhOWZhMzI5IiwibmJmIjoxNzg5NDE0ODA2LCJleHAiOjE3ODk0MTg0MDYsImlzcyI6IkRyaXZlRmxlZXQuQXBpIiwiYXVkIjoiRHJpdmVGbGVldC5DbGllbnRzIn0.nksn68gWxS-oSimZ8t0-DmCmz9YO180SRWcgJIXxeKF

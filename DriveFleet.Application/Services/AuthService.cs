@@ -20,6 +20,7 @@ public class AuthService : IAuthService
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ISecureTokenService _secureTokenService;
+    private readonly IJwtTokenService _jwtTokenService;
     private readonly IRegistrationRepository _registrationRepository;
     private readonly IEmailConfirmationTokenRepository
         _emailConfirmationTokenRepository;
@@ -33,10 +34,13 @@ public class AuthService : IAuthService
     /// Repository used to query user data.
     /// </param>
     /// <param name="passwordHasher">
-    /// Service used to securely hash passwords.
+    /// Service used to securely hash and verify passwords.
     /// </param>
     /// <param name="secureTokenService">
     /// Service used to generate and hash secure tokens.
+    /// </param>
+    /// <param name="jwtTokenService">
+    /// Service used to generate JWT access tokens.
     /// </param>
     /// <param name="registrationRepository">
     /// Repository used to persist registration data atomically.
@@ -54,6 +58,7 @@ public class AuthService : IAuthService
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
         ISecureTokenService secureTokenService,
+        IJwtTokenService jwtTokenService,
         IRegistrationRepository registrationRepository,
         IEmailConfirmationTokenRepository emailConfirmationTokenRepository,
         IEmailSender emailSender,
@@ -62,6 +67,7 @@ public class AuthService : IAuthService
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _secureTokenService = secureTokenService;
+        _jwtTokenService = jwtTokenService;
         _registrationRepository = registrationRepository;
         _emailConfirmationTokenRepository =
             emailConfirmationTokenRepository;
@@ -280,5 +286,103 @@ public class AuthService : IAuthService
             confirmationToken,
             now,
             cancellationToken);
+    }
+
+    /// <summary>
+    /// Authenticates a user using email and password credentials.
+    /// </summary>
+    /// <param name="request">
+    /// The credentials provided by the user.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation if needed.
+    /// </param>
+    /// <returns>
+    /// The authenticated user's information and JWT access token.
+    /// </returns>
+    /// <exception cref="InvalidCredentialsException">
+    /// Thrown when the email or password is invalid.
+    /// </exception>
+    /// <exception cref="EmailNotConfirmedException">
+    /// Thrown when the user's email address has not yet been confirmed.
+    /// </exception>
+    public async Task<LoginResponse> LoginAsync(
+        LoginRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        // Normalizes the email address before querying the database.
+        var email = request.Email
+            .Trim()
+            .ToLowerInvariant();
+
+        // Retrieves the user associated with the normalized email address.
+        var user = await _userRepository.GetByEmailAsync(
+            email,
+            cancellationToken);
+
+        // Uses the same generic error for unknown users and invalid passwords.
+        if (user is null ||
+            string.IsNullOrWhiteSpace(user.PasswordHash) ||
+            !_passwordHasher.Verify(
+                user.PasswordHash,
+                request.Password))
+        {
+            throw new InvalidCredentialsException(
+                "Invalid email or password.");
+        }
+
+        // Prevents login until the user has confirmed the email address.
+        if (!user.EmailConfirmed)
+        {
+            throw new EmailNotConfirmedException(
+                "Please confirm your email address before signing in.");
+        }
+
+        // Resolves the role name that will be included in the JWT.
+        var role = ResolveRoleName(
+            user.RoleId);
+
+        // Generates the signed JWT access token.
+        var tokenResult = _jwtTokenService.GenerateToken(
+            user.UserId,
+            user.Email,
+            role);
+
+        return new LoginResponse
+        {
+            UserId = user.UserId,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            Role = role,
+            AccessToken = tokenResult.AccessToken,
+            ExpiresAt = tokenResult.ExpiresAt
+        };
+    }
+
+    /// <summary>
+    /// Resolves a role identifier to its corresponding role name.
+    /// </summary>
+    /// <param name="roleId">
+    /// The role identifier stored for the user.
+    /// </param>
+    /// <returns>
+    /// The corresponding DriveFleet role name.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the user has an unsupported role identifier.
+    /// </exception>
+    private static string ResolveRoleName(
+        int roleId)
+    {
+        return roleId switch
+        {
+            RoleIds.Admin => RoleNames.Admin,
+            RoleIds.Employee => RoleNames.Employee,
+            RoleIds.Client => RoleNames.Client,
+
+            _ => throw new InvalidOperationException(
+                "The user has an invalid role.")
+        };
     }
 }

@@ -39,14 +39,21 @@ public static class DependencyInjection
             RegistrationRepository>();
 
         // Registers security services.
-        services.AddScoped<IPasswordHasher, PasswordHasherService>();
-        services.AddSingleton<ISecureTokenService, SecureTokenService>();
+        services.AddScoped<
+            IPasswordHasher, PasswordHasherService>();
+
+        services.AddSingleton<
+            ISecureTokenService, SecureTokenService>();
+
+        services.AddSingleton<
+            IJwtTokenService, JwtTokenService>();
 
         // Registers SMTP configuration and email delivery.
         services.Configure<SmtpSettings>(
             configuration.GetSection("Smtp"));
 
-        services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddScoped<
+            IEmailSender, SmtpEmailSender>();
 
         return services;
     }

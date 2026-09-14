@@ -6,30 +6,31 @@ using Microsoft.EntityFrameworkCore;
 namespace DriveFleet.Infrastructure.Repositories;
 
 /// <summary>
-/// Provides user persistence operations using Entity Framework Core.
-/// This repository is responsible for accessing and modifying user data
-/// through the DriveFleet database context.
+/// Provides user persistence and query operations
+/// using Entity Framework Core.
 /// </summary>
 public class UserRepository : IUserRepository
 {
     private readonly DriveFleetDbContext _dbContext;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="UserRepository"/> class.
+    /// Initializes a new instance of the
+    /// <see cref="UserRepository"/> class.
     /// </summary>
     /// <param name="dbContext">
     /// The database context used to access user data.
     /// </param>
-    public UserRepository(DriveFleetDbContext dbContext)
+    public UserRepository(
+        DriveFleetDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
     /// <summary>
-    /// Checks whether a user with the specified email already exists.
+    /// Determines whether a user with the specified email already exists.
     /// </summary>
     /// <param name="email">
-    /// The email address to search for.
+    /// The normalized email address to check.
     /// </param>
     /// <param name="cancellationToken">
     /// Token used to cancel the asynchronous database operation if needed.
@@ -41,15 +42,36 @@ public class UserRepository : IUserRepository
         string email,
         CancellationToken cancellationToken = default)
     {
-        // Uses an existence check instead of loading the complete user entity.
+        return await _dbContext.Users.AnyAsync(
+            user => user.Email == email,
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves a user by email address.
+    /// </summary>
+    /// <param name="email">
+    /// The normalized email address of the user to retrieve.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous database operation if needed.
+    /// </param>
+    /// <returns>
+    /// The matching user, or null if no user exists with the specified email.
+    /// </returns>
+    public async Task<User?> GetByEmailAsync(
+        string email,
+        CancellationToken cancellationToken = default)
+    {
         return await _dbContext.Users
-            .AnyAsync(
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
                 user => user.Email == email,
                 cancellationToken);
     }
 
     /// <summary>
-    /// Adds a new user and persists the change to the database.
+    /// Adds a new user and persists it to the database.
     /// </summary>
     /// <param name="user">
     /// The user entity to be added.
@@ -66,7 +88,7 @@ public class UserRepository : IUserRepository
             user,
             cancellationToken);
 
-        // Persists all tracked changes to the database.
+        // Persists the new user to the database.
         await _dbContext.SaveChangesAsync(
             cancellationToken);
     }
