@@ -53,4 +53,20 @@ public interface IUserRepository
     Task AddAsync(
         User user,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves a user by identifier.
+    /// </summary>
+    /// <param name="userId">
+    /// The identifier of the user to retrieve.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous database operation if needed.
+    /// </param>
+    /// <returns>
+    /// The matching user, or null if no user exists with the specified identifier.
+    /// </returns>
+    Task<User?> GetByIdAsync(
+        int userId,
+        CancellationToken cancellationToken = default);
 }

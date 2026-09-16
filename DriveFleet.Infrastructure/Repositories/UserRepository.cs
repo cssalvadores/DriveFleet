@@ -71,6 +71,28 @@ public class UserRepository : IUserRepository
     }
 
     /// <summary>
+    /// Retrieves a user by identifier.
+    /// </summary>
+    /// <param name="userId">
+    /// The identifier of the user to retrieve.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous database operation if needed.
+    /// </param>
+    /// <returns>
+    /// The matching user, or null if no user exists with the specified identifier.
+    /// </returns>
+    public async Task<User?> GetByIdAsync(
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Users
+            .FirstOrDefaultAsync(
+                user => user.UserId == userId,
+                cancellationToken);
+    }
+
+    /// <summary>
     /// Adds a new user and persists it to the database.
     /// </summary>
     /// <param name="user">

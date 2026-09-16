@@ -55,6 +55,10 @@ public static class DependencyInjection
         services.AddScoped<
             IEmailSender, SmtpEmailSender>();
 
+        services.AddScoped<
+            IPasswordResetTokenRepository,
+            PasswordResetTokenRepository>();
+
         return services;
     }
 }

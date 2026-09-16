@@ -17,13 +17,18 @@ public class AuthService : IAuthService
     private static readonly TimeSpan EmailConfirmationTokenLifetime =
         TimeSpan.FromHours(24);
 
+    private static readonly TimeSpan PasswordResetTokenLifetime =
+    TimeSpan.FromMinutes(30);
+
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ISecureTokenService _secureTokenService;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IRegistrationRepository _registrationRepository;
     private readonly IEmailConfirmationTokenRepository
-        _emailConfirmationTokenRepository;
+    _emailConfirmationTokenRepository;
+    private readonly IPasswordResetTokenRepository
+    _passwordResetTokenRepository;
     private readonly IEmailSender _emailSender;
     private readonly ApplicationUrlSettings _applicationUrls;
 
@@ -61,6 +66,7 @@ public class AuthService : IAuthService
         IJwtTokenService jwtTokenService,
         IRegistrationRepository registrationRepository,
         IEmailConfirmationTokenRepository emailConfirmationTokenRepository,
+        IPasswordResetTokenRepository passwordResetTokenRepository,
         IEmailSender emailSender,
         IOptions<ApplicationUrlSettings> applicationUrlOptions)
     {
@@ -71,6 +77,8 @@ public class AuthService : IAuthService
         _registrationRepository = registrationRepository;
         _emailConfirmationTokenRepository =
             emailConfirmationTokenRepository;
+        _passwordResetTokenRepository =
+            passwordResetTokenRepository;
         _emailSender = emailSender;
         _applicationUrls = applicationUrlOptions.Value;
     }
@@ -358,6 +366,210 @@ public class AuthService : IAuthService
             AccessToken = tokenResult.AccessToken,
             ExpiresAt = tokenResult.ExpiresAt
         };
+    }
+
+    public async Task<ForgotPasswordResponse> ForgotPasswordAsync(
+    ForgotPasswordRequest request,
+    CancellationToken cancellationToken = default)
+    {
+        const string genericMessage =
+            "If an account exists for this email, a password reset link has been sent.";
+
+        var email = request.Email
+            .Trim()
+            .ToLowerInvariant();
+
+        var user = await _userRepository.GetByEmailAsync(
+            email,
+            cancellationToken);
+
+        // Always return the same response to prevent email enumeration.
+        if (user is null)
+        {
+            return new ForgotPasswordResponse
+            {
+                Message = genericMessage
+            };
+        }
+
+        var now = DateTime.UtcNow;
+
+        // Invalidates previous unused password reset tokens.
+        var previousTokens =
+            await _passwordResetTokenRepository.GetUnusedByUserIdAsync(
+                user.UserId,
+                cancellationToken);
+
+        foreach (var previousToken in previousTokens)
+        {
+            previousToken.UsedAt = now;
+        }
+
+        // Generates a cryptographically secure reset token.
+        var rawToken = _secureTokenService.GenerateToken();
+
+        // Only the token hash is stored in the database.
+        var tokenHash = _secureTokenService.HashToken(rawToken);
+
+        var passwordResetToken = new PasswordResetToken
+        {
+            UserId = user.UserId,
+            TokenHash = tokenHash,
+            ExpiresAt = now.Add(PasswordResetTokenLifetime),
+            UsedAt = null,
+            CreatedAt = now
+        };
+
+        await _passwordResetTokenRepository.AddAsync(
+            passwordResetToken,
+            cancellationToken);
+
+        await _passwordResetTokenRepository.SaveChangesAsync(
+            cancellationToken);
+
+        var webBaseUrl =
+            _applicationUrls.WebBaseUrl.TrimEnd('/');
+
+        var resetUrl =
+            $"{webBaseUrl}/account/reset-password?token={Uri.EscapeDataString(rawToken)}";
+
+        var emailSubject =
+             "Reset your DriveFleet password";
+
+        var emailBody = $"""
+             <h2>Password reset</h2>
+
+             <p>Hello {user.FirstName},</p>
+
+             <p>
+                We received a request to reset the password
+                for your DriveFleet account.
+             </p>
+
+             <p>
+                <a href="{resetUrl}">
+                    Reset your password
+                </a>
+             </p>
+
+            <p>
+                This link is valid for 30 minutes.
+            </p>
+
+            <p>
+                If you did not request a password reset,
+                you can ignore this email.
+            </p>
+
+            <p>
+                DriveFleet
+            </p>
+            """;
+
+            await _emailSender.SendAsync(
+            user.Email,
+            emailSubject,
+            emailBody,
+            cancellationToken);
+
+        return new ForgotPasswordResponse
+        {
+            Message = genericMessage
+        };
+    }
+
+    /// <summary>
+    /// Resets a user's password using a valid password reset token.
+    /// </summary>
+    /// <param name="request">
+    /// The reset token and new password information.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation if needed.
+    /// </param>
+    /// <exception cref="InvalidTokenException">
+    /// Thrown when the reset token is invalid, expired or already used.
+    /// </exception>
+    public async Task ResetPasswordAsync(
+        ResetPasswordRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        // Rejects missing reset tokens.
+        if (string.IsNullOrWhiteSpace(request.Token))
+        {
+            throw new InvalidTokenException(
+                "The password reset token is invalid.");
+        }
+
+        // Hashes the raw token so it can be compared
+        // with the hash stored in the database.
+        var tokenHash =
+            _secureTokenService.HashToken(
+                request.Token.Trim());
+
+        var passwordResetToken =
+            await _passwordResetTokenRepository
+                .GetByTokenHashAsync(
+                    tokenHash,
+                    cancellationToken);
+
+        // Rejects tokens that do not exist.
+        if (passwordResetToken is null)
+        {
+            throw new InvalidTokenException(
+                "The password reset token is invalid.");
+        }
+
+        // Rejects tokens that have already been used.
+        if (passwordResetToken.UsedAt.HasValue)
+        {
+            throw new InvalidTokenException(
+                "The password reset token has already been used.");
+        }
+
+        var now = DateTime.UtcNow;
+
+        // Rejects expired password reset tokens.
+        if (passwordResetToken.ExpiresAt <= now)
+        {
+            throw new InvalidTokenException(
+                "The password reset token has expired.");
+        }
+
+        // Retrieves the user associated with the reset token.
+        var user = await _userRepository.GetByIdAsync(
+            passwordResetToken.UserId,
+            cancellationToken);
+
+        if (user is null)
+        {
+            throw new InvalidTokenException(
+                "The password reset token is invalid.");
+        }
+
+        // Generates a secure hash for the new password.
+        user.PasswordHash =
+            _passwordHasher.Hash(
+                request.NewPassword);
+
+        user.UpdatedAt = now;
+
+        // Invalidates every outstanding reset token for this user.
+        var unusedTokens =
+            await _passwordResetTokenRepository
+                .GetUnusedByUserIdAsync(
+                    user.UserId,
+                    cancellationToken);
+
+        foreach (var unusedToken in unusedTokens)
+        {
+            unusedToken.UsedAt = now;
+        }
+
+        // Persists the new password and token invalidation.
+        await _passwordResetTokenRepository
+            .SaveChangesAsync(
+                cancellationToken);
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿//using DriveFleet.Web.Models.Account;
+using System.Net;
 using DriveFleet.Web.Models.Auth;
 using DriveFleet.Web.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -116,4 +117,97 @@ public class AccountController : Controller
             });
         }
     }
+
+    /// <summary>
+    /// Displays the password reset form.
+    /// </summary>
+    /// <param name="token">
+    /// The raw password reset token received through the query string.
+    /// </param>
+    /// <returns>
+    /// The password reset page when the token is present.
+    /// </returns>
+    [HttpGet("/account/reset-password")]
+    public IActionResult ResetPassword(
+        [FromQuery] string? token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return View("ResetPasswordInvalid");
+        }
+
+        return View(new ResetPasswordViewModel
+        {
+            Token = token
+        });
+    }
+
+    /// <summary>
+    /// Processes the password reset form.
+    /// </summary>
+    /// <param name="model">
+    /// The password reset information entered by the user.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the request if the client disconnects.
+    /// </param>
+    /// <returns>
+    /// The password reset result page.
+    /// </returns>
+    [HttpPost("/account/reset-password")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(
+        ResetPasswordViewModel model,
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        try
+        {
+            var result =
+                await _authApiClient.ResetPasswordAsync(
+                    model.Token,
+                    model.NewPassword,
+                    model.ConfirmPassword,
+                    cancellationToken);
+
+            if (result.StatusCode == HttpStatusCode.NoContent)
+            {
+                return View("ResetPasswordSuccess");
+            }
+
+            if (result.StatusCode == HttpStatusCode.BadRequest)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    string.IsNullOrWhiteSpace(result.Detail)
+                        ? "The password reset link is invalid, expired or has already been used."
+                        : result.Detail);
+
+                return View(model);
+            }
+
+            ModelState.AddModelError(
+                string.Empty,
+                "We could not reset your password. Please try again.");
+
+            return View(model);
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unable to communicate with the DriveFleet API during password reset.");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "The password reset service is temporarily unavailable.");
+
+            return View(model);
+        }
+    }
+
 }

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Microsoft.AspNetCore.Identity.Data;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -78,12 +79,88 @@ public class AuthApiClient
     }
 
     /// <summary>
+    /// Sends a password reset request to the DriveFleet API.
+    /// </summary>
+    /// <param name="token">
+    /// The raw password reset token received through the reset link.
+    /// </param>
+    /// <param name="newPassword">
+    /// The new password selected by the user.
+    /// </param>
+    /// <param name="confirmPassword">
+    /// The confirmation of the new password.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous HTTP request if needed.
+    /// </param>
+    /// <returns>
+    /// The result returned by the DriveFleet API.
+    /// </returns>
+    public async Task<ResetPasswordApiResult> ResetPasswordAsync(
+        string token,
+        string newPassword,
+        string confirmPassword,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new ResetPasswordRequest
+        {
+            Token = token,
+            NewPassword = newPassword,
+            ConfirmPassword = confirmPassword
+        };
+
+        // Sends the password reset information to the API.
+        using var response = await _httpClient.PostAsJsonAsync(
+            "api/auth/reset-password",
+            request,
+            cancellationToken);
+
+        string? detail = null;
+
+        // Reads ProblemDetails information when the API returns an error.
+        if (!response.IsSuccessStatusCode)
+        {
+            try
+            {
+                var problemDetails =
+                    await response.Content.ReadFromJsonAsync<ApiProblemDetails>(
+                        cancellationToken: cancellationToken);
+
+                detail = problemDetails?.Detail;
+            }
+            catch (JsonException)
+            {
+                // Keeps the detail empty if the response body is not valid JSON.
+            }
+        }
+
+        return new ResetPasswordApiResult
+        {
+            StatusCode = response.StatusCode,
+            Detail = detail
+        };
+    }
+
+    /// <summary>
     /// Represents the request sent to the API
     /// when confirming an email address.
     /// </summary>
     private sealed class ConfirmEmailRequest
     {
         public string Token { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Represents the request sent to the API
+    /// when resetting a user's password.
+    /// </summary>
+    private sealed class ResetPasswordRequest
+    {
+        public string Token { get; set; } = string.Empty;
+
+        public string NewPassword { get; set; } = string.Empty;
+
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -99,6 +176,22 @@ public class AuthApiClient
 /// Represents the result of an email confirmation API request.
 /// </summary>
 public class ConfirmEmailApiResult
+{
+    /// <summary>
+    /// Gets or sets the HTTP status code returned by the API.
+    /// </summary>
+    public HttpStatusCode StatusCode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the error detail returned by the API, when available.
+    /// </summary>
+    public string? Detail { get; set; }
+}
+
+/// <summary>
+/// Represents the result of a password reset API request.
+/// </summary>
+public class ResetPasswordApiResult
 {
     /// <summary>
     /// Gets or sets the HTTP status code returned by the API.

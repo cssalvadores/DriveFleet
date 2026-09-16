@@ -300,3 +300,284 @@ Authorization: Bearer this-is-not-a-valid-jwt
 
 GET https://localhost:7094/api/auth/me
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJnYWJyaWVsQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQ2xpZW50IiwianRpIjoiOGIyYzY4MjMtOWEzMi00NTIxLWJlZjMtNWFmYjRhOWZhMzI5IiwibmJmIjoxNzg5NDE0ODA2LCJleHAiOjE3ODk0MTg0MDYsImlzcyI6IkRyaXZlRmxlZXQuQXBpIiwiYXVkIjoiRHJpdmVGbGVldC5DbGllbnRzIn0.nksn68gWxS-oSimZ8t0-DmCmz9YO180SRWcgJIXxeKF
+
+### PASSWORD-RESET-04.1 - Forgot password with existing email
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com"
+}
+
+### PASSWORD-RESET-04.3 - Forgot password with unknown email
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "does-not-exist@drivefleet.test"
+}
+
+### PASSWORD-RESET-04.4 - Invalid email
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "isto-nao-e-um-email"
+}
+
+### PASSWORD-RESET-04.5 - Empty email
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": ""
+}
+
+### PASSWORD-RESET-05.1 - Send password reset email
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com"
+}
+
+### PASSWORD-RESET-05.2 - Unknown email
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "does-not-exist@drivefleet.test"
+}
+
+### Request password reset
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com"
+}
+
+### PASSWORD-RESET-07.1 - Reset password
+
+POST https://localhost:7094/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "9F362D173DB4A1ACAC005E5E162D7038E06A16BF09E258A74B799F93EFD362CB",
+  "newPassword": "NewPassword123!",
+  "confirmPassword": "NewPassword123!"
+}
+
+### PASSWORD-RESET-07.2 - Login with new password
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "NewPassword123!"
+}
+
+### PASSWORD-RESET-07.3 - Old password must fail
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "Example123!"
+}
+
+### PASSWORD-RESET-07.4 - Reuse reset token
+
+POST https://localhost:7094/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "O_MESMO_TOKEN",
+  "newPassword": "AnotherPassword123!",
+  "confirmPassword": "AnotherPassword123!"
+}
+
+### PASSWORD-RESET-07.5 - Password confirmation mismatch
+
+POST https://localhost:7094/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "TOKEN",
+  "newPassword": "NewPassword123!",
+  "confirmPassword": "DifferentPassword123!"
+}
+
+### Generate a new password reset token
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com"
+}
+
+### TESTE 1 — fluxo completo válido ###
+
+### PASSWORD-RESET-08.1 - Request new reset token
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com"
+}
+
+### PASSWORD-RESET-08.2 - Reset password with valid token
+
+POST https://localhost:7094/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "E4CC0BC4412C55A3E0273A72A538D75CF5E12AC4255FF63DECCC51FEDAFE44D2",
+  "newPassword": "FinalPassword123!",
+  "confirmPassword": "FinalPassword123!"
+}
+
+### PASSWORD-RESET-08.3 - Login with new password
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "FinalPassword123!"
+}
+
+### TESTE 2 — password antiga
+
+### PASSWORD-RESET-08.4 - Previous password must fail
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "NewPassword123!"
+}
+
+### TESTE 3 — reutilização do token
+
+### PASSWORD-RESET-08.5 - Reuse token
+
+POST https://localhost:7094/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "E4CC0BC4412C55A3E0273A72A538D75CF5E12AC4255FF63DECCC51FEDAFE44D2",
+  "newPassword": "AnotherPassword123!",
+  "confirmPassword": "AnotherPassword123!"
+}
+
+### TESTE 4 — token completamente falso
+
+### PASSWORD-RESET-08.6 - Invalid token
+
+POST https://localhost:7094/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "THIS-IS-NOT-A-REAL-RESET-TOKEN",
+  "newPassword": "AnotherPassword123!",
+  "confirmPassword": "AnotherPassword123!"
+}
+
+### TESTE 5 — confirmação de password diferente
+
+### PASSWORD-RESET-08.7 - Password confirmation mismatch
+
+POST https://localhost:7094/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "anything",
+  "newPassword": "Password123!",
+  "confirmPassword": "DifferentPassword123!"
+}
+
+### TESTE 6 — password demasiado curta
+
+### PASSWORD-RESET-08.8 - Password too short
+
+POST https://localhost:7094/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "anything",
+  "newPassword": "123",
+  "confirmPassword": "123"
+}
+
+### TESTE 7 — token expirado
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com"
+}
+
+### PASSWORD-RESET-08.9 - Expired token
+
+POST https://localhost:7094/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "02FA438352C7C0C875AFA7F311F43D6D99D1C64BA98399EE597791C4EC339ABB",
+  "newPassword": "ExpiredTest123!",
+  "confirmPassword": "ExpiredTest123!"
+}
+
+TESTE 8 — email inexistente no forgot-password
+
+### PASSWORD-RESET-08.10 - Unknown email
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "nobody@drivefleet.test"
+}
+
+### PASSWORD-RESET-09.9 - Generate reset email
+
+POST https://localhost:7094/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com"
+}
+
+### Login after browser password reset
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "BrowserPassword123!"
+}
+
+### Previous password must fail
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "FinalPassword123!"
+}

@@ -51,4 +51,23 @@ public interface IAuthService
     Task<LoginResponse> LoginAsync(
         LoginRequest request,
         CancellationToken cancellationToken = default);
+
+
+    Task<ForgotPasswordResponse> ForgotPasswordAsync(
+    ForgotPasswordRequest request,
+    CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Resets a user's password using a valid password reset token.
+    /// </summary>
+    /// <param name="request">
+    /// The reset token and new password information.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation if needed.
+    /// </param>
+    Task ResetPasswordAsync(
+        ResetPasswordRequest request,
+        CancellationToken cancellationToken = default);
+
 }

@@ -172,6 +172,73 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Starts the password recovery process for a user account.
+    /// </summary>
+    /// <param name="request">
+    /// The email address associated with the account.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation.
+    /// </param>
+    /// <returns>
+    /// A generic response that does not reveal whether the email exists.
+    /// </returns>
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(
+        typeof(ForgotPasswordResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ForgotPasswordResponse>> ForgotPassword(
+        ForgotPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response =
+            await _authService.ForgotPasswordAsync(
+                request,
+                cancellationToken);
+
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Resets a user's password using a valid password reset token.
+    /// </summary>
+    /// <param name="request">
+    /// The reset token and new password information.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation.
+    /// </param>
+    /// <returns>
+    /// No content when the password has been reset successfully.
+    /// </returns>
+    [HttpPost("reset-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword(
+        ResetPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _authService.ResetPasswordAsync(
+                request,
+                cancellationToken);
+
+            return NoContent();
+        }
+        catch (InvalidTokenException exception)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid password reset token",
+                Detail = exception.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+    }
+
+    /// <summary>
     /// Returns identity information for the currently authenticated user.
     /// </summary>
     /// <returns>
