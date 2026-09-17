@@ -70,4 +70,20 @@ public interface IAuthService
         ResetPasswordRequest request,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Changes the password of an authenticated user.
+    /// </summary>
+    /// <param name="userId">
+    /// The identifier of the authenticated user.
+    /// </param>
+    /// <param name="request">
+    /// The current password and new password information.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation if needed.
+    /// </param>
+    Task ChangePasswordAsync(
+        int userId,
+        ChangePasswordRequest request,
+        CancellationToken cancellationToken = default);
 }

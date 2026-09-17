@@ -597,4 +597,65 @@ public class AuthService : IAuthService
                 "The user has an invalid role.")
         };
     }
+
+    /// <summary>
+    /// Changes the password of an authenticated user.
+    /// </summary>
+    /// <param name="userId">
+    /// The identifier of the authenticated user.
+    /// </param>
+    /// <param name="request">
+    /// The current password and new password information.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation if needed.
+    /// </param>
+    /// <exception cref="InvalidCurrentPasswordException">
+    /// Thrown when the current password is incorrect.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the authenticated user cannot be found.
+    /// </exception>
+    public async Task ChangePasswordAsync(
+        int userId,
+        ChangePasswordRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _userRepository.GetByIdAsync(
+            userId,
+            cancellationToken);
+
+        if (user is null)
+        {
+            throw new InvalidOperationException(
+                "The authenticated user could not be found.");
+        }
+
+        if (string.IsNullOrWhiteSpace(user.PasswordHash))
+        {
+            throw new InvalidCurrentPasswordException(
+                "The current password is invalid.");
+        }
+
+        var currentPasswordIsValid =
+            _passwordHasher.Verify(
+                user.PasswordHash,
+                request.CurrentPassword);
+
+        if (!currentPasswordIsValid)
+        {
+            throw new InvalidCurrentPasswordException(
+                "The current password is invalid.");
+        }
+
+        user.PasswordHash =
+            _passwordHasher.Hash(
+                request.NewPassword);
+
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _passwordResetTokenRepository
+            .SaveChangesAsync(
+                cancellationToken);
+    }
 }

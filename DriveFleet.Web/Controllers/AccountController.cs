@@ -3,6 +3,10 @@ using System.Net;
 using DriveFleet.Web.Models.Auth;
 using DriveFleet.Web.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace DriveFleet.Web.Controllers;
 
@@ -31,6 +35,281 @@ public class AccountController : Controller
     {
         _authApiClient = authApiClient;
         _logger = logger;
+    }
+    /// <summary>
+    /// Authenticates a user and creates the web authentication cookie.
+    /// </summary>
+    /// <param name="model">
+    /// The credentials entered by the user.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the request if the client disconnects.
+    /// </param>
+    /// <returns>
+    /// A redirect to the home page when authentication succeeds,
+    /// or the login page when authentication fails.
+    /// </returns>
+    [HttpPost("/account/login")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Login(
+        LoginViewModel model,
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        try
+        {
+            var result = await _authApiClient.LoginAsync(
+                model.Email,
+                model.Password,
+                cancellationToken);
+
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Invalid email or password.");
+
+                return View(model);
+            }
+
+            if (result.StatusCode != HttpStatusCode.OK ||
+                result.UserId is null ||
+                string.IsNullOrWhiteSpace(result.Email) ||
+                string.IsNullOrWhiteSpace(result.Role) ||
+                string.IsNullOrWhiteSpace(result.AccessToken) ||
+                result.ExpiresAt is null)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "We could not sign you in. Please try again.");
+
+                return View(model);
+            }
+
+            var fullName = string.Join(
+                " ",
+                new[]
+                {
+                result.FirstName,
+                result.LastName
+                }
+                .Where(value => !string.IsNullOrWhiteSpace(value)));
+
+            var claims = new List<Claim>
+        {
+            new(
+                ClaimTypes.NameIdentifier,
+                result.UserId.Value.ToString()),
+
+            new(
+                ClaimTypes.Name,
+                string.IsNullOrWhiteSpace(fullName)
+                    ? result.Email
+                    : fullName),
+
+            new(
+                ClaimTypes.Email,
+                result.Email),
+
+            new(
+                ClaimTypes.Role,
+                result.Role)
+        };
+
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var principal = new ClaimsPrincipal(identity);
+
+            var authenticationProperties =
+                new AuthenticationProperties
+                {
+                    IsPersistent = model.RememberMe,
+                    ExpiresUtc = new DateTimeOffset(
+                        DateTime.SpecifyKind(
+                            result.ExpiresAt.Value,
+                            DateTimeKind.Utc))
+                };
+
+            authenticationProperties.StoreTokens(
+            [
+                new AuthenticationToken
+            {
+                Name = "access_token",
+                Value = result.AccessToken
+            }
+            ]);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal,
+                authenticationProperties);
+
+            return RedirectToAction(
+                "Index",
+                "Home");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unable to communicate with the DriveFleet API during login.");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "The login service is temporarily unavailable.");
+
+            return View(model);
+        }
+    }
+
+    /// <summary>
+    /// Displays the login form.
+    /// </summary>
+    /// <returns>
+    /// The login page.
+    /// </returns>
+    [HttpGet("/account/login")]
+    public IActionResult Login()
+    {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction(
+                "Index",
+                "Home");
+        }
+
+        return View(new LoginViewModel());
+    }
+
+    /// <summary>
+    /// Signs out the currently authenticated web user.
+    /// </summary>
+    /// <returns>
+    /// A redirect to the home page.
+    /// </returns>
+    [HttpPost("/account/logout")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return RedirectToAction(
+            "Index",
+            "Home");
+    }
+
+    /// <summary>
+    /// Displays the password change form
+    /// for the authenticated user.
+    /// </summary>
+    /// <returns>
+    /// The password change page.
+    /// </returns>
+    [Authorize]
+    [HttpGet("/account/change-password")]
+    public IActionResult ChangePassword()
+    {
+        return View(new ChangePasswordViewModel());
+    }
+
+    /// <summary>
+    /// Processes a password change request
+    /// for the authenticated user.
+    /// </summary>
+    /// <param name="model">
+    /// The password change information entered by the user.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the request if the client disconnects.
+    /// </param>
+    /// <returns>
+    /// The password change result page.
+    /// </returns>
+    [Authorize]
+    [HttpPost("/account/change-password")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(
+        ChangePasswordViewModel model,
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var accessToken =
+            await HttpContext.GetTokenAsync(
+                "access_token");
+
+        if (string.IsNullOrWhiteSpace(accessToken))
+        {
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return RedirectToAction(
+                nameof(Login));
+        }
+
+        try
+        {
+            var result =
+                await _authApiClient.ChangePasswordAsync(
+                    accessToken,
+                    model.CurrentPassword,
+                    model.NewPassword,
+                    model.ConfirmNewPassword,
+                    cancellationToken);
+
+            if (result.StatusCode == HttpStatusCode.NoContent)
+            {
+                return View("ChangePasswordSuccess");
+            }
+
+            if (result.StatusCode == HttpStatusCode.BadRequest)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    string.IsNullOrWhiteSpace(result.Detail)
+                        ? "The current password is invalid."
+                        : result.Detail);
+
+                return View(model);
+            }
+
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                await HttpContext.SignOutAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+
+                return RedirectToAction(
+                    nameof(Login));
+            }
+
+            ModelState.AddModelError(
+                string.Empty,
+                "We could not change your password. Please try again.");
+
+            return View(model);
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unable to communicate with the DriveFleet API during password change.");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "The password change service is temporarily unavailable.");
+
+            return View(model);
+        }
     }
 
     /// <summary>

@@ -581,3 +581,68 @@ Content-Type: application/json
   "email": "gabriel@example.com",
   "password": "FinalPassword123!"
 }
+
+### CHANGE-PASSWORD-04.1 - No JWT Passou
+
+POST https://localhost:7094/api/auth/change-password
+Content-Type: application/json
+
+{
+  "currentPassword": "BrowserPassword123!",
+  "newPassword": "ChangedPassword123!",
+  "confirmNewPassword": "ChangedPassword123!"
+}
+
+### CHANGE-PASSWORD-04.2 - Login to obtain JWT Não Passou
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "FinalPassword123!"
+}
+
+### CHANGE-PASSWORD-04.3 - Wrong current password
+
+POST https://localhost:7094/api/auth/change-password
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJnYWJyaWVsQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQ2xpZW50IiwianRpIjoiZmFlMzRmZGUtMDBiZi00MzdiLTkxMDMtMjMxNzQ0MWY2M2E5IiwibmJmIjoxNzg5NTk4MDAxLCJleHAiOjE3ODk2MDE2MDEsImlzcyI6IkRyaXZlRmxlZXQuQXBpIiwiYXVkIjoiRHJpdmVGbGVldC5DbGllbnRzIn0.usHpX2Gt4oTaePe0Mji8397o_2XHL2ZPhbL1tnHiwks
+Content-Type: application/json
+
+{
+  "currentPassword": "WrongPassword123!",
+  "newPassword": "ChangedPassword123!",
+  "confirmNewPassword": "ChangedPassword123!"
+}
+
+### CHANGE-PASSWORD-04.4 - Valid password change
+
+POST https://localhost:7094/api/auth/change-password
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJnYWJyaWVsQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQ2xpZW50IiwianRpIjoiZmFlMzRmZGUtMDBiZi00MzdiLTkxMDMtMjMxNzQ0MWY2M2E5IiwibmJmIjoxNzg5NTk4MDAxLCJleHAiOjE3ODk2MDE2MDEsImlzcyI6IkRyaXZlRmxlZXQuQXBpIiwiYXVkIjoiRHJpdmVGbGVldC5DbGllbnRzIn0.usHpX2Gt4oTaePe0Mji8397o_2XHL2ZPhbL1tnHiwks
+Content-Type: application/json
+
+{
+  "currentPassword": "FinalPassword123!",
+  "newPassword": "ChangedPassword123!",
+  "confirmNewPassword": "ChangedPassword123!"
+}
+
+### CHANGE-PASSWORD-04.5 - Old password must fail 
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "BrowserPassword123!"
+}
+
+### CHANGE-PASSWORD-04.6 - New password must work Não passou 
+
+POST https://localhost:7094/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@example.com",
+  "password": "ChangedPassword123!"
+}

@@ -239,6 +239,60 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Changes the password of the authenticated user.
+    /// </summary>
+    /// <param name="request">
+    /// The current password and new password information.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation.
+    /// </param>
+    /// <returns>
+    /// No content when the password has been changed successfully.
+    /// </returns>
+    [Authorize]
+    [HttpPost("change-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> ChangePassword(
+        ChangePasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userIdValue =
+            User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+        if (!int.TryParse(userIdValue, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            await _authService.ChangePasswordAsync(
+                userId,
+                request,
+                cancellationToken);
+
+            return NoContent();
+        }
+        catch (InvalidCurrentPasswordException exception)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = "Invalid current password",
+                Detail = exception.Message,
+                Status = StatusCodes.Status400BadRequest
+            });
+        }
+        catch (InvalidOperationException)
+        {
+            return Unauthorized();
+        }
+    }
+
+    /// <summary>
     /// Returns identity information for the currently authenticated user.
     /// </summary>
     /// <returns>
