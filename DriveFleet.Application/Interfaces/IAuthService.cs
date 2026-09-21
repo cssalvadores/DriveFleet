@@ -52,7 +52,12 @@ public interface IAuthService
         LoginRequest request,
         CancellationToken cancellationToken = default);
 
-
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     Task<ForgotPasswordResponse> ForgotPasswordAsync(
     ForgotPasswordRequest request,
     CancellationToken cancellationToken = default);

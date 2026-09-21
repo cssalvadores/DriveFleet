@@ -1,0 +1,130 @@
+﻿@model DriveFleet.Web.Models.Profile.UserProfileViewModel
+
+@{
+    ViewData["Title"] = "My profile";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2 class="mb-1">
+                                My profile
+                            </h2>
+
+                            <p class="text-muted mb-0">
+                                View your DriveFleet account information.
+                            </p>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a asp-controller="Profile"
+                               asp-action="Photo"
+                               class="btn btn-outline-primary">
+                                Change photo
+                            </a>
+
+                            <a asp-controller="Profile"
+                               asp-action="Edit"
+                               class="btn btn-primary">
+                                Edit profile
+                            </a>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Photo))
+                    {
+                        <div class="text-center mb-4">
+                            <img src="@($"https://localhost:7094{Model.Photo}")"
+                                 alt="Profile photo"
+                                 class="rounded-circle img-thumbnail"
+                                 style="width: 160px; height: 160px; object-fit: cover;" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center mb-4">
+                            <div class="border rounded-circle d-inline-flex align-items-center justify-content-center bg-light"
+                                 style="width: 160px; height: 160px;">
+                                <span class="text-muted">
+                                    No photo
+                                </span>
+                            </div>
+                        </div>
+                    }
+
+                    <dl class="row mb-0">
+
+                        <dt class="col-sm-4">
+                            First name
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @Model.FirstName
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Last name
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @(string.IsNullOrWhiteSpace(Model.LastName)
+                                ? "Not provided"
+                                : Model.LastName)
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Email
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @Model.Email
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Phone
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @(string.IsNullOrWhiteSpace(Model.Phone)
+                                ? "Not provided"
+                                : Model.Phone)
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Role
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @Model.Role
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Email confirmed
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @(Model.EmailConfirmed ? "Yes" : "No")
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Provider
+                        </dt>
+
+                        <dd class="col-sm-8">
+                            @(string.IsNullOrWhiteSpace(Model.Provider)
+                                ? "Email and password"
+                                : Model.Provider)
+                        </dd>
+
+                    </dl>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

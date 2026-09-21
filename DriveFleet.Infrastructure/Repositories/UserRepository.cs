@@ -87,6 +87,7 @@ public class UserRepository : IUserRepository
         CancellationToken cancellationToken = default)
     {
         return await _dbContext.Users
+            .Include(user => user.Role)
             .FirstOrDefaultAsync(
                 user => user.UserId == userId,
                 cancellationToken);
@@ -111,6 +112,19 @@ public class UserRepository : IUserRepository
             cancellationToken);
 
         // Persists the new user to the database.
+        await _dbContext.SaveChangesAsync(
+            cancellationToken);
+    }
+
+    /// <summary>
+    /// Persists pending user changes to the database.
+    /// </summary>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous database operation if needed.
+    /// </param>
+    public async Task SaveChangesAsync(
+        CancellationToken cancellationToken = default)
+    {
         await _dbContext.SaveChangesAsync(
             cancellationToken);
     }

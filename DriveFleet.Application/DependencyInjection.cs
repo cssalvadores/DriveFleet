@@ -39,6 +39,10 @@ public static class DependencyInjection
         // for the lifetime of the current HTTP request.
         services.AddScoped<IAuthService, AuthService>();
 
+        // Registers the profile application service
+        // for the lifetime of the current HTTP request.
+        services.AddScoped<IProfileService, ProfileService>();
+
         return services;
     }
 }

@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Profile error";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+
+                    <h2 class="mb-3">
+                        Profile unavailable
+                    </h2>
+
+                    <div class="alert alert-danger">
+                        We could not load your profile information.
+                    </div>
+
+                    <p class="mb-4">
+                        Please try again later.
+                    </p>
+
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="btn btn-primary">
+                        Return to home page
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

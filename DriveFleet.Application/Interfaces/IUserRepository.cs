@@ -69,4 +69,15 @@ public interface IUserRepository
     Task<User?> GetByIdAsync(
         int userId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Persists pending user changes to the data store.
+    /// </summary>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous database operation if needed.
+    /// </param>
+    Task SaveChangesAsync(
+        CancellationToken cancellationToken = default);
+
+
 }

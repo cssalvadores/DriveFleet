@@ -2,6 +2,7 @@
 using DriveFleet.Infrastructure.Data;
 using DriveFleet.Infrastructure.Email;
 using DriveFleet.Infrastructure.Repositories;
+using DriveFleet.Infrastructure.Services;
 using DriveFleet.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -58,6 +59,11 @@ public static class DependencyInjection
         services.AddScoped<
             IPasswordResetTokenRepository,
             PasswordResetTokenRepository>();
+
+        // Registers profile photo storage.
+        services.AddScoped<
+            IProfilePhotoStorage,
+            ProfilePhotoStorage>();
 
         return services;
     }

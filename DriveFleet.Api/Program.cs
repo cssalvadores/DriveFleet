@@ -113,6 +113,8 @@ if (app.Environment.IsDevelopment())
 // Redirects HTTP requests to HTTPS.
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
+
 // Authentication must run before authorization.
 app.UseAuthentication();
 app.UseAuthorization();

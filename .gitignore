@@ -427,3 +427,10 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# User-uploaded profile photos
+DriveFleet.Api/wwwroot/uploads/profiles/*
+
+# Local profile photo used for API testing
+DriveFleet.Api/profile-test.jpg
+DriveFleet.Api/profile-test.png
