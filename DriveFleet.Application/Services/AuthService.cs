@@ -29,6 +29,8 @@ public class AuthService : IAuthService
     _emailConfirmationTokenRepository;
     private readonly IPasswordResetTokenRepository
     _passwordResetTokenRepository;
+    private readonly IRevokedJwtTokenRepository
+    _revokedJwtTokenRepository;
     private readonly IEmailSender _emailSender;
     private readonly ApplicationUrlSettings _applicationUrls;
 
@@ -67,6 +69,7 @@ public class AuthService : IAuthService
         IRegistrationRepository registrationRepository,
         IEmailConfirmationTokenRepository emailConfirmationTokenRepository,
         IPasswordResetTokenRepository passwordResetTokenRepository,
+        IRevokedJwtTokenRepository revokedJwtTokenRepository,
         IEmailSender emailSender,
         IOptions<ApplicationUrlSettings> applicationUrlOptions)
     {
@@ -79,6 +82,8 @@ public class AuthService : IAuthService
             emailConfirmationTokenRepository;
         _passwordResetTokenRepository =
             passwordResetTokenRepository;
+        _revokedJwtTokenRepository =
+            revokedJwtTokenRepository;
         _emailSender = emailSender;
         _applicationUrls = applicationUrlOptions.Value;
     }
@@ -657,5 +662,53 @@ public class AuthService : IAuthService
         await _passwordResetTokenRepository
             .SaveChangesAsync(
                 cancellationToken);
+    }
+
+    /// <summary>
+    /// Revokes a JWT access token before its normal expiration time.
+    /// </summary>
+    /// <param name="jti">
+    /// The unique identifier stored in the JWT jti claim.
+    /// </param>
+    /// <param name="expiresAt">
+    /// The UTC date and time when the JWT naturally expires.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation if needed.
+    /// </param>
+    public async Task RevokeTokenAsync(
+        string jti,
+        DateTime expiresAt,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(jti))
+        {
+            throw new ArgumentException(
+                "The JWT identifier is required.",
+                nameof(jti));
+        }
+
+        var normalizedJti = jti.Trim();
+
+        var alreadyRevoked =
+            await _revokedJwtTokenRepository.IsRevokedAsync(
+                normalizedJti,
+                cancellationToken);
+
+        if (alreadyRevoked)
+        {
+            return;
+        }
+
+        var revokedToken = new RevokedJwtToken
+        {
+            Jti = normalizedJti,
+            ExpiresAt = expiresAt,
+            RevokedAt = DateTime.UtcNow
+        };
+
+        await _revokedJwtTokenRepository.AddAsync(
+            revokedToken,
+            cancellationToken);
     }
 }

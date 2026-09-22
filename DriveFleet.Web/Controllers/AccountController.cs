@@ -188,17 +188,53 @@ public class AccountController : Controller
     }
 
     /// <summary>
-    /// Signs out the currently authenticated web user.
+    /// Revokes the current JWT access token and signs out
+    /// the authenticated web user.
     /// </summary>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation if needed.
+    /// </param>
     /// <returns>
     /// A redirect to the home page.
     /// </returns>
     [HttpPost("/account/logout")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout(
+        CancellationToken cancellationToken)
     {
-        await HttpContext.SignOutAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme);
+        try
+        {
+            var accessToken =
+                await HttpContext.GetTokenAsync(
+                    "access_token");
+
+            if (!string.IsNullOrWhiteSpace(accessToken))
+            {
+                var statusCode =
+                    await _authApiClient.LogoutAsync(
+                        accessToken,
+                        cancellationToken);
+
+                if (statusCode != HttpStatusCode.NoContent)
+                {
+                    _logger.LogWarning(
+                        "The DriveFleet API returned status code {StatusCode} during logout.",
+                        statusCode);
+                }
+            }
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogWarning(
+                exception,
+                "Unable to communicate with the DriveFleet API during logout.");
+        }
+        finally
+        {
+            // Always clears the local authentication cookie.
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+        }
 
         return RedirectToAction(
             "Index",

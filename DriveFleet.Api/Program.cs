@@ -1,6 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using DriveFleet.Application;
+using DriveFleet.Application.Interfaces;
 using DriveFleet.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -63,6 +65,9 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
+        // Preserves standard JWT claim names such as jti and exp.
+        options.MapInboundClaims = false;
+
         options.TokenValidationParameters =
             new TokenValidationParameters
             {
@@ -97,6 +102,41 @@ builder.Services
                 // the default additional clock tolerance.
                 ClockSkew = TimeSpan.Zero
             };
+
+        // Rejects access tokens that were revoked before their expiration.
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var jti =
+                    context.Principal?.FindFirstValue(
+                        JwtRegisteredClaimNames.Jti);
+
+                if (string.IsNullOrWhiteSpace(jti))
+                {
+                    context.Fail(
+                        "The access token does not contain a valid jti claim.");
+
+                    return;
+                }
+
+                var revokedJwtTokenRepository =
+                    context.HttpContext.RequestServices
+                        .GetRequiredService<IRevokedJwtTokenRepository>();
+
+                var isRevoked =
+                    await revokedJwtTokenRepository.IsRevokedAsync(
+                        jti,
+                        context.HttpContext.RequestAborted);
+
+                if (isRevoked)
+                {
+                    context.Fail(
+                        "The access token has been revoked.");
+                }
+            }
+        };
+
     });
 
 // Registers ASP.NET Core authorization services.

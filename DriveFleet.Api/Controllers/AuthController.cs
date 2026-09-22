@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using DriveFleet.Application.DTOs.Auth;
 using DriveFleet.Application.Exceptions;
@@ -290,6 +291,51 @@ public class AuthController : ControllerBase
         {
             return Unauthorized();
         }
+    }
+
+    /// <summary>
+    /// Revokes the JWT access token of the authenticated user.
+    /// </summary>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation.
+    /// </param>
+    /// <returns>
+    /// No content when the access token has been revoked successfully.
+    /// </returns>
+    [Authorize]
+    [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Logout(
+        CancellationToken cancellationToken)
+    {
+        var jti =
+            User.FindFirstValue(
+                JwtRegisteredClaimNames.Jti);
+
+        var expirationValue =
+            User.FindFirstValue(
+                JwtRegisteredClaimNames.Exp);
+
+        if (string.IsNullOrWhiteSpace(jti) ||
+            !long.TryParse(
+                expirationValue,
+                out var expirationUnixSeconds))
+        {
+            return Unauthorized();
+        }
+
+        var expiresAt =
+            DateTimeOffset
+                .FromUnixTimeSeconds(expirationUnixSeconds)
+                .UtcDateTime;
+
+        await _authService.RevokeTokenAsync(
+            jti,
+            expiresAt,
+            cancellationToken);
+
+        return NoContent();
     }
 
     /// <summary>

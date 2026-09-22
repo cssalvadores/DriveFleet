@@ -65,6 +65,10 @@ public class DriveFleetDbContext : DbContext
     public DbSet<PasswordResetToken> PasswordResetTokens
         => Set<PasswordResetToken>();
 
+    // JWT access tokens revoked before their expiration time.
+    public DbSet<RevokedJwtToken> RevokedJwtTokens
+        => Set<RevokedJwtToken>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

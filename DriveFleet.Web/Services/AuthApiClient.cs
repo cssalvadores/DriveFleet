@@ -314,6 +314,41 @@ public class AuthApiClient
     }
 
     /// <summary>
+    /// Sends an authenticated logout request to the DriveFleet API.
+    /// </summary>
+    /// <param name="accessToken">
+    /// The JWT access token of the authenticated user.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous HTTP request if needed.
+    /// </param>
+    /// <returns>
+    /// The HTTP status code returned by the DriveFleet API.
+    /// </returns>
+    public async Task<HttpStatusCode> LogoutAsync(
+        string accessToken,
+        CancellationToken cancellationToken = default)
+    {
+        using var httpRequest =
+            new HttpRequestMessage(
+                HttpMethod.Post,
+                "api/auth/logout");
+
+        httpRequest.Headers.Authorization =
+            new AuthenticationHeaderValue(
+                "Bearer",
+                accessToken);
+
+        // Sends the authenticated logout request to the API.
+        using var response =
+            await _httpClient.SendAsync(
+                httpRequest,
+                cancellationToken);
+
+        return response.StatusCode;
+    }
+
+    /// <summary>
     /// Represents the credentials sent to the API
     /// when authenticating a user.
     /// </summary>

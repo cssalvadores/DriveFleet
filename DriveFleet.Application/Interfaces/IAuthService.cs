@@ -91,4 +91,21 @@ public interface IAuthService
         int userId,
         ChangePasswordRequest request,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Revokes a JWT access token before its normal expiration time.
+    /// </summary>
+    /// <param name="jti">
+    /// The unique identifier stored in the JWT jti claim.
+    /// </param>
+    /// <param name="expiresAt">
+    /// The UTC date and time when the JWT naturally expires.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation if needed.
+    /// </param>
+    Task RevokeTokenAsync(
+        string jti,
+        DateTime expiresAt,
+        CancellationToken cancellationToken = default);
 }

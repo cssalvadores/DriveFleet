@@ -65,6 +65,11 @@ public static class DependencyInjection
             IProfilePhotoStorage,
             ProfilePhotoStorage>();
 
+        // Registers revoked JWT token persistence.
+        services.AddScoped<
+            IRevokedJwtTokenRepository,
+            RevokedJwtTokenRepository>();
+
         return services;
     }
 }
