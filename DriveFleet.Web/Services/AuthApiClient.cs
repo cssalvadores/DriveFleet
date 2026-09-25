@@ -101,6 +101,78 @@ public class AuthApiClient
     }
 
     /// <summary>
+    /// Sends registration information to the DriveFleet API.
+    /// </summary>
+    /// <param name="firstName">
+    /// The user's first name.
+    /// </param>
+    /// <param name="lastName">
+    /// The user's last name.
+    /// </param>
+    /// <param name="email">
+    /// The user's email address.
+    /// </param>
+    /// <param name="phone">
+    /// The user's phone number.
+    /// </param>
+    /// <param name="password">
+    /// The user's password.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous HTTP request if needed.
+    /// </param>
+    /// <returns>
+    /// The registration result returned by the DriveFleet API.
+    /// </returns>
+    public async Task<RegisterApiResult> RegisterAsync(
+        string firstName,
+        string? lastName,
+        string email,
+        string? phone,
+        string password,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new RegisterRequest
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            Email = email,
+            Phone = phone,
+            Password = password
+        };
+
+        using var response =
+            await _httpClient.PostAsJsonAsync(
+                "api/auth/register",
+                request,
+                cancellationToken);
+
+        string? detail = null;
+
+        if (!response.IsSuccessStatusCode)
+        {
+            try
+            {
+                var problemDetails =
+                    await response.Content.ReadFromJsonAsync<ApiProblemDetails>(
+                        cancellationToken: cancellationToken);
+
+                detail = problemDetails?.Detail;
+            }
+            catch (JsonException)
+            {
+                // Keeps the detail empty if the response body is not valid JSON.
+            }
+        }
+
+        return new RegisterApiResult
+        {
+            StatusCode = response.StatusCode,
+            Detail = detail
+        };
+    }
+
+    /// <summary>
     /// Sends an email confirmation token to the DriveFleet API.
     /// </summary>
     /// <param name="token">
@@ -349,6 +421,22 @@ public class AuthApiClient
     }
 
     /// <summary>
+    /// Represents the registration information sent to the API.
+    /// </summary>
+    private sealed class RegisterRequest
+    {
+        public string FirstName { get; set; } = string.Empty;
+
+        public string? LastName { get; set; }
+
+        public string Email { get; set; } = string.Empty;
+
+        public string? Phone { get; set; }
+
+        public string Password { get; set; } = string.Empty;
+    }
+
+    /// <summary>
     /// Represents the credentials sent to the API
     /// when authenticating a user.
     /// </summary>
@@ -494,6 +582,22 @@ public class ConfirmEmailApiResult
 /// Represents the result of a password reset API request.
 /// </summary>
 public class ResetPasswordApiResult
+{
+    /// <summary>
+    /// Gets or sets the HTTP status code returned by the API.
+    /// </summary>
+    public HttpStatusCode StatusCode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the error detail returned by the API, when available.
+    /// </summary>
+    public string? Detail { get; set; }
+}
+
+/// <summary>
+/// Represents the result of a registration API request.
+/// </summary>
+public class RegisterApiResult
 {
     /// <summary>
     /// Gets or sets the HTTP status code returned by the API.

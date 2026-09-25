@@ -32,6 +32,7 @@ builder.Services
     .AddCookie(options =>
     {
         options.LoginPath = "/account/login";
+        options.AccessDeniedPath = "/account/access-denied";
 
         options.Cookie.Name = "DriveFleet.Auth";
         options.Cookie.HttpOnly = true;

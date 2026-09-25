@@ -36,6 +36,95 @@ public class AccountController : Controller
         _authApiClient = authApiClient;
         _logger = logger;
     }
+
+    /// <summary>
+    /// Displays the registration page for a new client account.
+    /// </summary>
+    /// <returns>
+    /// The registration view.
+    /// </returns>
+    [HttpGet("/account/register")]
+    public IActionResult Register()
+    {
+        return View(new RegisterViewModel());
+    }
+
+    /// <summary>
+    /// Registers a new client account through the DriveFleet API.
+    /// </summary>
+    /// <param name="model">
+    /// The registration information entered by the user.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the request if the client disconnects.
+    /// </param>
+    /// <returns>
+    /// A redirect to the login page when registration succeeds,
+    /// or the registration view when registration fails.
+    /// </returns>
+    [HttpPost("/account/register")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Register(
+        RegisterViewModel model,
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        try
+        {
+            var result =
+                await _authApiClient.RegisterAsync(
+                    model.FirstName,
+                    model.LastName,
+                    model.Email,
+                    model.Phone,
+                    model.Password,
+                    cancellationToken);
+
+            if (result.StatusCode == HttpStatusCode.Conflict)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Email),
+                    result.Detail ??
+                    "An account with this email already exists.");
+
+                return View(model);
+            }
+
+            if (result.StatusCode != HttpStatusCode.Created)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    result.Detail ??
+                    "We could not create your account. Please try again.");
+
+                return View(model);
+            }
+
+            TempData["RegistrationSuccess"] =
+                "Your account was created successfully. " +
+                "Please check your email to confirm your account before signing in.";
+
+            return RedirectToAction(
+                "Login");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unable to communicate with the DriveFleet API during registration.");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "The registration service is temporarily unavailable.");
+
+            return View(model);
+        }
+    }
+
     /// <summary>
     /// Authenticates a user and creates the web authentication cookie.
     /// </summary>
@@ -185,6 +274,19 @@ public class AccountController : Controller
         }
 
         return View(new LoginViewModel());
+    }
+
+    /// <summary>
+    /// Displays the access denied page when an authenticated user
+    /// attempts to access a resource without the required role.
+    /// </summary>
+    /// <returns>
+    /// The access denied view.
+    /// </returns>
+    [HttpGet("/account/access-denied")]
+    public IActionResult AccessDenied()
+    {
+        return View();
     }
 
     /// <summary>
