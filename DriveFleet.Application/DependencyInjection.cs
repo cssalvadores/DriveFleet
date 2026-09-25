@@ -43,6 +43,11 @@ public static class DependencyInjection
         // for the lifetime of the current HTTP request.
         services.AddScoped<IProfileService, ProfileService>();
 
+        // Registers vehicle application operations.
+        services.AddScoped<
+            IVehicleService,
+            VehicleService>();
+
         return services;
     }
 }

@@ -31,44 +31,34 @@ public static class DependencyInjection
         // Registers application repositories.
         services.AddScoped<IUserRepository, UserRepository>();
 
-        services.AddScoped<
-            IEmailConfirmationTokenRepository,
-            EmailConfirmationTokenRepository>();
+        services.AddScoped<IEmailConfirmationTokenRepository, EmailConfirmationTokenRepository>();
 
-        services.AddScoped<
-            IRegistrationRepository,
-            RegistrationRepository>();
+        services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 
         // Registers security services.
-        services.AddScoped<
-            IPasswordHasher, PasswordHasherService>();
+        services.AddScoped<IPasswordHasher, PasswordHasherService>();
 
-        services.AddSingleton<
-            ISecureTokenService, SecureTokenService>();
+        services.AddSingleton<ISecureTokenService, SecureTokenService>();
 
-        services.AddSingleton<
-            IJwtTokenService, JwtTokenService>();
+        services.AddSingleton<IJwtTokenService, JwtTokenService>();
 
         // Registers SMTP configuration and email delivery.
         services.Configure<SmtpSettings>(
             configuration.GetSection("Smtp"));
 
-        services.AddScoped<
-            IEmailSender, SmtpEmailSender>();
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
 
-        services.AddScoped<
-            IPasswordResetTokenRepository,
-            PasswordResetTokenRepository>();
+        services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
 
         // Registers profile photo storage.
-        services.AddScoped<
-            IProfilePhotoStorage,
-            ProfilePhotoStorage>();
+        services.AddScoped<IProfilePhotoStorage, ProfilePhotoStorage>();
+        services.AddScoped<IVehiclePhotoStorage, VehiclePhotoStorage>();
 
         // Registers revoked JWT token persistence.
-        services.AddScoped<
-            IRevokedJwtTokenRepository,
-            RevokedJwtTokenRepository>();
+        services.AddScoped<IRevokedJwtTokenRepository, RevokedJwtTokenRepository>();
+
+        // Registers vehicle persistence.
+        services.AddScoped<IVehicleRepository, VehicleRepository>();
 
         return services;
     }

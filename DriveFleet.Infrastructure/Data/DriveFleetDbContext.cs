@@ -35,6 +35,10 @@ public class DriveFleetDbContext : DbContext
     // Vehicle fleet.
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
 
+    // Catalog photos associated with vehicles.
+    public DbSet<VehiclePhoto> VehiclePhotos
+        => Set<VehiclePhoto>();
+
     // Reservation lifecycle statuses.
     public DbSet<ReservationStatus> ReservationStatuses
         => Set<ReservationStatus>();

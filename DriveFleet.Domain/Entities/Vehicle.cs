@@ -18,8 +18,6 @@ public class Vehicle
 
     public decimal DailyPrice { get; set; }
 
-    public string? Photo { get; set; }
-
     public string? Description { get; set; }
 
     public int CategoryId { get; set; }
@@ -36,4 +34,10 @@ public class Vehicle
 
     public ICollection<ReservationVehicle> ReservationVehicles { get; set; }
         = new List<ReservationVehicle>();
+
+    /// <summary>
+    /// Gets or sets the catalog photos associated with this vehicle.
+    /// </summary>
+    public ICollection<VehiclePhoto> VehiclePhotos { get; set; } =
+        new List<VehiclePhoto>();
 }

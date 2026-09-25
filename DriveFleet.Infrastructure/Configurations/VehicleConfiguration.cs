@@ -65,10 +65,6 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
             .IsRequired()
             .HasPrecision(10, 2);
 
-        // Stores the vehicle photo path or URL.
-        builder.Property(v => v.Photo)
-            .HasMaxLength(500);
-
         // Optional vehicle description.
         builder.Property(v => v.Description)
             .HasMaxLength(1000);

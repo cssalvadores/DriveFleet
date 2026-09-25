@@ -1,0 +1,140 @@
+﻿@model DriveFleet.Web.Models.Vehicles.VehicleDetailsViewModel
+
+@{
+    ViewData["Title"] = "Vehicle details";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm">
+
+                @{
+                    var mainPhoto =
+                        Model.Photos.FirstOrDefault(
+                            photo => photo.DisplayOrder == 1);
+
+                    var secondaryPhotos =
+                        Model.Photos
+                            .Where(photo => photo.DisplayOrder != 1)
+                            .OrderBy(photo => photo.DisplayOrder)
+                            .ToList();
+                }
+
+                @if (mainPhoto is not null &&
+                     !string.IsNullOrWhiteSpace(mainPhoto.ImageUrl))
+                {
+                    <img src="@mainPhoto.ImageUrl"
+                         class="card-img-top"
+                         style="height: 360px; object-fit: cover;"
+                         alt="@Model.Brand @Model.Model main photo" />
+
+                    @if (secondaryPhotos.Count > 0)
+                    {
+                        <div class="card-body pb-0">
+                            <div class="row g-2">
+                                @foreach (var photo in secondaryPhotos)
+                                {
+                                    <div class="col-6">
+                                        <img src="@photo.ImageUrl"
+                                             class="img-fluid rounded w-100"
+                                             style="height: 150px; object-fit: cover;"
+                                             alt="@Model.Brand @Model.Model photo @photo.DisplayOrder" />
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="d-flex align-items-center justify-content-center bg-light text-muted"
+                         style="height: 280px;">
+                        No vehicle photos available.
+                    </div>
+                }
+                <div class="card-body p-4">
+
+                    <h1 class="h3 mb-3">
+                        @Model.Brand @Model.Model
+                    </h1>
+
+                    <p class="text-muted">
+                        @Model.Year · @Model.CategoryName
+                    </p>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">
+                            License plate
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.LicensePlate
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Seats
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.Seats
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Daily price
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.DailyPrice.ToString("0.00") €
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            Status
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Model.VehicleStatusName
+                        </dd>
+                    </dl>
+
+                    <div class="d-flex gap-2">
+                        @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
+                        {
+                            <a asp-controller="Vehicles"
+                               asp-action="Edit"
+                               asp-route-vehicleId="@Model.VehicleId"
+                               class="btn btn-primary btn-sm">
+                                Edit vehicle
+                            </a>
+
+                            @* Prevents offering the action when the vehicle is already unavailable. *@
+                            @if (!string.Equals(
+                                Model.VehicleStatusName,
+                                "Unavailable",
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <form asp-controller="Vehicles"
+                                      asp-action="MarkUnavailable"
+                                      asp-route-vehicleId="@Model.VehicleId"
+                                      method="post"
+                                      class="d-inline">
+
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('Mark this vehicle as unavailable?');">
+                                        Mark unavailable
+                                    </button>
+                                </form>
+                            }
+                        }
+
+                        <a asp-controller="Vehicles"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary btn-sm">
+                            Back to vehicles
+                        </a>
+                    </div> 
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

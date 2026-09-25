@@ -1,0 +1,269 @@
+﻿@model DriveFleet.Web.Models.Vehicles.EditVehicleViewModel
+
+@{
+    ViewData["Title"] = "Edit vehicle";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-3">
+
+                    <h1 class="h4 mb-3">
+                        Edit vehicle
+                    </h1>
+
+                    @* Keeps the vehicle identifier available during form submission. *@
+                    <form asp-controller="Vehicles"
+                          asp-action="Edit"
+                          asp-route-vehicleId="@Model.VehicleId"
+                          method="post">
+
+                        <input asp-for="VehicleId"
+                               type="hidden" />
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="Brand"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="Brand"
+                                       class="form-control form-control-sm" />
+
+                                <span asp-validation-for="Brand"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="Model"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="Model"
+                                       class="form-control form-control-sm" />
+
+                                <span asp-validation-for="Model"
+                                      class="text-danger">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="Year"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="Year"
+                                       class="form-control form-control-sm" />
+
+                                <span asp-validation-for="Year"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="LicensePlate"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="LicensePlate"
+                                       class="form-control form-control-sm" />
+
+                                <span asp-validation-for="LicensePlate"
+                                      class="text-danger">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="Seats"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="Seats"
+                                       class="form-control form-control-sm" />
+
+                                <span asp-validation-for="Seats"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="DailyPrice"
+                                       class="form-label">
+                                </label>
+
+                                <input asp-for="DailyPrice"
+                                       class="form-control form-control-sm" />
+
+                                <span asp-validation-for="DailyPrice"
+                                      class="text-danger">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="CategoryId"
+                                       class="form-label">
+                                </label>
+
+                                <select asp-for="CategoryId"
+                                        asp-items="Model.Categories"
+                                        class="form-select form-select-sm">
+                                    <option value="0">
+                                        Select a category
+                                    </option>
+                                </select>
+
+                                <span asp-validation-for="CategoryId"
+                                      class="text-danger">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6 mb-2">
+                                <label asp-for="VehicleStatusId"
+                                       class="form-label">
+                                </label>
+
+                                <select asp-for="VehicleStatusId"
+                                        asp-items="Model.VehicleStatuses"
+                                        class="form-select form-select-sm">
+                                    <option value="0">
+                                        Select a status
+                                    </option>
+                                </select>
+
+                                <span asp-validation-for="VehicleStatusId"
+                                      class="text-danger">
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description"
+                                   class="form-label">
+                            </label>
+
+                            <textarea asp-for="Description"
+                                      class="form-control form-control-sm"
+                                      rows="3">
+                            </textarea>
+
+                            <span asp-validation-for="Description"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit"
+                                    class="btn btn-primary btn-sm">
+                                Save changes
+                            </button>
+
+                            <a asp-controller="Vehicles"
+                               asp-action="Details"
+                               asp-route-vehicleId="@Model.VehicleId"
+                               class="btn btn-outline-secondary btn-sm">
+                                Cancel
+                            </a>
+                        </div>
+
+                        </form>
+
+                    <hr class="my-3" />
+
+                    <div>
+                        <h2 class="h6 mb-2">
+                            Vehicle photos
+                        </h2>
+
+                        <p class="text-muted small mb-3">
+                            Upload up to three catalog photos.
+                            Photo 1 is used as the main catalog photo.
+                        </p>
+
+                        @if (TempData["VehiclePhotoSuccess"] is string successMessage)
+                        {
+                            <div class="alert alert-success py-2"
+                                    role="alert">
+                                @successMessage
+                            </div>
+                        }
+
+                        @if (TempData["VehiclePhotoError"] is string errorMessage)
+                        {
+                            <div class="alert alert-danger py-2"
+                                    role="alert">
+                                @errorMessage
+                            </div>
+                        }
+
+                        <div class="row g-2">
+                            @for (var displayOrder = 1;
+                                    displayOrder <= 3;
+                                    displayOrder++)
+                            {
+                                var existingPhoto =
+                                    Model.Photos.FirstOrDefault(
+                                        photo =>
+                                            photo.DisplayOrder == displayOrder);
+
+                                <div class="col-md-4">
+                                    <div class="border rounded p-2 h-100">
+                                        <div class="fw-semibold small mb-2">
+                                            @(displayOrder == 1
+                                                ? "Photo 1 — Main"
+                                                : $"Photo {displayOrder}")
+                                        </div>
+
+                                        <div class="text-muted small mb-2">
+                                            @(existingPhoto is null
+                                                ? "No photo uploaded."
+                                                : "Photo uploaded.")
+                                        </div>
+
+                                        <form asp-controller="Vehicles"
+                                                asp-action="SetPhoto"
+                                                asp-route-vehicleId="@Model.VehicleId"
+                                                asp-route-displayOrder="@displayOrder"
+                                                method="post"
+                                                enctype="multipart/form-data">
+
+                                            <input type="file"
+                                                    name="photo"
+                                                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                                    class="form-control form-control-sm mb-2" />
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-primary btn-sm w-100">
+                                                @(existingPhoto is null
+                                                    ? "Upload"
+                                                    : "Replace")
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>               
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

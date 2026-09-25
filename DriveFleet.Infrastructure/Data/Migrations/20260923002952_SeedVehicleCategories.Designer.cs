@@ -4,6 +4,7 @@ using DriveFleet.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DriveFleet.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(DriveFleetDbContext))]
-    partial class DriveFleetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260923002952_SeedVehicleCategories")]
+    partial class SeedVehicleCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -574,6 +577,10 @@ namespace DriveFleet.Infrastructure.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Photo")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<int>("Seats")
                         .HasColumnType("int");
 
@@ -600,39 +607,6 @@ namespace DriveFleet.Infrastructure.Data.Migrations
                             t.HasCheckConstraint("CK_Vehicles_DailyPrice", "[DailyPrice] >= 0");
 
                             t.HasCheckConstraint("CK_Vehicles_Seats", "[Seats] > 0");
-                        });
-                });
-
-            modelBuilder.Entity("DriveFleet.Domain.Entities.VehiclePhoto", b =>
-                {
-                    b.Property<int>("VehiclePhotoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VehiclePhotoId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("VehicleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("VehiclePhotoId");
-
-                    b.HasIndex("VehicleId", "DisplayOrder")
-                        .IsUnique();
-
-                    b.ToTable("VehiclePhotos", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_VehiclePhotos_DisplayOrder", "[DisplayOrder] BETWEEN 1 AND 3");
                         });
                 });
 
@@ -794,17 +768,6 @@ namespace DriveFleet.Infrastructure.Data.Migrations
                     b.Navigation("VehicleStatus");
                 });
 
-            modelBuilder.Entity("DriveFleet.Domain.Entities.VehiclePhoto", b =>
-                {
-                    b.HasOne("DriveFleet.Domain.Entities.Vehicle", "Vehicle")
-                        .WithMany("VehiclePhotos")
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Vehicle");
-                });
-
             modelBuilder.Entity("DriveFleet.Domain.Entities.Category", b =>
                 {
                     b.Navigation("Vehicles");
@@ -849,8 +812,6 @@ namespace DriveFleet.Infrastructure.Data.Migrations
             modelBuilder.Entity("DriveFleet.Domain.Entities.Vehicle", b =>
                 {
                     b.Navigation("ReservationVehicles");
-
-                    b.Navigation("VehiclePhotos");
                 });
 
             modelBuilder.Entity("DriveFleet.Domain.Entities.VehicleStatus", b =>

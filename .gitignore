@@ -434,3 +434,9 @@ DriveFleet.Api/wwwroot/uploads/profiles/*
 # Local profile photo used for API testing
 DriveFleet.Api/profile-test.jpg
 DriveFleet.Api/profile-test.png
+
+# Runtime uploaded files.
+DriveFleet.Api/wwwroot/uploads/
+
+# Local vehicle photo test files.
+DriveFleet.Api/bmw-320i-*

@@ -17,6 +17,7 @@ public static class DatabaseSeed
         SeedVehicleStatuses(modelBuilder);
         SeedReservationStatuses(modelBuilder);
         SeedExtras(modelBuilder);
+        SeedCategories(modelBuilder);
     }
 
     private static void SeedRoles(ModelBuilder modelBuilder)
@@ -118,6 +119,44 @@ public static class DatabaseSeed
                 Description = "Portable Wi-Fi hotspot for internet access during the rental.",
                 Price = 10.00m,
                 Active = true
+            }
+        );
+    }
+
+    private static void SeedCategories(ModelBuilder modelBuilder)
+    {
+        // Initial vehicle categories used by the rental catalogue.
+        // Category identifiers must not be treated as business constants.
+        modelBuilder.Entity<Category>().HasData(
+            new Category
+            {
+                CategoryId = 1,
+                Name = "Economy",
+                Description = "Affordable vehicles designed for efficient everyday travel."
+            },
+            new Category
+            {
+                CategoryId = 2,
+                Name = "Compact",
+                Description = "Compact vehicles suitable for city driving and short trips."
+            },
+            new Category
+            {
+                CategoryId = 3,
+                Name = "SUV",
+                Description = "Spacious vehicles suitable for families and longer journeys."
+            },
+            new Category
+            {
+                CategoryId = 4,
+                Name = "Luxury",
+                Description = "Premium vehicles offering additional comfort and equipment."
+            },
+            new Category
+            {
+                CategoryId = 5,
+                Name = "Van",
+                Description = "Large vehicles designed for additional passengers or luggage."
             }
         );
     }

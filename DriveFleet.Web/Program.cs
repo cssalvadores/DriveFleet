@@ -1,3 +1,5 @@
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using DriveFleet.Web.Services;
 
@@ -5,6 +7,24 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+var supportedCultures = new[]
+{
+    new CultureInfo("pt-PT")
+};
+
+builder.Services.Configure<RequestLocalizationOptions>(
+    options =>
+    {
+        options.DefaultRequestCulture =
+            new RequestCulture("pt-PT");
+
+        options.SupportedCultures =
+            supportedCultures;
+
+        options.SupportedUICultures =
+            supportedCultures;
+    });
 
 builder.Services
     .AddAuthentication(
@@ -61,7 +81,28 @@ builder.Services.AddHttpClient<ProfileApiClient>(
             new Uri(apiBaseUrl);
     });
 
+builder.Services.AddHttpClient<VehicleApiClient>(
+    (serviceProvider, httpClient) =>
+    {
+        var configuration =
+            serviceProvider.GetRequiredService<IConfiguration>();
+
+        var apiBaseUrl =
+            configuration["ApiSettings:BaseUrl"];
+
+        if (string.IsNullOrWhiteSpace(apiBaseUrl))
+        {
+            throw new InvalidOperationException(
+                "The DriveFleet API base URL is not configured.");
+        }
+
+        httpClient.BaseAddress =
+            new Uri(apiBaseUrl);
+    });
+
 var app = builder.Build();
+
+app.UseRequestLocalization();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
