@@ -1,17 +1,22 @@
 ﻿@model DriveFleet.Web.Models.Vehicles.VehicleDetailsViewModel
 
 @{
-    ViewData["Title"] = $"{Model.Brand} {Model.Model}";
+    ViewData["Title"] =
+        $"{Model.Brand} {Model.Model}";
 
     var mainPhoto =
         Model.Photos
-            .OrderBy(photo => photo.DisplayOrder)
-            .FirstOrDefault(photo => photo.DisplayOrder == 1);
+            .OrderBy(photo =>
+                photo.DisplayOrder)
+            .FirstOrDefault(photo =>
+                photo.DisplayOrder == 1);
 
     var secondaryPhotos =
         Model.Photos
-            .Where(photo => photo.DisplayOrder != 1)
-            .OrderBy(photo => photo.DisplayOrder)
+            .Where(photo =>
+                photo.DisplayOrder != 1)
+            .OrderBy(photo =>
+                photo.DisplayOrder)
             .ToList();
 
     var isStaff =
@@ -26,10 +31,15 @@
             Model.VehicleStatusName,
             "Unavailable",
             StringComparison.OrdinalIgnoreCase);
+
+    var hasReviews =
+        Model.Reviews.Count > 0;
 }
 
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
+
     <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+
         <div>
             <h1 class="h3 mb-1">
                 @Model.Brand @Model.Model
@@ -43,21 +53,12 @@
         </div>
 
         <div class="d-flex flex-wrap gap-2">
+
             <a asp-controller="Vehicles"
                asp-action="Index"
                class="btn btn-outline-secondary">
                 Back to vehicles
             </a>
-
-            @* @if (isClient && !isUnavailable)
-            {
-                <a asp-controller="Reservations"
-                   asp-action="Create"
-                   asp-route-vehicleId="@Model.VehicleId"
-                   class="btn btn-primary">
-                    Rent this vehicle
-                </a>
-            } *@
 
             @if (isStaff)
             {
@@ -82,17 +83,24 @@
                                 onclick="return confirm('Are you sure you want to mark this vehicle as unavailable?');">
                             Mark unavailable
                         </button>
+
                     </form>
                 }
             }
+
         </div>
+
     </div>
 
     <div class="row g-4">
+
         <div class="col-lg-7">
+
             <div class="card shadow-sm overflow-hidden">
+
                 @if (mainPhoto is not null &&
-                     !string.IsNullOrWhiteSpace(mainPhoto.ImageUrl))
+                     !string.IsNullOrWhiteSpace(
+                         mainPhoto.ImageUrl))
                 {
                     <img src="@mainPhoto.ImageUrl"
                          alt="@Model.Brand @Model.Model"
@@ -106,16 +114,21 @@
                         No photo available
                     </div>
                 }
+
             </div>
 
             @if (secondaryPhotos.Count > 0)
             {
                 <div class="row g-3 mt-1">
+
                     @foreach (var photo in secondaryPhotos)
                     {
                         <div class="col-6">
+
                             <div class="card shadow-sm overflow-hidden">
-                                @if (!string.IsNullOrWhiteSpace(photo.ImageUrl))
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    photo.ImageUrl))
                                 {
                                     <img src="@photo.ImageUrl"
                                          alt="@Model.Brand @Model.Model"
@@ -129,17 +142,25 @@
                                         No photo available
                                     </div>
                                 }
+
                             </div>
+
                         </div>
                     }
+
                 </div>
             }
+
         </div>
 
         <div class="col-lg-5">
+
             <div class="card shadow-sm mb-3">
+
                 <div class="card-body">
+
                     <div class="d-flex justify-content-between align-items-start mb-3">
+
                         <div>
                             <div class="text-muted small">
                                 Daily price
@@ -154,20 +175,25 @@
                             </div>
                         </div>
 
-                        <span class="badge @GetStatusBadgeClass(Model.VehicleStatusName)">
+                        <span class="badge @GetStatusBadgeClass(
+                                                        Model.VehicleStatusName)">
                             @Model.VehicleStatusName
                         </span>
+
                     </div>
 
-                    @if (isClient && !isUnavailable)
+                    @if (isClient &&
+                         !isUnavailable)
                     {
                         <div class="d-grid mb-3">
+
                             <a asp-controller="Reservations"
                                asp-action="Create"
                                asp-route-vehicleId="@Model.VehicleId"
                                class="btn btn-primary btn-lg">
                                 Rent this vehicle
                             </a>
+
                         </div>
 
                         <p class="small text-muted mb-0">
@@ -183,16 +209,21 @@
                             for new reservations.
                         </div>
                     }
+
                 </div>
+
             </div>
 
             <div class="card shadow-sm">
+
                 <div class="card-body">
+
                     <h2 class="h5 mb-3">
                         Vehicle information
                     </h2>
 
                     <dl class="row mb-0">
+
                         <dt class="col-sm-5">
                             Brand
                         </dt>
@@ -248,14 +279,20 @@
                         <dd class="col-sm-7">
                             @Model.VehicleStatusName
                         </dd>
+
                     </dl>
+
                 </div>
+
             </div>
 
-            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            @if (!string.IsNullOrWhiteSpace(
+                Model.Description))
             {
                 <div class="card shadow-sm mt-3">
+
                     <div class="card-body">
+
                         <h2 class="h5 mb-3">
                             Description
                         </h2>
@@ -263,23 +300,162 @@
                         <p class="mb-0">
                             @Model.Description
                         </p>
+
                     </div>
+
                 </div>
             }
+
         </div>
+
     </div>
+
+    <div class="card shadow-sm mt-4">
+
+        <div class="card-body">
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+
+                <div>
+                    <h2 class="h5 mb-1">
+                        Customer reviews
+                    </h2>
+
+                    <p class="text-muted small mb-0">
+                        Ratings from completed rentals.
+                    </p>
+                </div>
+
+                @if (hasReviews &&
+                     Model.AverageRating.HasValue)
+                {
+                    <div class="text-end">
+
+                        <div class="d-flex align-items-center justify-content-end gap-2">
+
+                            <span class="fs-4"
+                                  aria-hidden="true">
+                                ★
+                            </span>
+
+                            <span class="fs-5 fw-bold">
+                                @Model.AverageRating.Value.ToString("0.0")
+                            </span>
+
+                            <span class="text-muted">
+                                / 5
+                            </span>
+
+                        </div>
+
+                        <div class="small text-muted">
+                            @Model.Reviews.Count
+                            @(Model.Reviews.Count == 1
+                                ? "review"
+                                : "reviews")
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+            @if (!hasReviews)
+            {
+                <div class="border rounded bg-light p-3">
+
+                    <p class="text-muted mb-0">
+                        No reviews are available for this vehicle yet.
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+
+                    @foreach (var review in Model.Reviews)
+                    {
+                        <div class="border rounded p-3">
+
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+
+                                <div>
+
+                                    <div aria-label="@($"{review.Stars} out of 5 stars")">
+
+                                        <span class="fs-5">
+                                            @for (var star = 1;
+                                                  star <= 5;
+                                                  star++)
+                                            {
+                                                <span>
+                                                    @(star <= review.Stars
+                                                        ? "★"
+                                                        : "☆")
+                                                </span>
+                                            }
+                                        </span>
+
+                                        <span class="text-muted ms-2">
+                                            @review.Stars / 5
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <small class="text-muted">
+                                    @review.CreatedAt.ToString(
+                                        "dd/MM/yyyy")
+                                </small>
+
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                review.Comment))
+                            {
+                                <p class="mb-0">
+                                    @review.Comment
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="text-muted fst-italic mb-0">
+                                    No written comment.
+                                </p>
+                            }
+
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
 </div>
 
-@functions {
+@functions
+{
     private static string GetStatusBadgeClass(
         string statusName)
     {
         return statusName switch
         {
-            "Available" => "text-bg-success",
-            "Reserved" => "text-bg-warning",
-            "Unavailable" => "text-bg-secondary",
-            _ => "text-bg-light"
+            "Available" =>
+                "text-bg-success",
+
+            "Reserved" =>
+                "text-bg-warning",
+
+            "Unavailable" =>
+                "text-bg-secondary",
+
+            _ =>
+                "text-bg-light"
         };
     }
 }

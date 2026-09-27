@@ -15,6 +15,13 @@ public interface IReviewRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets the visible reviews associated with a vehicle.
+    /// </summary>
+    Task<IReadOnlyList<Review>> GetVisibleByVehicleIdAsync(
+        int vehicleId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Adds a new review.
     /// </summary>
     Task AddAsync(
@@ -26,4 +33,5 @@ public interface IReviewRepository
     /// </summary>
     Task SaveChangesAsync(
         CancellationToken cancellationToken = default);
+        
 }

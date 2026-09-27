@@ -26,4 +26,13 @@ public interface IReviewService
         int reservationId,
         int reservationVehicleId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the reviews that are publicly visible
+    /// for the specified vehicle.
+    /// </summary>
+    Task<IReadOnlyList<ReviewResponse>>
+        GetVisibleByVehicleIdAsync(
+            int vehicleId,
+            CancellationToken cancellationToken = default);
 }

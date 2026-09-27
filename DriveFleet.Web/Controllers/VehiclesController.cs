@@ -129,6 +129,16 @@ public class VehiclesController : Controller
                 return View("VehicleError");
             }
 
+            var reviewsResult =
+                await _vehicleApiClient.GetVisibleReviewsAsync(
+                    vehicleId,
+                    cancellationToken);
+
+            if (reviewsResult.StatusCode != HttpStatusCode.OK)
+            {
+                return View("VehicleError");
+            }
+
             var model = new VehicleDetailsViewModel
             {
                 VehicleId = result.Vehicle.VehicleId,
@@ -138,11 +148,32 @@ public class VehiclesController : Controller
                 LicensePlate = result.Vehicle.LicensePlate,
                 Seats = result.Vehicle.Seats,
                 DailyPrice = result.Vehicle.DailyPrice,
+
                 Photos = MapVehiclePhotos(
                     result.Vehicle.Photos),
+
                 Description = result.Vehicle.Description,
                 CategoryName = result.Vehicle.CategoryName,
-                VehicleStatusName = result.Vehicle.VehicleStatusName
+                VehicleStatusName = result.Vehicle.VehicleStatusName,
+
+                Reviews =
+                    reviewsResult.Reviews
+                        .Select(review =>
+                            new VehicleReviewViewModel
+                            {
+                                ReviewId =
+                                    review.ReviewId,
+
+                                Stars =
+                                    review.Stars,
+
+                                Comment =
+                                    review.Comment,
+
+                                CreatedAt =
+                                    review.CreatedAt
+                            })
+                        .ToList()
             };
 
             return View(model);

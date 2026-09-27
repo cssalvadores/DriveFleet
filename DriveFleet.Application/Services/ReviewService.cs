@@ -175,6 +175,30 @@ public class ReviewService : IReviewService
                 reservationVehicle.VehicleId);
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ReviewResponse>>GetVisibleByVehicleIdAsync(
+            int vehicleId,
+            CancellationToken cancellationToken = default)
+    {
+        if (vehicleId <= 0)
+        {
+            return Array.Empty<ReviewResponse>();
+        }
+
+        var reviews =
+            await _reviewRepository
+                .GetVisibleByVehicleIdAsync(
+                    vehicleId,
+                    cancellationToken);
+
+        return reviews
+            .Select(review =>
+                MapToResponse(
+                    review,
+                    vehicleId))
+            .ToList();
+    }
+
     /// <summary>
     /// Maps a review entity to its application response.
     /// </summary>

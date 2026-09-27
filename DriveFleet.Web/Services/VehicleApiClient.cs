@@ -140,6 +140,52 @@ public class VehicleApiClient
     }
 
     /// <summary>
+    /// Retrieves the publicly visible reviews
+    /// associated with a vehicle.
+    /// </summary>
+    public async Task<VehicleReviewsApiResult>
+        GetVisibleReviewsAsync(
+            int vehicleId,
+            CancellationToken cancellationToken = default)
+    {
+        using var response =
+            await _httpClient.GetAsync(
+                $"api/vehicles/{vehicleId}/reviews",
+                cancellationToken);
+
+        if (response.StatusCode ==
+            HttpStatusCode.OK)
+        {
+            var reviews =
+                await response.Content
+                    .ReadFromJsonAsync<List<ReviewApiModel>>(
+                        cancellationToken:
+                            cancellationToken);
+
+            return new VehicleReviewsApiResult
+            {
+                StatusCode =
+                    response.StatusCode,
+
+                Reviews =
+                    reviews ??
+                    new List<ReviewApiModel>()
+            };
+        }
+
+        return new VehicleReviewsApiResult
+        {
+            StatusCode =
+                response.StatusCode,
+
+            Detail =
+                await ReadProblemDetailAsync(
+                    response,
+                    cancellationToken)
+        };
+    }
+
+    /// <summary>
     /// Retrieves the available vehicle categories
     /// from the DriveFleet API.
     /// </summary>
@@ -895,6 +941,20 @@ public class VehicleApiResult
     public HttpStatusCode StatusCode { get; set; }
 
     public VehicleApiModel? Vehicle { get; set; }
+
+    public string? Detail { get; set; }
+}
+
+/// <summary>
+/// Represents the result of a public vehicle
+/// reviews API request.
+/// </summary>
+public class VehicleReviewsApiResult
+{
+    public HttpStatusCode StatusCode { get; set; }
+
+    public IReadOnlyList<ReviewApiModel> Reviews { get; set; }
+        = Array.Empty<ReviewApiModel>();
 
     public string? Detail { get; set; }
 }

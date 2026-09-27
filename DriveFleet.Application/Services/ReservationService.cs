@@ -460,13 +460,12 @@ public class ReservationService : IReservationService
     /// from its current status.
     /// </exception>
     private async Task ApplyStatusTransitionAsync(
-        Reservation reservation,
-        int expectedStatusId,
-        int targetStatusId,
-        string conflictMessage,
-        CancellationToken cancellationToken)
+    Reservation reservation,
+    int expectedStatusId,
+    int targetStatusId,
+    string conflictMessage,
+    CancellationToken cancellationToken)
     {
-
         if (reservation.ReservationStatusId !=
             expectedStatusId)
         {

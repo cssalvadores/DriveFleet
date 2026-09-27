@@ -53,4 +53,22 @@ public class ReviewRepository : IReviewRepository
         return _context.SaveChangesAsync(
             cancellationToken);
     }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Review>>
+        GetVisibleByVehicleIdAsync(
+            int vehicleId,
+            CancellationToken cancellationToken = default)
+    {
+        return await _context.Reviews
+            .AsNoTracking()
+            .Where(review =>
+                review.IsVisible &&
+                review.ReservationVehicle.VehicleId ==
+                vehicleId)
+            .OrderByDescending(review =>
+                review.CreatedAt)
+            .ToListAsync(
+                cancellationToken);
+    }
 }

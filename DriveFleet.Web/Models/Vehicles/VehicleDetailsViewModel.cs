@@ -29,4 +29,21 @@ public class VehicleDetailsViewModel
     public string CategoryName { get; set; } = string.Empty;
 
     public string VehicleStatusName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the publicly visible reviews
+    /// associated with the vehicle.
+    /// </summary>
+    public ICollection<VehicleReviewViewModel> Reviews { get; set; }
+        = new List<VehicleReviewViewModel>();
+
+    /// <summary>
+    /// Gets the average rating of the visible reviews,
+    /// or null when the vehicle has no reviews.
+    /// </summary>
+    public double? AverageRating =>
+        Reviews.Count == 0
+            ? null
+            : Reviews.Average(review =>
+                review.Stars);
 }
