@@ -1,0 +1,348 @@
+﻿@model DriveFleet.Web.Models.Reservations.CreateReservationViewModel
+
+@{
+    ViewData["Title"] = "Create reservation";
+}
+
+<div class="container mt-4 mb-4"
+     style="max-width: 1050px;">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+        <div>
+            <h1 class="h3 mb-1">
+                Create reservation
+            </h1>
+
+            <p class="text-muted mb-0">
+                Choose the rental period and extras for each vehicle.
+            </p>
+        </div>
+
+        <a asp-controller="Reservations"
+           asp-action="Index"
+           class="btn btn-outline-secondary btn-sm">
+            Back to reservations
+        </a>
+    </div>
+
+    <form asp-controller="Reservations"
+          asp-action="Create"
+          method="post"
+          asp-antiforgery="true">
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger small mb-3">
+        </div>
+
+        @if (Model.Vehicles.Count == 0)
+        {
+            <div class="alert alert-info"
+                 role="alert">
+                There are currently no vehicles selected
+                for this reservation.
+            </div>
+        }
+        else
+        {
+            @for (var vehicleIndex = 0;
+                  vehicleIndex < Model.Vehicles.Count;
+                  vehicleIndex++)
+            {
+                var vehicle =
+                    Model.Vehicles[vehicleIndex];
+
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header bg-light py-2">
+                        <div class="d-flex justify-content-between align-items-center gap-3">
+                            <div>
+                                <div class="fw-bold">
+                                    @vehicle.Brand @vehicle.Model
+                                </div>
+
+                                <div class="small text-muted">
+                                    @vehicle.LicensePlate
+                                    ·
+                                    @vehicle.DailyPrice.ToString("C") / day
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2">
+                                <a asp-controller="Vehicles"
+                                   asp-action="Details"
+                                   asp-route-vehicleId="@vehicle.VehicleId"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    Details
+                                </a>
+
+                                @if (Model.Vehicles.Count > 1)
+                                {
+                                    <button type="submit"
+                                            name="VehicleToRemoveId"
+                                            value="@vehicle.VehicleId"
+                                            class="btn btn-sm btn-outline-danger"
+                                            formnovalidate>
+                                        Remove
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-3">
+                        <input asp-for="Vehicles[vehicleIndex].VehicleId"
+                               type="hidden" />
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Vehicles[vehicleIndex].StartDate"
+                                       class="form-label small fw-semibold mb-1">
+                                    Start date and time
+                                </label>
+
+                                <input asp-for="Vehicles[vehicleIndex].StartDate"
+                                       type="datetime-local"
+                                       class="form-control form-control-sm"
+                                       asp-format="{0:yyyy-MM-ddTHH:mm}" />
+
+                                <span asp-validation-for="Vehicles[vehicleIndex].StartDate"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Vehicles[vehicleIndex].EndDate"
+                                       class="form-label small fw-semibold mb-1">
+                                    End date and time
+                                </label>
+
+                                <input asp-for="Vehicles[vehicleIndex].EndDate"
+                                       type="datetime-local"
+                                       class="form-control form-control-sm"
+                                       asp-format="{0:yyyy-MM-ddTHH:mm}" />
+
+                                <span asp-validation-for="Vehicles[vehicleIndex].EndDate"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+                        </div>
+
+                        @if (vehicle.Extras.Count > 0)
+                        {
+                            <div class="border-top pt-3">
+                                <div class="small fw-semibold mb-2">
+                                    Optional extras
+                                </div>
+
+                                <div class="row g-2">
+                                    @for (var extraIndex = 0;
+                                          extraIndex < vehicle.Extras.Count;
+                                          extraIndex++)
+                                    {
+                                        var extra =
+                                            vehicle.Extras[extraIndex];
+
+                                        <div class="col-md-4">
+                                            <div class="border rounded p-2 h-100">
+                                                <input asp-for="Vehicles[vehicleIndex].Extras[extraIndex].ExtraId"
+                                                       type="hidden" />
+
+                                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                                    <span class="small fw-semibold">
+                                                        @extra.Name
+                                                    </span>
+
+                                                    <span class="small text-muted text-nowrap">
+                                                        @extra.Price.ToString("C")
+                                                    </span>
+                                                </div>
+
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text">
+                                                        Qty
+                                                    </span>
+
+                                                    <input asp-for="Vehicles[vehicleIndex].Extras[extraIndex].Quantity"
+                                                           type="number"
+                                                           min="0"
+                                                           step="1"
+                                                           class="form-control" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="small text-muted border-top pt-3">
+                                No extras are currently available.
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    @if (Model.AvailableVehicles.Count > 0)
+                    {
+                        <button type="button"
+                                class="btn btn-outline-primary btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#addVehicleModal">
+                            + Add another vehicle
+                        </button>
+                    }
+                    else
+                    {
+                        <span class="small text-muted">
+                            No other vehicles are currently available.
+                        </span>
+                    }
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a asp-controller="Reservations"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary btn-sm">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-primary btn-sm">
+                        Create reservation
+                    </button>
+                </div>
+            </div>
+        }
+
+        @if (Model.AvailableVehicles.Count > 0)
+        {
+            <div class="modal fade"
+                 id="addVehicleModal"
+                 tabindex="-1"
+                 aria-labelledby="addVehicleModalLabel"
+                 aria-hidden="true">
+
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header py-2">
+                            <div>
+                                <h2 class="modal-title fs-5"
+                                    id="addVehicleModalLabel">
+                                    Add another vehicle
+                                </h2>
+
+                                <p class="small text-muted mb-0">
+                                    Choose another vehicle to include
+                                    in this reservation.
+                                </p>
+                            </div>
+
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close">
+                            </button>
+                        </div>
+
+                        <div class="modal-body p-3">
+                            <div class="row g-2">
+                                @foreach (var availableVehicle
+                                    in Model.AvailableVehicles)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-body p-2">
+                                                <div class="d-flex gap-3">
+                                                    <div class="flex-shrink-0">
+                                                        @if (!string.IsNullOrWhiteSpace(
+                                                            availableVehicle.MainPhotoUrl))
+                                                        {
+                                                            <img src="@availableVehicle.MainPhotoUrl"
+                                                                 alt="@availableVehicle.Brand @availableVehicle.Model"
+                                                                 class="rounded"
+                                                                 style="width: 105px;
+                                                            height: 90px;
+                                                            object-fit: cover;" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="rounded bg-light d-flex align-items-center justify-content-center text-muted text-center small"
+                                                                 style="width: 105px;
+                                                                height: 90px;">
+                                                                No photo
+                                                            </div>
+                                                        }
+                                                    </div>
+
+                                                    <div class="flex-grow-1 min-width-0">
+                                                        <div class="fw-bold">
+                                                            @availableVehicle.Brand
+                                                            @availableVehicle.Model
+                                                        </div>
+
+                                                        <div class="small text-muted mb-2">
+                                                            @availableVehicle.Year
+                                                            ·
+                                                            @availableVehicle.CategoryName
+                                                            ·
+                                                            @availableVehicle.Seats seats
+                                                        </div>
+
+                                                        <div class="d-flex justify-content-between gap-2 small">
+                                                            <span class="text-muted">
+                                                                Plate
+                                                            </span>
+
+                                                            <span>
+                                                                @availableVehicle.LicensePlate
+                                                            </span>
+                                                        </div>
+
+                                                        <div class="d-flex justify-content-between gap-2 small">
+                                                            <span class="text-muted">
+                                                                Price
+                                                            </span>
+
+                                                            <span class="fw-semibold">
+                                                                @availableVehicle.DailyPrice.ToString("C") / day
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex justify-content-end mt-2">
+                                                    <button type="submit"
+                                                            name="VehicleToAddId"
+                                                            value="@availableVehicle.VehicleId"
+                                                            class="btn btn-primary btn-sm"
+                                                            formnovalidate>
+                                                        Add vehicle
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="modal-footer py-2">
+                            <button type="button"
+                                    class="btn btn-outline-secondary btn-sm"
+                                    data-bs-dismiss="modal">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

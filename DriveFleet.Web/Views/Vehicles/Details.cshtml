@@ -1,140 +1,285 @@
 ﻿@model DriveFleet.Web.Models.Vehicles.VehicleDetailsViewModel
 
 @{
-    ViewData["Title"] = "Vehicle details";
+    ViewData["Title"] = $"{Model.Brand} {Model.Model}";
+
+    var mainPhoto =
+        Model.Photos
+            .OrderBy(photo => photo.DisplayOrder)
+            .FirstOrDefault(photo => photo.DisplayOrder == 1);
+
+    var secondaryPhotos =
+        Model.Photos
+            .Where(photo => photo.DisplayOrder != 1)
+            .OrderBy(photo => photo.DisplayOrder)
+            .ToList();
+
+    var isStaff =
+        User.IsInRole("Admin") ||
+        User.IsInRole("Employee");
+
+    var isClient =
+        User.IsInRole("Client");
+
+    var isUnavailable =
+        string.Equals(
+            Model.VehicleStatusName,
+            "Unavailable",
+            StringComparison.OrdinalIgnoreCase);
 }
 
 <div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                @Model.Brand @Model.Model
+            </h1>
 
-            <div class="card shadow-sm">
+            <div class="text-muted">
+                @Model.Year
+                ·
+                @Model.CategoryName
+            </div>
+        </div>
 
-                @{
-                    var mainPhoto =
-                        Model.Photos.FirstOrDefault(
-                            photo => photo.DisplayOrder == 1);
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-controller="Vehicles"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                Back to vehicles
+            </a>
 
-                    var secondaryPhotos =
-                        Model.Photos
-                            .Where(photo => photo.DisplayOrder != 1)
-                            .OrderBy(photo => photo.DisplayOrder)
-                            .ToList();
+            @* @if (isClient && !isUnavailable)
+            {
+                <a asp-controller="Reservations"
+                   asp-action="Create"
+                   asp-route-vehicleId="@Model.VehicleId"
+                   class="btn btn-primary">
+                    Rent this vehicle
+                </a>
+            } *@
+
+            @if (isStaff)
+            {
+                <a asp-controller="Vehicles"
+                   asp-action="Edit"
+                   asp-route-vehicleId="@Model.VehicleId"
+                   class="btn btn-outline-primary">
+                    Edit vehicle
+                </a>
+
+                @if (!isUnavailable)
+                {
+                    <form asp-controller="Vehicles"
+                          asp-action="MarkUnavailable"
+                          asp-route-vehicleId="@Model.VehicleId"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-outline-danger"
+                                onclick="return confirm('Are you sure you want to mark this vehicle as unavailable?');">
+                            Mark unavailable
+                        </button>
+                    </form>
                 }
+            }
+        </div>
+    </div>
 
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm overflow-hidden">
                 @if (mainPhoto is not null &&
                      !string.IsNullOrWhiteSpace(mainPhoto.ImageUrl))
                 {
                     <img src="@mainPhoto.ImageUrl"
-                         class="card-img-top"
-                         style="height: 360px; object-fit: cover;"
-                         alt="@Model.Brand @Model.Model main photo" />
+                         alt="@Model.Brand @Model.Model"
+                         class="w-100"
+                         style="height: 360px; object-fit: cover;" />
+                }
+                else
+                {
+                    <div class="bg-light d-flex align-items-center justify-content-center text-muted"
+                         style="height: 360px;">
+                        No photo available
+                    </div>
+                }
+            </div>
 
-                    @if (secondaryPhotos.Count > 0)
+            @if (secondaryPhotos.Count > 0)
+            {
+                <div class="row g-3 mt-1">
+                    @foreach (var photo in secondaryPhotos)
                     {
-                        <div class="card-body pb-0">
-                            <div class="row g-2">
-                                @foreach (var photo in secondaryPhotos)
+                        <div class="col-6">
+                            <div class="card shadow-sm overflow-hidden">
+                                @if (!string.IsNullOrWhiteSpace(photo.ImageUrl))
                                 {
-                                    <div class="col-6">
-                                        <img src="@photo.ImageUrl"
-                                             class="img-fluid rounded w-100"
-                                             style="height: 150px; object-fit: cover;"
-                                             alt="@Model.Brand @Model.Model photo @photo.DisplayOrder" />
+                                    <img src="@photo.ImageUrl"
+                                         alt="@Model.Brand @Model.Model"
+                                         class="w-100"
+                                         style="height: 150px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <div class="bg-light d-flex align-items-center justify-content-center text-muted"
+                                         style="height: 150px;">
+                                        No photo available
                                     </div>
                                 }
                             </div>
                         </div>
                     }
-                }
-                else
-                {
-                    <div class="d-flex align-items-center justify-content-center bg-light text-muted"
-                         style="height: 280px;">
-                        No vehicle photos available.
-                    </div>
-                }
-                <div class="card-body p-4">
+                </div>
+            }
+        </div>
 
-                    <h1 class="h3 mb-3">
-                        @Model.Brand @Model.Model
-                    </h1>
+        <div class="col-lg-5">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <div class="text-muted small">
+                                Daily price
+                            </div>
 
-                    <p class="text-muted">
-                        @Model.Year · @Model.CategoryName
-                    </p>
+                            <div class="fs-3 fw-bold">
+                                @Model.DailyPrice.ToString("C")
+                            </div>
 
-                    <dl class="row">
-                        <dt class="col-sm-4">
-                            License plate
-                        </dt>
-                        <dd class="col-sm-8">
-                            @Model.LicensePlate
-                        </dd>
+                            <div class="text-muted small">
+                                per day
+                            </div>
+                        </div>
 
-                        <dt class="col-sm-4">
-                            Seats
-                        </dt>
-                        <dd class="col-sm-8">
-                            @Model.Seats
-                        </dd>
-
-                        <dt class="col-sm-4">
-                            Daily price
-                        </dt>
-                        <dd class="col-sm-8">
-                            @Model.DailyPrice.ToString("0.00") €
-                        </dd>
-
-                        <dt class="col-sm-4">
-                            Status
-                        </dt>
-                        <dd class="col-sm-8">
+                        <span class="badge @GetStatusBadgeClass(Model.VehicleStatusName)">
                             @Model.VehicleStatusName
-                        </dd>
-                    </dl>
+                        </span>
+                    </div>
 
-                    <div class="d-flex gap-2">
-                        @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
-                        {
-                            <a asp-controller="Vehicles"
-                               asp-action="Edit"
+                    @if (isClient && !isUnavailable)
+                    {
+                        <div class="d-grid mb-3">
+                            <a asp-controller="Reservations"
+                               asp-action="Create"
                                asp-route-vehicleId="@Model.VehicleId"
-                               class="btn btn-primary btn-sm">
-                                Edit vehicle
+                               class="btn btn-primary btn-lg">
+                                Rent this vehicle
                             </a>
+                        </div>
 
-                            @* Prevents offering the action when the vehicle is already unavailable. *@
-                            @if (!string.Equals(
-                                Model.VehicleStatusName,
-                                "Unavailable",
-                                StringComparison.OrdinalIgnoreCase))
-                            {
-                                <form asp-controller="Vehicles"
-                                      asp-action="MarkUnavailable"
-                                      asp-route-vehicleId="@Model.VehicleId"
-                                      method="post"
-                                      class="d-inline">
+                        <p class="small text-muted mb-0">
+                            You can add another vehicle before completing
+                            your reservation.
+                        </p>
+                    }
 
-                                    <button type="submit"
-                                            class="btn btn-outline-danger btn-sm"
-                                            onclick="return confirm('Mark this vehicle as unavailable?');">
-                                        Mark unavailable
-                                    </button>
-                                </form>
-                            }
-                        }
-
-                        <a asp-controller="Vehicles"
-                           asp-action="Index"
-                           class="btn btn-outline-secondary btn-sm">
-                            Back to vehicles
-                        </a>
-                    </div> 
-
+                    @if (isUnavailable)
+                    {
+                        <div class="alert alert-secondary mb-0">
+                            This vehicle is currently unavailable
+                            for new reservations.
+                        </div>
+                    }
                 </div>
             </div>
 
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">
+                        Vehicle information
+                    </h2>
+
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5">
+                            Brand
+                        </dt>
+
+                        <dd class="col-sm-7">
+                            @Model.Brand
+                        </dd>
+
+                        <dt class="col-sm-5">
+                            Model
+                        </dt>
+
+                        <dd class="col-sm-7">
+                            @Model.Model
+                        </dd>
+
+                        <dt class="col-sm-5">
+                            Year
+                        </dt>
+
+                        <dd class="col-sm-7">
+                            @Model.Year
+                        </dd>
+
+                        <dt class="col-sm-5">
+                            License plate
+                        </dt>
+
+                        <dd class="col-sm-7">
+                            @Model.LicensePlate
+                        </dd>
+
+                        <dt class="col-sm-5">
+                            Category
+                        </dt>
+
+                        <dd class="col-sm-7">
+                            @Model.CategoryName
+                        </dd>
+
+                        <dt class="col-sm-5">
+                            Seats
+                        </dt>
+
+                        <dd class="col-sm-7">
+                            @Model.Seats
+                        </dd>
+
+                        <dt class="col-sm-5">
+                            Status
+                        </dt>
+
+                        <dd class="col-sm-7">
+                            @Model.VehicleStatusName
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="card shadow-sm mt-3">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">
+                            Description
+                        </h2>
+
+                        <p class="mb-0">
+                            @Model.Description
+                        </p>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>
+
+@functions {
+    private static string GetStatusBadgeClass(
+        string statusName)
+    {
+        return statusName switch
+        {
+            "Available" => "text-bg-success",
+            "Reserved" => "text-bg-warning",
+            "Unavailable" => "text-bg-secondary",
+            _ => "text-bg-light"
+        };
+    }
+}

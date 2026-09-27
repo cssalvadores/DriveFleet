@@ -1,0 +1,223 @@
+﻿@model DriveFleet.Web.Models.Reservations.ReservationIndexViewModel
+
+@{
+    var canManageAllReservations =
+        User.IsInRole("Admin") ||
+        User.IsInRole("Employee");
+
+    ViewData["Title"] =
+        canManageAllReservations
+            ? "Reservations"
+            : "My reservations";
+}
+
+<div class="container mt-4 mb-5"
+     style="max-width: 1050px;">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+
+        <div>
+            <h1 class="h3 mb-1">
+                @ViewData["Title"]
+            </h1>
+
+            <p class="text-muted mb-0">
+                @if (canManageAllReservations)
+                {
+                    <span>
+                        View and manage client reservations.
+                    </span>
+                }
+                else
+                {
+                    <span>
+                        View your current and previous reservations.
+                    </span>
+                }
+            </p>
+        </div>
+
+        @if (User.IsInRole("Client"))
+        {
+            <a asp-controller="Vehicles"
+               asp-action="Index"
+               class="btn btn-primary btn-sm">
+                Browse vehicles
+            </a>
+        }
+
+    </div>
+
+    @if (TempData["ReservationSuccess"] is string successMessage)
+    {
+        <div class="alert alert-success py-2"
+             role="alert">
+            @successMessage
+        </div>
+    }
+
+    @*
+        Reservation filters are submitted through GET so the selected
+        criteria remain visible in the page URL and can be cleared easily.
+    *@
+    <div class="card shadow-sm mb-4">
+        <div class="card-body p-3">
+
+            <form asp-controller="Reservations"
+                  asp-action="Index"
+                  method="get">
+
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-md-4">
+
+                        <label asp-for="StatusId"
+                               class="form-label small fw-semibold">
+                        </label>
+
+                        <select asp-for="StatusId"
+                                class="form-select form-select-sm">
+
+                            <option value="">
+                                All statuses
+                            </option>
+
+                            @foreach (var status in Model.StatusOptions)
+                            {
+                                <option value="@status.Id">
+                                    @status.Name
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label asp-for="FromDate"
+                               class="form-label small fw-semibold">
+                        </label>
+
+                        <input asp-for="FromDate"
+                               type="date"
+                               asp-format="{0:yyyy-MM-dd}"
+                               class="form-control form-control-sm" />
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label asp-for="ToDate"
+                               class="form-label small fw-semibold">
+                        </label>
+
+                        <input asp-for="ToDate"
+                               type="date"
+                               asp-format="{0:yyyy-MM-dd}"
+                               class="form-control form-control-sm" />
+
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <div class="d-flex gap-2">
+
+                            <button type="submit"
+                                    class="btn btn-primary btn-sm flex-grow-1">
+                                Filter
+                            </button>
+
+                            <a asp-controller="Reservations"
+                               asp-action="Index"
+                               class="btn btn-outline-secondary btn-sm">
+                                Clear
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="form-text mt-2">
+                    Date filters are applied to the vehicle rental period.
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger"
+             role="alert">
+            @Model.ErrorMessage
+        </div>
+    }
+    else if (!Model.Reservations.Any())
+    {
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body text-center py-5">
+
+                @if (Model.HasActiveFilters)
+                {
+                    <h2 class="h5 mb-2">
+                        No matching reservations
+                    </h2>
+
+                    <p class="text-muted mb-3">
+                        No reservations match the selected filters.
+                    </p>
+
+                    <a asp-controller="Reservations"
+                       asp-action="Index"
+                       class="btn btn-outline-primary btn-sm">
+                        Clear filters
+                    </a>
+                }
+                else
+                {
+                    <h2 class="h5 mb-2">
+                        No reservations yet
+                    </h2>
+
+                    @if (User.IsInRole("Client"))
+                    {
+                        <p class="text-muted mb-3">
+                            When you create a reservation,
+                            it will appear here.
+                        </p>
+
+                        <a asp-controller="Vehicles"
+                           asp-action="Index"
+                           class="btn btn-primary btn-sm">
+                            Browse vehicles
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">
+                            No reservations were found.
+                        </p>
+                    }
+                }
+
+            </div>
+
+        </div>
+    }
+    else if (canManageAllReservations)
+    {
+        <partial name="_StaffReservationsTable"
+                 model="Model.Reservations" />
+    }
+    else
+    {
+        <partial name="_ClientReservations"
+                 model="Model.Reservations" />
+    }
+
+</div>

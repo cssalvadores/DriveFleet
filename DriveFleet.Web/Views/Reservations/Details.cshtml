@@ -1,0 +1,387 @@
+﻿@model DriveFleet.Web.Models.Reservations.ReservationViewModel
+
+@using DriveFleet.Web.Helpers
+
+@{
+    ViewData["Title"] =
+        $"Reservation #{Model.ReservationId}";
+
+    var canManageAllReservations =
+        User.IsInRole("Admin") ||
+        User.IsInRole("Employee");
+}
+
+<div class="container mt-4 mb-5"
+     style="max-width: 1050px;">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+
+        <div>
+            <h1 class="h3 mb-1">
+                Reservation #@Model.ReservationId
+            </h1>
+
+            <span class="badge @ReservationDisplayHelper.GetStatusBadgeClass(
+                                Model.ReservationStatusName)">
+                @Model.ReservationStatusName
+            </span>
+        </div>
+
+        <a asp-controller="Reservations"
+           asp-action="Index"
+           class="btn btn-outline-secondary btn-sm">
+            Back to reservations
+        </a>
+
+    </div>
+
+    @if (TempData["ReservationSuccess"] is string successMessage)
+    {
+        <div class="alert alert-success"
+             role="alert">
+            @successMessage
+        </div>
+    }
+
+    @if (TempData["ReservationError"] is string errorMessage)
+    {
+        <div class="alert alert-danger"
+             role="alert">
+            @errorMessage
+        </div>
+    }
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h2 class="h5 mb-3">
+                        Reservation information
+                    </h2>
+
+                    <dl class="row mb-0">
+
+                        <dt class="col-sm-5">
+                            Created
+                        </dt>
+
+                        <dd class="col-sm-7">
+                            @ReservationDisplayHelper.FormatDateTime(
+                                Model.CreatedAt)
+                        </dd>
+
+                        @if (Model.UpdatedAt.HasValue)
+                        {
+                            <dt class="col-sm-5">
+                                Last updated
+                            </dt>
+
+                            <dd class="col-sm-7">
+                                @ReservationDisplayHelper.FormatDateTime(
+                                    Model.UpdatedAt.Value)
+                            </dd>
+                        }
+
+                        <dt class="col-sm-5">
+                            Status
+                        </dt>
+
+                        <dd class="col-sm-7">
+                            @Model.ReservationStatusName
+                        </dd>
+
+                        <dt class="col-sm-5">
+                            Total
+                        </dt>
+
+                        <dd class="col-sm-7 fw-bold">
+                            @Model.TotalValue.ToString("C")
+                        </dd>
+
+                    </dl>
+
+                </div>
+            </div>
+        </div>
+
+        @if (canManageAllReservations)
+        {
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <h2 class="h5 mb-3">
+                            Client
+                        </h2>
+
+                        <dl class="row mb-0">
+
+                            <dt class="col-sm-4">
+                                Name
+                            </dt>
+
+                            <dd class="col-sm-8">
+                                @Model.UserFullName
+                            </dd>
+
+                            <dt class="col-sm-4">
+                                Email
+                            </dt>
+
+                            <dd class="col-sm-8">
+                                @Model.UserEmail
+                            </dd>
+
+                        </dl>
+
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+
+    <h2 class="h4 mb-3">
+        Vehicles
+    </h2>
+
+    @foreach (var vehicle in Model.Vehicles)
+    {
+        <div class="card shadow-sm mb-3">
+
+            <div class="card-header bg-light">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                    <div>
+                        <strong>
+                            @vehicle.VehicleBrand
+                            @vehicle.VehicleModel
+                        </strong>
+
+                        <span class="text-muted ms-2">
+                            @vehicle.LicensePlate
+                        </span>
+                    </div>
+
+                    <a asp-controller="Vehicles"
+                       asp-action="Details"
+                       asp-route-vehicleId="@vehicle.VehicleId"
+                       class="btn btn-sm btn-outline-secondary">
+                        Vehicle details
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    <div class="col-md-7">
+
+                        <dl class="row mb-0">
+
+                            <dt class="col-sm-5">
+                                Start
+                            </dt>
+
+                            <dd class="col-sm-7">
+                                @ReservationDisplayHelper.FormatDateTime(
+                                    vehicle.StartDate)
+                            </dd>
+
+                            <dt class="col-sm-5">
+                                End
+                            </dt>
+
+                            <dd class="col-sm-7">
+                                @ReservationDisplayHelper.FormatDateTime(
+                                    vehicle.EndDate)
+                            </dd>
+
+                            <dt class="col-sm-5">
+                                Rental days
+                            </dt>
+
+                            <dd class="col-sm-7">
+                                @vehicle.RentalDays
+                            </dd>
+
+                            <dt class="col-sm-5">
+                                Daily price
+                            </dt>
+
+                            <dd class="col-sm-7">
+                                @vehicle.DailyPrice.ToString("C")
+                            </dd>
+
+                            <dt class="col-sm-5">
+                                Rental value
+                            </dt>
+
+                            <dd class="col-sm-7">
+                                @vehicle.RentalValue.ToString("C")
+                            </dd>
+
+                        </dl>
+
+                    </div>
+
+                    <div class="col-md-5">
+
+                        <h3 class="h6">
+                            Extras
+                        </h3>
+
+                        @if (vehicle.Extras.Count == 0)
+                        {
+                            <p class="text-muted mb-0">
+                                No extras selected.
+                            </p>
+                        }
+                        else
+                        {
+                            <ul class="list-group list-group-flush">
+
+                                @foreach (var extra in vehicle.Extras)
+                                {
+                                    <li class="list-group-item px-0 d-flex justify-content-between gap-3">
+
+                                        <span>
+                                            @extra.Name
+                                            × @extra.Quantity
+                                        </span>
+
+                                        <span>
+                                            @extra.Total.ToString("C")
+                                        </span>
+
+                                    </li>
+                                }
+
+                            </ul>
+                        }
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+
+                            <span>
+                                Extras
+                            </span>
+
+                            <strong>
+                                @vehicle.ExtrasValue.ToString("C")
+                            </strong>
+
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-2">
+
+                            <span>
+                                Vehicle total
+                            </span>
+
+                            <strong>
+                                @vehicle.TotalValue.ToString("C")
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+    <div class="card shadow-sm mt-4">
+
+        <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+            <div>
+
+                <span class="text-muted">
+                    Reservation total
+                </span>
+
+                <div class="fs-4 fw-bold">
+                    @Model.TotalValue.ToString("C")
+                </div>
+
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-end gap-2">
+
+                @if (canManageAllReservations &&
+                     Model.CanStart)
+                {
+                    <form asp-controller="Reservations"
+                          asp-action="Start"
+                          asp-route-reservationId="@Model.ReservationId"
+                          method="post"
+                          onsubmit="return confirm('Start this reservation?');">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Start reservation
+                        </button>
+
+                    </form>
+                }
+
+                @if (canManageAllReservations &&
+                     Model.CanComplete)
+                {
+                    <form asp-controller="Reservations"
+                          asp-action="Complete"
+                          asp-route-reservationId="@Model.ReservationId"
+                          method="post"
+                          onsubmit="return confirm('Complete this reservation?');">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-success">
+                            Complete reservation
+                        </button>
+
+                    </form>
+                }
+
+                @if ((canManageAllReservations && Model.CanCancel) ||
+                     (!canManageAllReservations && Model.CanClientCancel))
+                {
+                    <form asp-controller="Reservations"
+                          asp-action="Cancel"
+                          asp-route-reservationId="@Model.ReservationId"
+                          method="post"
+                          onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
+
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-outline-danger">
+                            Cancel reservation
+                        </button>
+
+                    </form>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

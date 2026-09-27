@@ -1,0 +1,140 @@
+﻿@model IEnumerable<DriveFleet.Web.Models.Reservations.ReservationViewModel>
+
+@using DriveFleet.Web.Helpers
+
+@*
+    Staff users receive a compact table because
+    they may need to review many reservations.
+*@
+
+<div class="card shadow-sm">
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle mb-0">
+
+            <thead class="table-light">
+                <tr>
+
+                    <th>
+                        Reservation
+                    </th>
+
+                    <th>
+                        Client
+                    </th>
+
+                    <th>
+                        Vehicle(s)
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Created
+                    </th>
+
+                    <th class="text-end">
+                        Total
+                    </th>
+
+                    <th class="text-end">
+                        Actions
+                    </th>
+
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var reservation in Model)
+                {
+                    <tr>
+
+                        <td>
+                            <strong>
+                                #@reservation.ReservationId
+                            </strong>
+                        </td>
+
+                        <td>
+
+                            <div>
+                                @reservation.UserFullName
+                            </div>
+
+                            <small class="text-muted">
+                                @reservation.UserEmail
+                            </small>
+
+                        </td>
+
+                        <td>
+
+                            @foreach (var vehicle in reservation.Vehicles)
+                            {
+                                <div class="mb-2">
+
+                                    <div class="fw-semibold">
+                                        @vehicle.VehicleBrand
+                                        @vehicle.VehicleModel
+                                    </div>
+
+                                    <div class="small text-muted">
+                                        @vehicle.LicensePlate
+                                    </div>
+
+                                    @if (vehicle.Extras.Count > 0)
+                                    {
+                                        <div class="small text-muted">
+                                            @vehicle.Extras.Count
+                                            @(vehicle.Extras.Count == 1
+                                                ? "extra"
+                                                : "extras")
+                                        </div>
+                                    }
+
+                                </div>
+                            }
+
+                        </td>
+
+                        <td>
+                            <span class="badge @ReservationDisplayHelper.GetStatusBadgeClass(
+                                                                reservation.ReservationStatusName)">
+                                @reservation.ReservationStatusName
+                            </span>
+                        </td>
+
+                        <td>
+                            @ReservationDisplayHelper.FormatDateTime(
+                                reservation.CreatedAt)
+                        </td>
+
+                        <td class="text-end fw-semibold">
+                            @reservation.TotalValue.ToString("C")
+                        </td>
+
+                        <td class="text-end">
+
+                            <a asp-controller="Reservations"
+                               asp-action="Details"
+                               asp-route-reservationId="@reservation.ReservationId"
+                               class="btn btn-sm btn-outline-primary">
+                                Details
+                            </a>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>

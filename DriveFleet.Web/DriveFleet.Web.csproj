@@ -10,4 +10,8 @@
     <Folder Include="Models\Account\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DriveFleet.Domain\DriveFleet.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

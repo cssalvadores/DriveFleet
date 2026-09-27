@@ -58,6 +58,28 @@
                                 </span>
                             </li>
 
+                            @if (User.IsInRole("Client"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark"
+                                       asp-controller="Reservations"
+                                       asp-action="Index">
+                                        My reservations
+                                    </a>
+                                </li>
+                            }
+                            else if (User.IsInRole("Admin") ||
+                                     User.IsInRole("Employee"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark"
+                                       asp-controller="Reservations"
+                                       asp-action="Index">
+                                        Reservations
+                                    </a>
+                                </li>
+                            }
+
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
                                    asp-controller="Profile"
@@ -66,11 +88,22 @@
                                 </a>
                             </li>
 
+                            @* <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                   asp-controller="Account"
+                                   asp-action="Profile">
+                                    My profile
+                                </a>
+                            </li> *@
+
                             <li class="nav-item">
                                 <form asp-controller="Account"
                                       asp-action="Logout"
                                       method="post"
                                       class="d-inline">
+
+                                    @Html.AntiForgeryToken()
+
                                     <button type="submit"
                                             class="nav-link btn btn-link text-dark border-0">
                                         Logout
@@ -97,6 +130,7 @@
                             </li>
                         }
                     </ul>
+
                 </div>
 
             </div>

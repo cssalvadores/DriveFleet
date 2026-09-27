@@ -101,6 +101,44 @@ builder.Services.AddHttpClient<VehicleApiClient>(
             new Uri(apiBaseUrl);
     });
 
+builder.Services.AddHttpClient<ReservationApiClient>(
+    (serviceProvider, httpClient) =>
+    {
+        var configuration =
+            serviceProvider.GetRequiredService<IConfiguration>();
+
+        var apiBaseUrl =
+            configuration["ApiSettings:BaseUrl"];
+
+        if (string.IsNullOrWhiteSpace(apiBaseUrl))
+        {
+            throw new InvalidOperationException(
+                "The DriveFleet API base URL is not configured.");
+        }
+
+        httpClient.BaseAddress =
+            new Uri(apiBaseUrl);
+    });
+
+builder.Services.AddHttpClient<ExtraApiClient>(
+    (serviceProvider, httpClient) =>
+    {
+        var configuration =
+            serviceProvider.GetRequiredService<IConfiguration>();
+
+        var apiBaseUrl =
+            configuration["ApiSettings:BaseUrl"];
+
+        if (string.IsNullOrWhiteSpace(apiBaseUrl))
+        {
+            throw new InvalidOperationException(
+                "The DriveFleet API base URL is not configured.");
+        }
+
+        httpClient.BaseAddress =
+            new Uri(apiBaseUrl);
+    });
+
 var app = builder.Build();
 
 app.UseRequestLocalization();
