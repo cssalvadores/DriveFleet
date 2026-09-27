@@ -1,0 +1,174 @@
+﻿@model IReadOnlyList<DriveFleet.Web.Models.Reservations.ReservationViewModel>
+
+@using DriveFleet.Web.Helpers
+
+@{
+    ViewData["Title"] = "Reservation history";
+}
+
+<div class="container mt-4 mb-5"
+     style="max-width: 1050px;">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+
+        <div>
+            <h1 class="h3 mb-1">
+                Reservation history
+            </h1>
+
+            <p class="text-muted mb-0">
+                View your completed and cancelled reservations.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+
+            @if (Model.Any())
+            {
+                <a asp-controller="Reservations"
+                   asp-action="ExportHistoryPdf"
+                   class="btn btn-primary btn-sm">
+                    Export PDF
+                </a>
+            }
+
+            <a asp-controller="Reservations"
+               asp-action="Index"
+               class="btn btn-outline-secondary btn-sm">
+                Back to reservations
+            </a>
+
+        </div>
+
+        @* <a asp-controller="Reservations"
+           asp-action="Index"
+           class="btn btn-outline-secondary btn-sm">
+            Back to reservations
+        </a> *@
+
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body text-center py-5">
+
+                <h2 class="h5 mb-2">
+                    No reservation history yet
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Completed and cancelled reservations
+                    will appear here.
+                </p>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        @foreach (var reservation in Model)
+        {
+            <div class="card shadow-sm mb-3">
+
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                    <div>
+                        <strong>
+                            Reservation #@reservation.ReservationId
+                        </strong>
+
+                        <span class="badge ms-2 @ReservationDisplayHelper.GetStatusBadgeClass(
+                                                                             reservation.ReservationStatusName)">
+                            @reservation.ReservationStatusName
+                        </span>
+                    </div>
+
+                    <a asp-controller="Reservations"
+                       asp-action="Details"
+                       asp-route-reservationId="@reservation.ReservationId"
+                       class="btn btn-outline-primary btn-sm">
+                        Details
+                    </a>
+
+                </div>
+
+                <div class="card-body">
+
+                    @foreach (var vehicle in reservation.Vehicles)
+                    {
+                        <div class="row g-3 mb-3">
+
+                            <div class="col-md-4">
+                                <div class="small text-muted">
+                                    Vehicle
+                                </div>
+
+                                <div class="fw-semibold">
+                                    @vehicle.VehicleBrand
+                                    @vehicle.VehicleModel
+                                </div>
+
+                                <div class="small text-muted">
+                                    @vehicle.LicensePlate
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="small text-muted">
+                                    Rental period
+                                </div>
+
+                                <div>
+                                    @vehicle.StartDate.ToString("dd/MM/yyyy")
+                                    -
+                                    @vehicle.EndDate.ToString("dd/MM/yyyy")
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="small text-muted">
+                                    Duration
+                                </div>
+
+                                <div>
+                                    @vehicle.RentalDays day@(vehicle.RentalDays == 1 ? string.Empty : "s")
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="small text-muted">
+                                    Vehicle total
+                                </div>
+
+                                <div class="fw-semibold">
+                                    @vehicle.TotalValue.ToString("C")
+                                </div>
+                            </div>
+
+                        </div>
+                    }
+
+                    <hr />
+
+                    <div class="d-flex justify-content-end gap-2">
+
+                        <span class="text-muted">
+                            Reservation total:
+                        </span>
+
+                        <strong>
+                            @reservation.TotalValue.ToString("C")
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+    }
+
+</div>

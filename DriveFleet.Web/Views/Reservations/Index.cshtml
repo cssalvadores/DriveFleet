@@ -47,11 +47,21 @@
         }
         else if (User.IsInRole("Client"))
         {
-            <a asp-controller="Vehicles"
-               asp-action="Index"
-               class="btn btn-primary btn-sm">
-                Browse vehicles
-            </a>
+            <div class="d-flex gap-2">
+
+                <a asp-controller="Reservations"
+                   asp-action="History"
+                   class="btn btn-outline-primary btn-sm">
+                    Reservation history
+                </a>
+
+                <a asp-controller="Vehicles"
+                   asp-action="Index"
+                   class="btn btn-primary btn-sm">
+                    Browse vehicles
+                </a>
+
+            </div>
         }
 
     </div>

@@ -60,6 +60,15 @@ public static class DependencyInjection
         // Registers vehicle persistence.
         services.AddScoped<IVehicleRepository, VehicleRepository>();
 
+        // Registers reservation persistence.
+        services.AddScoped<IReservationRepository, ReservationRepository>();
+
+        // Registers reservation extra persistence.
+        services.AddScoped<IExtraRepository, ExtraRepository>();
+
+        // Registers vehicle review persistence.
+        services.AddScoped<IReviewRepository, ReviewRepository>();
+
         return services;
     }
 }

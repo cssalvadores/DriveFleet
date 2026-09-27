@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using DriveFleet.Domain.Constants;
 using DriveFleet.Web.Models.Reservations;
 using DriveFleet.Web.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -270,6 +271,152 @@ public class ReservationsController : Controller
             _logger.LogError(
                 exception,
                 "Unable to communicate with the DriveFleet API while retrieving the reservation calendar.");
+
+            return View(
+                ReservationErrorViewName);
+        }
+    }
+
+    /// <summary>
+    /// Displays the completed and cancelled reservation
+    /// history for the authenticated client.
+    /// </summary>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the request if the client disconnects.
+    /// </param>
+    /// <returns>
+    /// The authenticated client's reservation history page.
+    /// </returns>
+    [Authorize(Roles = ClientRole)]
+    [HttpGet("/reservations/history")]
+    public async Task<IActionResult> History(
+        CancellationToken cancellationToken)
+    {
+        var accessToken =
+            await GetAccessTokenAsync();
+
+        if (string.IsNullOrWhiteSpace(accessToken))
+        {
+            return await SignOutAndRedirectToLoginAsync();
+        }
+
+        try
+        {
+            var result =
+                await _reservationApiClient.GetMineAsync(
+                    accessToken,
+                    statusId: null,
+                    fromDate: null,
+                    toDate: null,
+                    cancellationToken);
+
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return await SignOutAndRedirectToLoginAsync();
+            }
+
+            if (result.StatusCode == HttpStatusCode.Forbidden)
+            {
+                return Forbid();
+            }
+
+            if (result.StatusCode != HttpStatusCode.OK)
+            {
+                return View(
+                    ReservationErrorViewName);
+            }
+
+            var reservations =
+                MapHistoryReservations(
+                    result.Reservations);
+
+            return View(reservations);
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unable to communicate with the DriveFleet API while retrieving reservation history.");
+
+            return View(
+                ReservationErrorViewName);
+        }
+    }
+
+    /// <summary>
+    /// Exports the authenticated client's reservation
+    /// history as a PDF document.
+    /// </summary>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the request if the client disconnects.
+    /// </param>
+    /// <returns>
+    /// The generated reservation history PDF.
+    /// </returns>
+    [Authorize(Roles = ClientRole)]
+    [HttpGet("/reservations/history/pdf")]
+    public async Task<IActionResult> ExportHistoryPdf(
+        CancellationToken cancellationToken)
+    {
+        var accessToken =
+            await GetAccessTokenAsync();
+
+        if (string.IsNullOrWhiteSpace(accessToken))
+        {
+            return await SignOutAndRedirectToLoginAsync();
+        }
+
+        try
+        {
+            var result =
+                await _reservationApiClient.GetMineAsync(
+                    accessToken,
+                    statusId: null,
+                    fromDate: null,
+                    toDate: null,
+                    cancellationToken);
+
+            if (result.StatusCode ==
+                HttpStatusCode.Unauthorized)
+            {
+                return await SignOutAndRedirectToLoginAsync();
+            }
+
+            if (result.StatusCode ==
+                HttpStatusCode.Forbidden)
+            {
+                return Forbid();
+            }
+
+            if (result.StatusCode !=
+                HttpStatusCode.OK)
+            {
+                return View(
+                    ReservationErrorViewName);
+            }
+
+            var reservations =
+                MapHistoryReservations(
+                    result.Reservations);
+
+            var pdf =
+                ReservationHistoryPdfGenerator.Generate(
+                    reservations);
+
+            var fileName =
+                $"DriveFleet-reservation-history-" +
+                $"{DateTime.Today:yyyyMMdd}.pdf";
+
+            return File(
+                pdf,
+                "application/pdf",
+                fileName);
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unable to communicate with the DriveFleet API while exporting reservation history.");
 
             return View(
                 ReservationErrorViewName);
@@ -1343,6 +1490,36 @@ public class ReservationsController : Controller
                    AdminRole) ||
                User.IsInRole(
                    EmployeeRole);
+    }
+
+    /// <summary>
+    /// Maps API reservations to the completed and cancelled
+    /// reservation history displayed by the Web project.
+    /// </summary>
+    /// <param name="reservations">
+    /// The reservations returned by the API.
+    /// </param>
+    /// <returns>
+    /// The ordered reservation history.
+    /// </returns>
+    private static IReadOnlyList<ReservationViewModel>
+        MapHistoryReservations(
+            IEnumerable<ReservationApiModel> reservations)
+    {
+        return reservations
+            .Where(reservation =>
+                reservation.ReservationStatusId ==
+                    ReservationStatusIds.Completed ||
+                reservation.ReservationStatusId ==
+                    ReservationStatusIds.Cancelled)
+            .Select(
+                MapReservation)
+            .OrderByDescending(reservation =>
+                reservation.Vehicles.Count == 0
+                    ? reservation.CreatedAt
+                    : reservation.Vehicles.Max(vehicle =>
+                        vehicle.EndDate))
+            .ToList();
     }
 
     /// <summary>
