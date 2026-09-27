@@ -226,6 +226,74 @@ public class AuthApiClient
     }
 
     /// <summary>
+    /// Sends a password recovery request
+    /// to the DriveFleet API.
+    /// </summary>
+    /// <param name="email">
+    /// The email address associated with the user account.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous HTTP request if needed.
+    /// </param>
+    /// <returns>
+    /// The password recovery result returned by the API.
+    /// </returns>
+    public async Task<ForgotPasswordApiResult> ForgotPasswordAsync(
+        string email,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new ForgotPasswordRequest
+        {
+            Email = email
+        };
+
+        using var response =
+            await _httpClient.PostAsJsonAsync(
+                "api/auth/forgot-password",
+                request,
+                cancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var forgotPasswordResponse =
+                await response.Content
+                    .ReadFromJsonAsync<ForgotPasswordResponse>(
+                        cancellationToken:
+                            cancellationToken);
+
+            return new ForgotPasswordApiResult
+            {
+                StatusCode = response.StatusCode,
+                Message = forgotPasswordResponse?.Message
+            };
+        }
+
+        string? detail = null;
+
+        try
+        {
+            var problemDetails =
+                await response.Content
+                    .ReadFromJsonAsync<ApiProblemDetails>(
+                        cancellationToken:
+                            cancellationToken);
+
+            detail = problemDetails?.Detail;
+        }
+        catch (JsonException)
+        {
+            // Keeps the detail empty when the API response
+            // does not contain valid ProblemDetails JSON.
+        }
+
+        return new ForgotPasswordApiResult
+        {
+            StatusCode = response.StatusCode,
+            Detail = detail
+        };
+    }
+
+    /// <summary>
     /// Sends a password reset request to the DriveFleet API.
     /// </summary>
     /// <param name="token">
@@ -509,6 +577,30 @@ public class AuthApiClient
     {
         public string? Detail { get; set; }
     }
+
+    /// <summary>
+    /// Represents a password recovery request
+    /// sent to the API.
+    /// </summary>
+    private sealed class ForgotPasswordRequest
+    {
+        /// <summary>
+        /// Gets or sets the account email address.
+        /// </summary>
+        public string Email { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Represents a successful password recovery
+    /// response returned by the API.
+    /// </summary>
+    private sealed class ForgotPasswordResponse
+    {
+        /// <summary>
+        /// Gets or sets the generic password recovery message.
+        /// </summary>
+        public string? Message { get; set; }
+    }
 }
 
 /// <summary>
@@ -606,6 +698,28 @@ public class RegisterApiResult
 
     /// <summary>
     /// Gets or sets the error detail returned by the API, when available.
+    /// </summary>
+    public string? Detail { get; set; }
+}
+
+/// <summary>
+/// Represents the result of a password recovery API request.
+/// </summary>
+public class ForgotPasswordApiResult
+{
+    /// <summary>
+    /// Gets or sets the HTTP status code returned by the API.
+    /// </summary>
+    public HttpStatusCode StatusCode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the generic success message returned by the API.
+    /// </summary>
+    public string? Message { get; set; }
+
+    /// <summary>
+    /// Gets or sets the error detail returned by the API,
+    /// when available.
     /// </summary>
     public string? Detail { get; set; }
 }

@@ -277,6 +277,89 @@ public class AccountController : Controller
     }
 
     /// <summary>
+    /// Displays the password recovery form.
+    /// </summary>
+    /// <returns>
+    /// The password recovery page.
+    /// </returns>
+    [HttpGet("/account/forgot-password")]
+    public IActionResult ForgotPassword()
+    {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction(
+                "Index",
+                "Home");
+        }
+
+        return View(
+            new ForgotPasswordViewModel());
+    }
+
+    /// <summary>
+    /// Processes a password recovery request.
+    /// </summary>
+    /// <param name="model">
+    /// The email address entered by the user.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the request if the client disconnects.
+    /// </param>
+    /// <returns>
+    /// The password recovery page with a generic result message.
+    /// </returns>
+    [HttpPost("/account/forgot-password")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ForgotPassword(
+        ForgotPasswordViewModel model,
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        try
+        {
+            var result =
+                await _authApiClient.ForgotPasswordAsync(
+                    model.Email,
+                    cancellationToken);
+
+            if (result.StatusCode != HttpStatusCode.OK)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    string.IsNullOrWhiteSpace(result.Detail)
+                        ? "We could not process the password reset request. Please try again."
+                        : result.Detail);
+
+                return View(model);
+            }
+
+            TempData["PasswordResetRequested"] =
+                string.IsNullOrWhiteSpace(result.Message)
+                    ? "If an account exists for this email, a password reset link has been sent."
+                    : result.Message;
+
+            return RedirectToAction(
+                nameof(ForgotPassword));
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unable to communicate with the DriveFleet API during password recovery.");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "The password recovery service is temporarily unavailable.");
+
+            return View(model);
+        }
+    }
+
+    /// <summary>
     /// Displays the access denied page when an authenticated user
     /// attempts to access a resource without the required role.
     /// </summary>
