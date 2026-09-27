@@ -37,7 +37,15 @@
             </p>
         </div>
 
-        @if (User.IsInRole("Client"))
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-controller="Reservations"
+               asp-action="Calendar"
+               class="btn btn-outline-primary btn-sm">
+                Reservation calendar
+            </a>
+        }
+        else if (User.IsInRole("Client"))
         {
             <a asp-controller="Vehicles"
                asp-action="Index"

@@ -103,6 +103,9 @@ public class ReservationService : IReservationService
             throw new InvalidOperationException(
                 "The created reservation could not be retrieved.");
         }
+        await SendReservationConfirmationEmailAsync(
+            createdReservation,
+            cancellationToken);
 
         return MapToResponse(createdReservation);
     }
@@ -260,6 +263,99 @@ public class ReservationService : IReservationService
     }
 
     /// <summary>
+    /// Sends a confirmation email after a reservation
+    /// has been created successfully.
+    /// </summary>
+    /// <param name="reservation">
+    /// The created reservation.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation.
+    /// </param>
+    private async Task SendReservationConfirmationEmailAsync(
+        Reservation reservation,
+        CancellationToken cancellationToken)
+    {
+        var vehicleDetails =
+            string.Join(
+                "",
+                reservation.ReservationVehicles.Select(
+                    reservationVehicle =>
+                    {
+                        var extras =
+                            reservationVehicle.ReservationVehicleExtras.Count == 0
+                                ? "No extras selected."
+                                : string.Join(
+                                    ", ",
+                                    reservationVehicle
+                                        .ReservationVehicleExtras
+                                        .Select(reservationVehicleExtra =>
+                                            $"{reservationVehicleExtra.Extra.Name} " +
+                                            $"x{reservationVehicleExtra.Quantity}"));
+
+                        return $"""
+                        <li>
+                            <strong>
+                                {reservationVehicle.Vehicle.Brand}
+                                {reservationVehicle.Vehicle.Model}
+                            </strong>
+                            <br />
+                            Start:
+                            {reservationVehicle.StartDate:dd/MM/yyyy HH:mm}
+                            <br />
+                            End:
+                            {reservationVehicle.EndDate:dd/MM/yyyy HH:mm}
+                            <br />
+                            Extras:
+                            {extras}
+                        </li>
+                        """;
+                    }));
+
+        var subject =
+            $"DriveFleet reservation #{reservation.ReservationId} confirmed";
+
+        var body = $"""
+        <h2>Reservation confirmed</h2>
+
+        <p>
+            Hello {reservation.User.FirstName},
+        </p>
+
+        <p>
+            Your DriveFleet reservation
+            <strong>#{reservation.ReservationId}</strong>
+            has been created successfully.
+        </p>
+
+        <p>
+            <strong>Status:</strong>
+            Pending
+        </p>
+
+        <h3>Vehicles</h3>
+
+        <ul>
+            {vehicleDetails}
+        </ul>
+
+        <p>
+            <strong>Total:</strong>
+            {reservation.TotalValue:C}
+        </p>
+
+        <p>
+            Thank you for choosing DriveFleet.
+        </p>
+        """;
+
+        await _emailSender.SendAsync(
+            reservation.User.Email,
+            subject,
+            body,
+            cancellationToken);
+    }
+    /// <summary>
     /// Sends the reservation cancellation confirmation email
     /// to the reservation owner.
     /// </summary>
@@ -370,11 +466,6 @@ public class ReservationService : IReservationService
         string conflictMessage,
         CancellationToken cancellationToken)
     {
-        if (reservation.ReservationStatusId ==
-            targetStatusId)
-        {
-            return;
-        }
 
         if (reservation.ReservationStatusId !=
             expectedStatusId)

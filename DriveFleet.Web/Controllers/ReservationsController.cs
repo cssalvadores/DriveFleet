@@ -30,6 +30,12 @@ public class ReservationsController : Controller
 
     private const string UnavailableVehicleStatusName = "Unavailable";
 
+    private const string CalendarMonthView = "month";
+    private const string CalendarWeekView = "week";
+
+    private const string CancelledReservationStatusName =
+        "Cancelled";
+
     private const int MainPhotoDisplayOrder = 1;
     private const int DefaultRentalStartHour = 10;
     private const int DefaultRentalDurationDays = 1;
@@ -156,6 +162,114 @@ public class ReservationsController : Controller
             _logger.LogError(
                 exception,
                 "Unable to communicate with the DriveFleet API while retrieving reservations.");
+
+            return View(
+                ReservationErrorViewName);
+        }
+    }
+
+    /// <summary>
+    /// Displays the reservation calendar for administrators.
+    /// </summary>
+    /// <param name="view">
+    /// The requested calendar view: month or week.
+    /// </param>
+    /// <param name="date">
+    /// The date used as the calendar reference point.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the request if the client disconnects.
+    /// </param>
+    /// <returns>
+    /// The reservation calendar page.
+    /// </returns>
+    [Authorize(Roles = AdminRole)]
+    [HttpGet("/reservations/calendar")]
+    public async Task<IActionResult> Calendar(
+        [FromQuery] string? view,
+        [FromQuery] DateTime? date,
+        CancellationToken cancellationToken)
+    {
+        var viewMode =
+            string.Equals(
+                view,
+                CalendarWeekView,
+                StringComparison.OrdinalIgnoreCase)
+                ? CalendarWeekView
+                : CalendarMonthView;
+
+        var referenceDate =
+            (date ?? DateTime.Today).Date;
+
+        var (periodStart, periodEnd) =
+            GetCalendarPeriod(
+                referenceDate,
+                viewMode);
+
+        var viewModel =
+            new ReservationCalendarViewModel
+            {
+                ViewMode = viewMode,
+                ReferenceDate = referenceDate,
+                PeriodStart = periodStart,
+                PeriodEnd = periodEnd
+            };
+
+        var accessToken =
+            await GetAccessTokenAsync();
+
+        if (string.IsNullOrWhiteSpace(accessToken))
+        {
+            return await SignOutAndRedirectToLoginAsync();
+        }
+
+        try
+        {
+            var result =
+                await _reservationApiClient.GetAllAsync(
+                    accessToken,
+                    statusId: null,
+                    fromDate: periodStart,
+                    toDate: periodEnd,
+                    cancellationToken);
+
+            if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return await SignOutAndRedirectToLoginAsync();
+            }
+
+            if (result.StatusCode == HttpStatusCode.Forbidden)
+            {
+                return Forbid();
+            }
+
+            if (result.StatusCode == HttpStatusCode.BadRequest)
+            {
+                viewModel.ErrorMessage =
+                    string.IsNullOrWhiteSpace(result.Detail)
+                        ? "The selected calendar period is invalid."
+                        : result.Detail;
+
+                return View(viewModel);
+            }
+
+            if (result.StatusCode != HttpStatusCode.OK)
+            {
+                return View(
+                    ReservationErrorViewName);
+            }
+
+            viewModel.Entries =
+                MapCalendarEntries(
+                    result.Reservations);
+
+            return View(viewModel);
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unable to communicate with the DriveFleet API while retrieving the reservation calendar.");
 
             return View(
                 ReservationErrorViewName);
@@ -1081,6 +1195,110 @@ public class ReservationsController : Controller
                 .ToList();
 
         return true;
+    }
+
+    /// <summary>
+    /// Calculates the date range represented by the
+    /// selected calendar view.
+    /// </summary>
+    /// <param name="referenceDate">
+    /// The date used as the calendar reference point.
+    /// </param>
+    /// <param name="viewMode">
+    /// The selected calendar view.
+    /// </param>
+    /// <returns>
+    /// The inclusive start and end dates of the period.
+    /// </returns>
+    private static (DateTime StartDate, DateTime EndDate)
+        GetCalendarPeriod(
+            DateTime referenceDate,
+            string viewMode)
+    {
+        if (string.Equals(
+            viewMode,
+            CalendarWeekView,
+            StringComparison.OrdinalIgnoreCase))
+        {
+            var daysSinceMonday =
+                ((int)referenceDate.DayOfWeek + 6) % 7;
+
+            var startDate =
+                referenceDate.AddDays(
+                    -daysSinceMonday);
+
+            return (
+                startDate,
+                startDate.AddDays(6));
+        }
+
+        var monthStart =
+            new DateTime(
+                referenceDate.Year,
+                referenceDate.Month,
+                1);
+
+        return (
+            monthStart,
+            monthStart
+                .AddMonths(1)
+                .AddDays(-1));
+    }
+
+    /// <summary>
+    /// Maps reservation API models to calendar entries.
+    /// </summary>
+    /// <param name="reservations">
+    /// The reservations returned by the API.
+    /// </param>
+    /// <returns>
+    /// Calendar entries representing reserved vehicles.
+    /// </returns>
+    private static IReadOnlyList<ReservationCalendarEntryViewModel>
+        MapCalendarEntries(
+            IEnumerable<ReservationApiModel> reservations)
+    {
+        return reservations
+            .Where(reservation =>
+                !string.Equals(
+                    reservation.ReservationStatusName,
+                    CancelledReservationStatusName,
+                    StringComparison.OrdinalIgnoreCase))
+            .SelectMany(reservation =>
+                reservation.Vehicles.Select(vehicle =>
+                    new ReservationCalendarEntryViewModel
+                    {
+                        ReservationId =
+                            reservation.ReservationId,
+
+                        UserFullName =
+                            reservation.UserFullName,
+
+                        ReservationStatusName =
+                            reservation.ReservationStatusName,
+
+                        VehicleBrand =
+                            vehicle.VehicleBrand,
+
+                        VehicleModel =
+                            vehicle.VehicleModel,
+
+                        LicensePlate =
+                            vehicle.LicensePlate,
+
+                        StartDate =
+                            vehicle.StartDate,
+
+                        EndDate =
+                            vehicle.EndDate
+                    }))
+            .OrderBy(entry =>
+                entry.StartDate)
+            .ThenBy(entry =>
+                entry.VehicleBrand)
+            .ThenBy(entry =>
+                entry.VehicleModel)
+            .ToList();
     }
 
     /// <summary>

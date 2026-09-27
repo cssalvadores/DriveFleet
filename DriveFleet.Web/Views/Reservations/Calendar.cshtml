@@ -1,0 +1,304 @@
+﻿@model DriveFleet.Web.Models.Reservations.ReservationCalendarViewModel
+
+@using DriveFleet.Web.Helpers
+
+@{
+    ViewData["Title"] = "Reservation calendar";
+
+    var previousDate =
+        Model.IsWeekView
+            ? Model.ReferenceDate.AddDays(-7)
+            : Model.ReferenceDate.AddMonths(-1);
+
+    var nextDate =
+        Model.IsWeekView
+            ? Model.ReferenceDate.AddDays(7)
+            : Model.ReferenceDate.AddMonths(1);
+
+    var periodTitle =
+        Model.IsWeekView
+            ? $"{Model.PeriodStart:dd MMM yyyy} - {Model.PeriodEnd:dd MMM yyyy}"
+            : Model.ReferenceDate.ToString("MMMM yyyy");
+
+    var firstMonthDayOffset =
+        ((int)Model.PeriodStart.DayOfWeek + 6) % 7;
+
+    var firstVisibleDate =
+        Model.PeriodStart.AddDays(
+            -firstMonthDayOffset);
+
+    var lastMonthDayOffset =
+        ((int)Model.PeriodEnd.DayOfWeek + 6) % 7;
+
+    var lastVisibleDate =
+        Model.PeriodEnd.AddDays(
+            6 - lastMonthDayOffset);
+}
+
+<div class="container-fluid mt-4 mb-5">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+        <div>
+            <h1 class="h3 mb-1">
+                Reservation calendar
+            </h1>
+
+            <p class="text-muted mb-0">
+                @periodTitle
+            </p>
+        </div>
+
+        <a asp-controller="Reservations"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Reservation list
+        </a>
+
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger"
+             role="alert">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+
+        <div class="btn-group"
+             role="group">
+
+            <a asp-controller="Reservations"
+               asp-action="Calendar"
+               asp-route-view="@Model.ViewMode"
+               asp-route-date="@previousDate.ToString("yyyy-MM-dd")"
+               class="btn btn-outline-secondary">
+                Previous
+            </a>
+
+            <a asp-controller="Reservations"
+               asp-action="Calendar"
+               asp-route-view="@Model.ViewMode"
+               asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")"
+               class="btn btn-outline-secondary">
+                Today
+            </a>
+
+            <a asp-controller="Reservations"
+               asp-action="Calendar"
+               asp-route-view="@Model.ViewMode"
+               asp-route-date="@nextDate.ToString("yyyy-MM-dd")"
+               class="btn btn-outline-secondary">
+                Next
+            </a>
+
+        </div>
+
+        <div class="btn-group"
+             role="group">
+
+            <a asp-controller="Reservations"
+               asp-action="Calendar"
+               asp-route-view="month"
+               asp-route-date="@Model.ReferenceDate.ToString("yyyy-MM-dd")"
+               class="btn @(Model.IsWeekView ? "btn-outline-primary" : "btn-primary")">
+                Month
+            </a>
+
+            <a asp-controller="Reservations"
+               asp-action="Calendar"
+               asp-route-view="week"
+               asp-route-date="@Model.ReferenceDate.ToString("yyyy-MM-dd")"
+               class="btn @(Model.IsWeekView ? "btn-primary" : "btn-outline-primary")">
+                Week
+            </a>
+
+        </div>
+
+    </div>
+
+    @if (Model.IsWeekView)
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-7 g-2">
+
+            @for (var dayIndex = 0;
+                  dayIndex < 7;
+                  dayIndex++)
+            {
+                var day =
+                    Model.PeriodStart.AddDays(
+                        dayIndex);
+
+                var dayEnd =
+                    day.AddDays(1);
+
+                var dayEntries =
+                    Model.Entries
+                        .Where(entry =>
+                            entry.StartDate < dayEnd &&
+                            entry.EndDate > day)
+                        .ToList();
+
+                <div class="col">
+
+                    <div class="card h-100 shadow-sm">
+
+                        <div class="card-header">
+                            <div class="fw-semibold">
+                                @day.ToString("dddd")
+                            </div>
+
+                            <div class="small text-muted">
+                                @day.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+
+                        <div class="card-body p-2">
+
+                            @if (dayEntries.Count == 0)
+                            {
+                                <span class="small text-muted">
+                                    No reservations
+                                </span>
+                            }
+                            else
+                            {
+                                @foreach (var entry in dayEntries)
+                                {
+                                    <a asp-controller="Reservations"
+                                       asp-action="Details"
+                                       asp-route-reservationId="@entry.ReservationId"
+                                       class="d-block border rounded p-2 mb-2 text-decoration-none">
+
+                                        <div class="fw-semibold">
+                                            #@entry.ReservationId
+                                            @entry.VehicleBrand
+                                            @entry.VehicleModel
+                                        </div>
+
+                                        <div class="small">
+                                            @entry.StartDate.ToString("dd/MM HH:mm")
+                                            -
+                                            @entry.EndDate.ToString("dd/MM HH:mm")
+                                        </div>
+
+                                        <div class="small text-muted">
+                                            @entry.UserFullName
+                                        </div>
+
+                                        <div class="mt-1">
+                                            <span class="badge @ReservationDisplayHelper.GetStatusBadgeClass(
+                                                                                                                    entry.ReservationStatusName)">
+                                                @entry.ReservationStatusName
+                                            </span>
+                                        </div>
+
+                                    </a>
+                                }
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+
+            <table class="table table-bordered align-top">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th>Sat</th>
+                        <th>Sun</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @for (var weekStart = firstVisibleDate;
+                          weekStart <= lastVisibleDate;
+                          weekStart = weekStart.AddDays(7))
+                    {
+                        <tr>
+
+                            @for (var dayIndex = 0;
+                                  dayIndex < 7;
+                                  dayIndex++)
+                            {
+                                var day =
+                                    weekStart.AddDays(
+                                        dayIndex);
+
+                                var dayEnd =
+                                    day.AddDays(1);
+
+                                var dayEntries =
+                                    Model.Entries
+                                        .Where(entry =>
+                                            entry.StartDate < dayEnd &&
+                                            entry.EndDate > day)
+                                        .ToList();
+
+                                var outsideMonth =
+                                    day.Month !=
+                                        Model.ReferenceDate.Month;
+
+                                <td class="@(outsideMonth ? "bg-light" : string.Empty)"
+                                    style="min-width: 180px; height: 150px;">
+
+                                    <div class="fw-semibold mb-2">
+                                        @day.Day
+                                    </div>
+
+                                    @foreach (var entry in dayEntries)
+                                    {
+                                        <a asp-controller="Reservations"
+                                           asp-action="Details"
+                                           asp-route-reservationId="@entry.ReservationId"
+                                           class="d-block border rounded p-1 mb-1 text-decoration-none small">
+
+                                            <div class="fw-semibold">
+                                                #@entry.ReservationId
+                                                @entry.VehicleBrand
+                                                @entry.VehicleModel
+                                            </div>
+
+                                            <div>
+                                                @entry.UserFullName
+                                            </div>
+
+                                            <span class="badge @ReservationDisplayHelper.GetStatusBadgeClass(
+                                                                                                                    entry.ReservationStatusName)">
+                                                @entry.ReservationStatusName
+                                            </span>
+
+                                        </a>
+                                    }
+
+                                </td>
+                            }
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+</div>
