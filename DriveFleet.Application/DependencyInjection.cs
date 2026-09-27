@@ -44,9 +44,13 @@ public static class DependencyInjection
         services.AddScoped<IProfileService, ProfileService>();
 
         // Registers vehicle application operations.
-        services.AddScoped<
-            IVehicleService,
-            VehicleService>();
+        services.AddScoped<IVehicleService, VehicleService>();
+
+        //
+        services.AddScoped<IReservationService, ReservationService>();
+
+        //
+        services.AddScoped<IExtraService, ExtraService>();
 
         return services;
     }
