@@ -16,4 +16,14 @@ public interface IReviewService
         int reservationVehicleId,
         CreateReviewRequest request,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets the review created for a vehicle
+    /// in one of the client's reservations.
+    /// </summary>
+    Task<ReviewResponse?> GetByReservationVehicleAsync(
+        int userId,
+        int reservationId,
+        int reservationVehicleId,
+        CancellationToken cancellationToken = default);
 }

@@ -122,6 +122,66 @@ public class ReviewService : IReviewService
         await _reviewRepository.SaveChangesAsync(
             cancellationToken);
 
+        return MapToResponse(
+            review,
+            reservationVehicle.VehicleId);
+    }
+
+    /// <inheritdoc />
+    public async Task<ReviewResponse?>
+        GetByReservationVehicleAsync(
+            int userId,
+            int reservationId,
+            int reservationVehicleId,
+            CancellationToken cancellationToken = default)
+    {
+        var reservation =
+            await _reservationRepository.GetByIdAsync(
+                reservationId,
+                cancellationToken);
+
+        if (reservation is null)
+        {
+            return null;
+        }
+
+        if (reservation.UserId != userId)
+        {
+            throw new UnauthorizedAccessException(
+                "You cannot access another user's review.");
+        }
+
+        var reservationVehicle =
+            reservation.ReservationVehicles
+                .FirstOrDefault(vehicle =>
+                    vehicle.ReservationVehicleId ==
+                    reservationVehicleId);
+
+        if (reservationVehicle is null)
+        {
+            return null;
+        }
+
+        var review =
+            await _reviewRepository
+                .GetByReservationVehicleIdAsync(
+                    reservationVehicleId,
+                    cancellationToken);
+
+        return review is null
+            ? null
+            : MapToResponse(
+                review,
+                reservationVehicle.VehicleId);
+    }
+
+    /// <summary>
+    /// Maps a review entity to its application response.
+    /// </summary>
+    private static ReviewResponse MapToResponse(
+        Review review,
+        int vehicleId)
+    {
         return new ReviewResponse
         {
             ReviewId =
@@ -131,7 +191,7 @@ public class ReviewService : IReviewService
                 review.ReservationVehicleId,
 
             VehicleId =
-                reservationVehicle.VehicleId,
+                vehicleId,
 
             Stars =
                 review.Stars,

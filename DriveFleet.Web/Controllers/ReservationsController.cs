@@ -514,9 +514,58 @@ public class ReservationsController : Controller
                     ReservationErrorViewName);
             }
 
+            var viewModel =
+    MapReservation(
+        result.Reservation);
+
+            if (User.IsInRole(ClientRole) &&
+                viewModel.CanReview)
+            {
+                foreach (var vehicle in viewModel.Vehicles)
+                {
+                    var reviewResult =
+                        await _reservationApiClient
+                            .GetReviewAsync(
+                                accessToken,
+                                reservationId,
+                                vehicle.ReservationVehicleId,
+                                cancellationToken);
+
+                    if (reviewResult.StatusCode ==
+                        HttpStatusCode.Unauthorized)
+                    {
+                        return await
+                            SignOutAndRedirectToLoginAsync();
+                    }
+
+                    if (reviewResult.StatusCode ==
+                        HttpStatusCode.Forbidden)
+                    {
+                        return Forbid();
+                    }
+
+                    if (reviewResult.StatusCode ==
+                            HttpStatusCode.OK &&
+                        reviewResult.Review is not null)
+                    {
+                        vehicle.Review =
+                            MapReview(
+                                reviewResult.Review);
+
+                        continue;
+                    }
+
+                    if (reviewResult.StatusCode !=
+                        HttpStatusCode.NotFound)
+                    {
+                        return View(
+                            ReservationErrorViewName);
+                    }
+                }
+            }
+
             return View(
-                MapReservation(
-                    result.Reservation));
+                viewModel);
         }
         catch (HttpRequestException exception)
         {
@@ -524,6 +573,124 @@ public class ReservationsController : Controller
                 exception,
                 "Unable to communicate with the DriveFleet API while retrieving reservation {ReservationId}.",
                 reservationId);
+
+            return View(
+                ReservationErrorViewName);
+        }
+    }
+
+    /// <summary>
+    /// Creates a vehicle review for a completed reservation.
+    /// </summary>
+    [Authorize(Roles = ClientRole)]
+    [HttpPost(
+        "/reservations/{reservationId:int}/vehicles/" +
+        "{reservationVehicleId:int}/review")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ReviewVehicle(
+        int reservationId,
+        int reservationVehicleId,
+        CreateReviewViewModel viewModel,
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData[ReservationErrorKey] =
+                "Select a rating between 1 and 5 stars " +
+                "and ensure the comment is valid.";
+
+            return RedirectToAction(
+                nameof(Details),
+                new
+                {
+                    reservationId
+                });
+        }
+
+        var accessToken =
+            await GetAccessTokenAsync();
+
+        if (string.IsNullOrWhiteSpace(
+            accessToken))
+        {
+            return await
+                SignOutAndRedirectToLoginAsync();
+        }
+
+        try
+        {
+            var result =
+                await _reservationApiClient
+                    .CreateReviewAsync(
+                        accessToken,
+                        reservationId,
+                        reservationVehicleId,
+                        viewModel.Stars,
+                        viewModel.Comment,
+                        cancellationToken);
+
+            if (result.StatusCode ==
+                HttpStatusCode.Unauthorized)
+            {
+                return await
+                    SignOutAndRedirectToLoginAsync();
+            }
+
+            if (result.StatusCode ==
+                HttpStatusCode.Forbidden)
+            {
+                return Forbid();
+            }
+
+            if (result.StatusCode ==
+                HttpStatusCode.NotFound)
+            {
+                return NotFound();
+            }
+
+            if (result.StatusCode ==
+                HttpStatusCode.Created)
+            {
+                TempData[ReservationSuccessKey] =
+                    "Your review was submitted successfully.";
+
+                return RedirectToAction(
+                    nameof(Details),
+                    new
+                    {
+                        reservationId
+                    });
+            }
+
+            if (result.StatusCode ==
+                    HttpStatusCode.BadRequest ||
+                result.StatusCode ==
+                    HttpStatusCode.Conflict)
+            {
+                TempData[ReservationErrorKey] =
+                    string.IsNullOrWhiteSpace(
+                        result.Detail)
+                        ? "The review could not be submitted."
+                        : result.Detail;
+
+                return RedirectToAction(
+                    nameof(Details),
+                    new
+                    {
+                        reservationId
+                    });
+            }
+
+            return View(
+                ReservationErrorViewName);
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unable to communicate with the DriveFleet API while reviewing reservation {ReservationId}, vehicle {ReservationVehicleId}.",
+                reservationId,
+                reservationVehicleId);
 
             return View(
                 ReservationErrorViewName);
@@ -1618,6 +1785,38 @@ public class ReservationsController : Controller
             Quantity = extra.Quantity,
             Price = extra.Price,
             Total = extra.Total
+        };
+    }
+
+    /// <summary>
+    /// Maps a review API model to the model displayed
+    /// by the Web project.
+    /// </summary>
+    private static ReservationReviewViewModel MapReview(
+        ReviewApiModel review)
+    {
+        return new ReservationReviewViewModel
+        {
+            ReviewId =
+                review.ReviewId,
+
+            ReservationVehicleId =
+                review.ReservationVehicleId,
+
+            VehicleId =
+                review.VehicleId,
+
+            Stars =
+                review.Stars,
+
+            Comment =
+                review.Comment,
+
+            IsVisible =
+                review.IsVisible,
+
+            CreatedAt =
+                review.CreatedAt
         };
     }
 }

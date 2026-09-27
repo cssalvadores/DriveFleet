@@ -70,4 +70,10 @@ public class ReservationVehicleViewModel
     /// </summary>
     public ICollection<ReservationExtraViewModel> Extras { get; set; }
         = new List<ReservationExtraViewModel>();
+
+    /// <summary>
+    /// Gets or sets the review created for this
+    /// reserved vehicle, when available.
+    /// </summary>
+    public ReservationReviewViewModel? Review { get; set; }
 }

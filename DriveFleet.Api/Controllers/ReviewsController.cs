@@ -28,6 +28,55 @@ public class ReviewsController : ControllerBase
     }
 
     /// <summary>
+    /// Gets the authenticated client's review
+    /// for a reserved vehicle.
+    /// </summary>
+    [Authorize(Roles = "Client")]
+    [HttpGet(
+        "{reservationId:int}/vehicles/" +
+        "{reservationVehicleId:int}/review")]
+    [ProducesResponseType(
+        typeof(ReviewResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ReviewResponse>> Get(
+        int reservationId,
+        int reservationVehicleId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetAuthenticatedUserId(
+            out var userId))
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            var review =
+                await _reviewService
+                    .GetByReservationVehicleAsync(
+                        userId,
+                        reservationId,
+                        reservationVehicleId,
+                        cancellationToken);
+
+            if (review is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(
+                review);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+    }
+
+    /// <summary>
     /// Creates a review for a vehicle included
     /// in a completed reservation.
     /// </summary>

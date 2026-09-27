@@ -221,6 +221,129 @@ public class ReservationApiClient
     }
 
     /// <summary>
+    /// Gets the authenticated client's review
+    /// for a reserved vehicle.
+    /// </summary>
+    public async Task<ReviewApiResult> GetReviewAsync(
+        string accessToken,
+        int reservationId,
+        int reservationVehicleId,
+        CancellationToken cancellationToken = default)
+    {
+        using var request =
+            CreateAuthenticatedRequest(
+                HttpMethod.Get,
+                $"api/reservations/{reservationId}/vehicles/" +
+                $"{reservationVehicleId}/review",
+                accessToken);
+
+        using var response =
+            await _httpClient.SendAsync(
+                request,
+                cancellationToken);
+
+        if (response.StatusCode ==
+            HttpStatusCode.OK)
+        {
+            var review =
+                await response.Content
+                    .ReadFromJsonAsync<ReviewApiResponse>(
+                        cancellationToken:
+                            cancellationToken);
+
+            return new ReviewApiResult
+            {
+                StatusCode =
+                    response.StatusCode,
+
+                Review =
+                    review is null
+                        ? null
+                        : MapReview(review)
+            };
+        }
+
+        return new ReviewApiResult
+        {
+            StatusCode =
+                response.StatusCode,
+
+            Detail =
+                await ReadProblemDetailAsync(
+                    response,
+                    cancellationToken)
+        };
+    }
+
+    /// <summary>
+    /// Creates a review for a vehicle in a
+    /// completed reservation.
+    /// </summary>
+    public async Task<ReviewApiResult> CreateReviewAsync(
+        string accessToken,
+        int reservationId,
+        int reservationVehicleId,
+        int stars,
+        string? comment,
+        CancellationToken cancellationToken = default)
+    {
+        var body =
+            new CreateReviewRequest
+            {
+                Stars = stars,
+                Comment = comment
+            };
+
+        using var request =
+            CreateAuthenticatedRequest(
+                HttpMethod.Post,
+                $"api/reservations/{reservationId}/vehicles/" +
+                $"{reservationVehicleId}/review",
+                accessToken);
+
+        request.Content =
+            JsonContent.Create(
+                body);
+
+        using var response =
+            await _httpClient.SendAsync(
+                request,
+                cancellationToken);
+
+        if (response.StatusCode ==
+            HttpStatusCode.Created)
+        {
+            var review =
+                await response.Content
+                    .ReadFromJsonAsync<ReviewApiResponse>(
+                        cancellationToken:
+                            cancellationToken);
+
+            return new ReviewApiResult
+            {
+                StatusCode =
+                    response.StatusCode,
+
+                Review =
+                    review is null
+                        ? null
+                        : MapReview(review)
+            };
+        }
+
+        return new ReviewApiResult
+        {
+            StatusCode =
+                response.StatusCode,
+
+            Detail =
+                await ReadProblemDetailAsync(
+                    response,
+                    cancellationToken)
+        };
+    }
+
+    /// <summary>
     /// Cancels an existing reservation.
     /// </summary>
     public Task<ReservationActionApiResult> CancelAsync(
@@ -546,10 +669,66 @@ public class ReservationApiClient
         };
     }
 
+    /// <summary>
+    /// Maps a review API response to the model
+    /// consumed by the Web project.
+    /// </summary>
+    private static ReviewApiModel MapReview(
+        ReviewApiResponse review)
+    {
+        return new ReviewApiModel
+        {
+            ReviewId =
+                review.ReviewId,
+
+            ReservationVehicleId =
+                review.ReservationVehicleId,
+
+            VehicleId =
+                review.VehicleId,
+
+            Stars =
+                review.Stars,
+
+            Comment =
+                review.Comment,
+
+            IsVisible =
+                review.IsVisible,
+
+            CreatedAt =
+                review.CreatedAt
+        };
+    }
+
     private sealed class CreateReservationRequest
     {
         public List<CreateReservationVehicleRequest> Vehicles { get; set; }
             = new();
+    }
+
+    private sealed class CreateReviewRequest
+    {
+        public int Stars { get; set; }
+
+        public string? Comment { get; set; }
+    }
+
+    private sealed class ReviewApiResponse
+    {
+        public int ReviewId { get; set; }
+
+        public int ReservationVehicleId { get; set; }
+
+        public int VehicleId { get; set; }
+
+        public int Stars { get; set; }
+
+        public string? Comment { get; set; }
+
+        public bool IsVisible { get; set; }
+
+        public DateTime CreatedAt { get; set; }
     }
 
     private sealed class CreateReservationVehicleRequest
@@ -797,5 +976,37 @@ public class ReservationActionApiResult
     /// Gets or sets the error detail returned by the API,
     /// when available.
     /// </summary>
+    public string? Detail { get; set; }
+}
+
+/// <summary>
+/// Represents a review returned by the DriveFleet API.
+/// </summary>
+public class ReviewApiModel
+{
+    public int ReviewId { get; set; }
+
+    public int ReservationVehicleId { get; set; }
+
+    public int VehicleId { get; set; }
+
+    public int Stars { get; set; }
+
+    public string? Comment { get; set; }
+
+    public bool IsVisible { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+}
+
+/// <summary>
+/// Represents the result of a review API request.
+/// </summary>
+public class ReviewApiResult
+{
+    public HttpStatusCode StatusCode { get; set; }
+
+    public ReviewApiModel? Review { get; set; }
+
     public string? Detail { get; set; }
 }

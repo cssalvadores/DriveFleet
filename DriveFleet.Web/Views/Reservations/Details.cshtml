@@ -282,7 +282,7 @@
 
                         </div>
 
-                        <div class="d-flex justify-content-between mt-2">
+                        @* <div class="d-flex justify-content-between mt-2">
 
                             <span>
                                 Vehicle total
@@ -292,8 +292,138 @@
                                 @vehicle.TotalValue.ToString("C")
                             </strong>
 
-                        </div>
+                        </div> *@
+                        @if (User.IsInRole("Client") &&
+     Model.CanReview)
+                        {
+                            <hr class="my-4" />
 
+                            <div>
+                                <h3 class="h6 mb-3">
+                                    Your review
+                                </h3>
+
+                                @if (vehicle.Review is not null)
+                                {
+                                    <div class="border rounded p-3 bg-light">
+
+                                        <div class="mb-2"
+                                             aria-label="@($"{vehicle.Review.Stars} out of 5 stars")">
+
+                                            <span class="fs-5">
+                                                @for (var star = 1;
+                                                      star <= 5;
+                                                      star++)
+                                                {
+                                                    <span>
+                                                        @(star <= vehicle.Review.Stars
+                                                            ? "★"
+                                                            : "☆")
+                                                    </span>
+                                                }
+                                            </span>
+
+                                            <span class="ms-2 text-muted">
+                                                @vehicle.Review.Stars / 5
+                                            </span>
+
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(
+                                            vehicle.Review.Comment))
+                                        {
+                                            <p class="mb-2">
+                                                @vehicle.Review.Comment
+                                            </p>
+                                        }
+
+                                        <small class="text-muted">
+                                            Submitted
+                                            @ReservationDisplayHelper.FormatDateTime(
+                                                vehicle.Review.CreatedAt)
+                                        </small>
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Reservations"
+                                          asp-action="ReviewVehicle"
+                                          asp-route-reservationId="@Model.ReservationId"
+                                          asp-route-reservationVehicleId="@vehicle.ReservationVehicleId"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label"
+                                                   for="stars-@vehicle.ReservationVehicleId">
+                                                Rating
+                                            </label>
+
+                                            <select id="stars-@vehicle.ReservationVehicleId"
+                                                    name="Stars"
+                                                    class="form-select"
+                                                    required>
+
+                                                <option value="">
+                                                    Select a rating
+                                                </option>
+
+                                                <option value="5">
+                                                    5 - Excellent
+                                                </option>
+
+                                                <option value="4">
+                                                    4 - Very good
+                                                </option>
+
+                                                <option value="3">
+                                                    3 - Good
+                                                </option>
+
+                                                <option value="2">
+                                                    2 - Fair
+                                                </option>
+
+                                                <option value="1">
+                                                    1 - Poor
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label"
+                                                   for="comment-@vehicle.ReservationVehicleId">
+                                                Comment
+                                            </label>
+
+                                            <textarea id="comment-@vehicle.ReservationVehicleId"
+                                                      name="Comment"
+                                                      class="form-control"
+                                                      rows="3"
+                                                      maxlength="1000"
+                                                      placeholder="Tell us about your experience with this vehicle."></textarea>
+
+                                            <div class="form-text">
+                                                Optional. Maximum 1000 characters.
+                                            </div>
+
+                                        </div>
+
+                                        <button type="submit"
+                                                class="btn btn-primary">
+                                            Submit review
+                                        </button>
+
+                                    </form>
+                                }
+                            </div>
+                        }
                     </div>
 
                 </div>

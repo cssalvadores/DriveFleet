@@ -83,6 +83,14 @@ public class ReservationViewModel
         ReservationStatusIds.Active;
 
     /// <summary>
+    /// Gets a value indicating whether vehicles in the
+    /// reservation are eligible to receive a review.
+    /// </summary>
+    public bool CanReview =>
+        ReservationStatusId ==
+        ReservationStatusIds.Completed;
+
+    /// <summary>
     /// Gets a value indicating whether the authenticated client
     /// may still cancel the reservation.
     /// </summary>
