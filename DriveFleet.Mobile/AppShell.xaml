@@ -18,4 +18,9 @@
         Route="EmployeeHomePage"
         ContentTemplate="{DataTemplate pages:EmployeeHomePage}" />
 
+    <ShellContent
+        Title="Vehicles"
+        Route="VehiclesPage"
+        ContentTemplate="{DataTemplate pages:VehiclesPage}" />
+
 </Shell>

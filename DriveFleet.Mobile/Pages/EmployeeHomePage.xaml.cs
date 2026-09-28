@@ -153,6 +153,17 @@ public partial class EmployeeHomePage : ContentPage
     }
 
     /// <summary>
+    /// Opens the employee vehicle inventory.
+    /// </summary>
+    private async void OnVehiclesTapped(
+        object sender,
+        TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync(
+            "//VehiclesPage");
+    }
+
+    /// <summary>
     /// Revokes the current access token,
     /// clears the local employee session,
     /// and returns to the login page.

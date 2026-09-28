@@ -32,6 +32,8 @@ namespace DriveFleet.Mobile
 
             builder.Services.AddSingleton<SessionService>();
 
+            builder.Services.AddSingleton<VehicleApiService>();
+
 #if DEBUG
             builder.Logging.AddDebug();
             #endif

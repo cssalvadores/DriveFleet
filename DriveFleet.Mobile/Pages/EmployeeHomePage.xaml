@@ -253,6 +253,13 @@
                         Style="{StaticResource CardStyle}"
                         Padding="18">
 
+                        <Border.GestureRecognizers>
+
+                            <TapGestureRecognizer
+                                 Tapped="OnVehiclesTapped" />
+
+                        </Border.GestureRecognizers>
+
                         <VerticalStackLayout
                             Spacing="14">
 
