@@ -71,4 +71,40 @@ public class ReviewRepository : IReviewRepository
             .ToListAsync(
                 cancellationToken);
     }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Review>> GetAllAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Reviews
+            .AsNoTracking()
+            .Include(review =>
+                review.ReservationVehicle)
+            .OrderByDescending(review =>
+                review.CreatedAt)
+            .ToListAsync(
+                cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<Review?> GetByIdAsync(
+        int reviewId,
+        CancellationToken cancellationToken = default)
+    {
+        return _context.Reviews
+            .Include(review =>
+                review.ReservationVehicle)
+            .FirstOrDefaultAsync(
+                review =>
+                    review.ReviewId == reviewId,
+                cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public void Remove(
+        Review review)
+    {
+        _context.Reviews.Remove(
+            review);
+    }
 }

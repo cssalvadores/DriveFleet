@@ -176,7 +176,8 @@ public class ReviewService : IReviewService
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<ReviewResponse>>GetVisibleByVehicleIdAsync(
+    public async Task<IReadOnlyList<ReviewResponse>>
+        GetVisibleByVehicleIdAsync(
             int vehicleId,
             CancellationToken cancellationToken = default)
     {
@@ -197,6 +198,80 @@ public class ReviewService : IReviewService
                     review,
                     vehicleId))
             .ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ReviewResponse>>
+        GetAllAsync(
+            CancellationToken cancellationToken = default)
+    {
+        var reviews =
+            await _reviewRepository.GetAllAsync(
+                cancellationToken);
+
+        return reviews
+            .Select(review =>
+                MapToResponse(
+                    review,
+                    review.ReservationVehicle.VehicleId))
+            .ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<ReviewResponse?> SetVisibilityAsync(
+        int reviewId,
+        bool isVisible,
+        CancellationToken cancellationToken = default)
+    {
+        var review =
+            await _reviewRepository.GetByIdAsync(
+                reviewId,
+                cancellationToken);
+
+        if (review is null)
+        {
+            return null;
+        }
+
+        if (review.IsVisible != isVisible)
+        {
+            review.IsVisible =
+                isVisible;
+
+            review.UpdatedAt =
+                DateTime.UtcNow;
+
+            await _reviewRepository.SaveChangesAsync(
+                cancellationToken);
+        }
+
+        return MapToResponse(
+            review,
+            review.ReservationVehicle.VehicleId);
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> DeleteAsync(
+        int reviewId,
+        CancellationToken cancellationToken = default)
+    {
+        var review =
+            await _reviewRepository.GetByIdAsync(
+                reviewId,
+                cancellationToken);
+
+        if (review is null)
+        {
+            return false;
+        }
+
+        _reviewRepository.Remove(
+            review);
+
+        await _reviewRepository.SaveChangesAsync(
+            cancellationToken);
+
+        return true;
     }
 
     /// <summary>

@@ -14,11 +14,21 @@ public interface IReviewRepository
         int reservationVehicleId,
         CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Gets the visible reviews associated with a vehicle.
-    /// </summary>
     Task<IReadOnlyList<Review>> GetVisibleByVehicleIdAsync(
-        int vehicleId,
+    int vehicleId,
+    CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all reviews for administrative moderation.
+    /// </summary>
+    Task<IReadOnlyList<Review>> GetAllAsync(
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets a review by its identifier for modification.
+    /// </summary>
+    Task<Review?> GetByIdAsync(
+        int reviewId,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -27,6 +37,12 @@ public interface IReviewRepository
     Task AddAsync(
         Review review,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Removes an existing review.
+    /// </summary>
+    void Remove(
+    Review review);
 
     /// <summary>
     /// Persists pending review changes.

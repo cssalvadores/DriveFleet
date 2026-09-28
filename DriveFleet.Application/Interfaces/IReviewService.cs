@@ -35,4 +35,25 @@ public interface IReviewService
         GetVisibleByVehicleIdAsync(
             int vehicleId,
             CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets all reviews for administrative moderation.
+    /// </summary>
+    Task<IReadOnlyList<ReviewResponse>> GetAllAsync(
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates whether a review is publicly visible.
+    /// </summary>
+    Task<ReviewResponse?> SetVisibilityAsync(
+        int reviewId,
+        bool isVisible,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes a review.
+    /// </summary>
+    Task<bool> DeleteAsync(
+        int reviewId,
+        CancellationToken cancellationToken = default);
 }
