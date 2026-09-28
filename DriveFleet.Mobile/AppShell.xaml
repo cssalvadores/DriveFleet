@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+
 <Shell
     x:Class="DriveFleet.Mobile.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:DriveFleet.Mobile"
     xmlns:pages="clr-namespace:DriveFleet.Mobile.Pages"
-    Title="DriveFleet.Mobile">
+    Title="DriveFleet"
+    FlyoutBehavior="Disabled">
 
     <ShellContent
-    Title="Login"
-    ContentTemplate="{DataTemplate pages:LoginPage}"
-    Route="LoginPage" />
+        Title="Login"
+        Route="LoginPage"
+        ContentTemplate="{DataTemplate pages:LoginPage}" />
+
+    <ShellContent
+        Title="Employee Home"
+        Route="EmployeeHomePage"
+        ContentTemplate="{DataTemplate pages:EmployeeHomePage}" />
 
 </Shell>

@@ -1,3 +1,4 @@
+using Microsoft.Maui;
 using System.Net;
 using DriveFleet.Mobile.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +23,7 @@ public partial class LoginPage : ContentPage
     {
         InitializeComponent();
     }
-
+    
     /// <summary>
     /// Validates the credentials and authenticates
     /// the employee against the DriveFleet API.
@@ -67,8 +68,8 @@ public partial class LoginPage : ContentPage
         }
 
         var services =
-            Handler?
-                .MauiContext?
+            IPlatformApplication
+                .Current?
                 .Services;
 
         var authApiService =
@@ -133,9 +134,9 @@ public partial class LoginPage : ContentPage
             }
 
             if (!string.Equals(
-                result.Login.Role,
-                EmployeeRole,
-                StringComparison.OrdinalIgnoreCase))
+                    result.Login.Role,
+                    EmployeeRole,
+                    StringComparison.OrdinalIgnoreCase))
             {
                 ShowError(
                     "This application is available only to DriveFleet employees.");
@@ -166,23 +167,11 @@ public partial class LoginPage : ContentPage
                 return;
             }
 
-            var storedSession =
-                await sessionService.GetAsync();
-
-            if (storedSession is null)
-            {
-                ShowError(
-                    "The employee session could not be restored.");
-
-                return;
-            }
-
             PasswordEntry.Text =
                 string.Empty;
 
-            ShowSuccess(
-                $"Welcome, {storedSession.FirstName}. " +
-                "Your employee session is securely stored.");
+            await Shell.Current.GoToAsync(
+                "//EmployeeHomePage");
         }
         catch (HttpRequestException)
         {
@@ -239,27 +228,6 @@ public partial class LoginPage : ContentPage
         ErrorLabel.TextColor =
             GetColorResource(
                 "DriveFleetDanger");
-
-        ErrorLabel.Text =
-            message;
-
-        ErrorBorder.IsVisible =
-            true;
-    }
-
-    /// <summary>
-    /// Displays a successful authentication message.
-    /// </summary>
-    private void ShowSuccess(
-        string message)
-    {
-        ErrorBorder.BackgroundColor =
-            GetColorResource(
-                "DriveFleetSuccessSoft");
-
-        ErrorLabel.TextColor =
-            GetColorResource(
-                "DriveFleetSuccess");
 
         ErrorLabel.Text =
             message;

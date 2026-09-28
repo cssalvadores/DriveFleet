@@ -1,6 +1,8 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using DriveFleet.Mobile.Models.Auth;
+using System.Net;
+using System.Net.Http.Headers;
 
 namespace DriveFleet.Mobile.Services;
 
@@ -87,6 +89,32 @@ public class AuthApiService
                     response,
                     cancellationToken)
         };
+    }
+
+    /// <summary>
+    /// Revokes the authenticated employee JWT
+    /// through the DriveFleet API.
+    /// </summary>
+    public async Task<HttpStatusCode> LogoutAsync(
+        string accessToken,
+        CancellationToken cancellationToken = default)
+    {
+        using var request =
+            new HttpRequestMessage(
+                HttpMethod.Post,
+                "api/auth/logout");
+
+        request.Headers.Authorization =
+            new AuthenticationHeaderValue(
+                "Bearer",
+                accessToken);
+
+        using var response =
+            await _httpClient.SendAsync(
+                request,
+                cancellationToken);
+
+        return response.StatusCode;
     }
 
     /// <summary>
