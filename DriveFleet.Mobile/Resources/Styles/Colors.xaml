@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Brand -->
+    <Color x:Key="DriveFleetNavy">#10233D</Color>
+    <Color x:Key="DriveFleetNavyDark">#09192B</Color>
+    <Color x:Key="DriveFleetNavyLight">#244867</Color>
+
+    <!-- Backgrounds -->
+    <Color x:Key="DriveFleetBackground">#F5F7FA</Color>
+    <Color x:Key="DriveFleetSurface">#FFFFFF</Color>
+    <Color x:Key="DriveFleetSurfaceSoft">#F9FAFC</Color>
+
+    <!-- Text -->
+    <Color x:Key="DriveFleetTextPrimary">#122033</Color>
+    <Color x:Key="DriveFleetTextSecondary">#6F7D8D</Color>
+    <Color x:Key="DriveFleetTextMuted">#96A0AC</Color>
+    <Color x:Key="DriveFleetTextOnDark">#FFFFFF</Color>
+
+    <!-- Borders -->
+    <Color x:Key="DriveFleetBorder">#E2E8EF</Color>
+    <Color x:Key="DriveFleetBorderStrong">#CBD5E1</Color>
+
+    <!-- Accent -->
+    <Color x:Key="DriveFleetAccent">#3E6382</Color>
+    <Color x:Key="DriveFleetAccentSoft">#E8EFF5</Color>
+
+    <!-- Status -->
+    <Color x:Key="DriveFleetSuccess">#1E7A53</Color>
+    <Color x:Key="DriveFleetSuccessSoft">#E7F5EE</Color>
+
+    <Color x:Key="DriveFleetWarning">#9A6A18</Color>
+    <Color x:Key="DriveFleetWarningSoft">#FFF5D9</Color>
+
+    <Color x:Key="DriveFleetDanger">#B44343</Color>
+    <Color x:Key="DriveFleetDangerSoft">#FCEAEA</Color>
+
+    <Color x:Key="DriveFleetInfo">#34648C</Color>
+    <Color x:Key="DriveFleetInfoSoft">#EAF2F8</Color>
+
+    <!-- Neutral -->
+    <Color x:Key="DriveFleetWhite">#FFFFFF</Color>
+    <Color x:Key="DriveFleetBlack">#000000</Color>
+    <Color x:Key="DriveFleetTransparent">Transparent</Color>
+
+</ResourceDictionary>

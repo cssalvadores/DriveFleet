@@ -1,0 +1,241 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Base page -->
+    <Style TargetType="ContentPage">
+        <Setter Property="BackgroundColor"
+                Value="{StaticResource DriveFleetBackground}" />
+    </Style>
+
+    <!-- Typography -->
+    <Style x:Key="PageTitleStyle"
+           TargetType="Label">
+        <Setter Property="TextColor"
+                Value="{StaticResource DriveFleetTextPrimary}" />
+        <Setter Property="FontSize"
+                Value="32" />
+        <Setter Property="FontAttributes"
+                Value="Bold" />
+        <Setter Property="LineHeight"
+                Value="1.05" />
+    </Style>
+
+    <Style x:Key="SectionTitleStyle"
+           TargetType="Label">
+        <Setter Property="TextColor"
+                Value="{StaticResource DriveFleetTextPrimary}" />
+        <Setter Property="FontSize"
+                Value="20" />
+        <Setter Property="FontAttributes"
+                Value="Bold" />
+    </Style>
+
+    <Style x:Key="BodyTextStyle"
+           TargetType="Label">
+        <Setter Property="TextColor"
+                Value="{StaticResource DriveFleetTextSecondary}" />
+        <Setter Property="FontSize"
+                Value="14" />
+        <Setter Property="LineHeight"
+                Value="1.35" />
+    </Style>
+
+    <Style x:Key="CaptionStyle"
+           TargetType="Label">
+        <Setter Property="TextColor"
+                Value="{StaticResource DriveFleetTextMuted}" />
+        <Setter Property="FontSize"
+                Value="12" />
+    </Style>
+
+    <Style x:Key="EyebrowStyle"
+           TargetType="Label">
+        <Setter Property="TextColor"
+                Value="{StaticResource DriveFleetAccent}" />
+        <Setter Property="FontSize"
+                Value="11" />
+        <Setter Property="FontAttributes"
+                Value="Bold" />
+        <Setter Property="CharacterSpacing"
+                Value="1.8" />
+    </Style>
+
+    <!-- Primary button -->
+    <Style x:Key="PrimaryButtonStyle"
+           TargetType="Button">
+        <Setter Property="BackgroundColor"
+                Value="{StaticResource DriveFleetNavy}" />
+        <Setter Property="TextColor"
+                Value="{StaticResource DriveFleetWhite}" />
+        <Setter Property="FontSize"
+                Value="14" />
+        <Setter Property="FontAttributes"
+                Value="Bold" />
+        <Setter Property="HeightRequest"
+                Value="52" />
+        <Setter Property="CornerRadius"
+                Value="14" />
+        <Setter Property="Padding"
+                Value="20,0" />
+    </Style>
+
+    <!-- Secondary button -->
+    <Style x:Key="SecondaryButtonStyle"
+           TargetType="Button">
+        <Setter Property="BackgroundColor"
+                Value="{StaticResource DriveFleetSurface}" />
+        <Setter Property="TextColor"
+                Value="{StaticResource DriveFleetNavy}" />
+        <Setter Property="BorderColor"
+                Value="{StaticResource DriveFleetBorderStrong}" />
+        <Setter Property="BorderWidth"
+                Value="1" />
+        <Setter Property="FontSize"
+                Value="14" />
+        <Setter Property="FontAttributes"
+                Value="Bold" />
+        <Setter Property="HeightRequest"
+                Value="52" />
+        <Setter Property="CornerRadius"
+                Value="14" />
+        <Setter Property="Padding"
+                Value="20,0" />
+    </Style>
+
+    <!-- Form label -->
+    <Style x:Key="FormLabelStyle"
+           TargetType="Label">
+        <Setter Property="TextColor"
+                Value="{StaticResource DriveFleetTextPrimary}" />
+        <Setter Property="FontSize"
+                Value="12" />
+        <Setter Property="FontAttributes"
+                Value="Bold" />
+    </Style>
+
+    <!-- Input border container -->
+    <Style x:Key="InputBorderStyle"
+           TargetType="Border">
+        <Setter Property="BackgroundColor"
+                Value="{StaticResource DriveFleetSurface}" />
+        <Setter Property="Stroke"
+                Value="{StaticResource DriveFleetBorderStrong}" />
+        <Setter Property="StrokeThickness"
+                Value="1" />
+        <Setter Property="Padding"
+                Value="14,5" />
+
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="14" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Entry -->
+    <Style x:Key="InputEntryStyle"
+           TargetType="Entry">
+        <Setter Property="BackgroundColor"
+                Value="{StaticResource DriveFleetTransparent}" />
+        <Setter Property="TextColor"
+                Value="{StaticResource DriveFleetTextPrimary}" />
+        <Setter Property="PlaceholderColor"
+                Value="{StaticResource DriveFleetTextMuted}" />
+        <Setter Property="FontSize"
+                Value="14" />
+        <Setter Property="HeightRequest"
+                Value="44" />
+    </Style>
+
+    <!-- General card -->
+    <Style x:Key="CardStyle"
+           TargetType="Border">
+        <Setter Property="BackgroundColor"
+                Value="{StaticResource DriveFleetSurface}" />
+        <Setter Property="Stroke"
+                Value="{StaticResource DriveFleetBorder}" />
+        <Setter Property="StrokeThickness"
+                Value="1" />
+        <Setter Property="Padding"
+                Value="20" />
+
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="20" />
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow
+                    Brush="#18000000"
+                    Offset="0,5"
+                    Radius="14"
+                    Opacity="0.16" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Small metric card -->
+    <Style x:Key="MetricCardStyle"
+           TargetType="Border"
+           BasedOn="{StaticResource CardStyle}">
+        <Setter Property="Padding"
+                Value="16" />
+        <Setter Property="MinimumHeightRequest"
+                Value="110" />
+    </Style>
+
+    <!-- Status badges -->
+    <Style x:Key="SuccessBadgeStyle"
+           TargetType="Border">
+        <Setter Property="BackgroundColor"
+                Value="{StaticResource DriveFleetSuccessSoft}" />
+        <Setter Property="StrokeThickness"
+                Value="0" />
+        <Setter Property="Padding"
+                Value="10,5" />
+
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="20" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="WarningBadgeStyle"
+           TargetType="Border">
+        <Setter Property="BackgroundColor"
+                Value="{StaticResource DriveFleetWarningSoft}" />
+        <Setter Property="StrokeThickness"
+                Value="0" />
+        <Setter Property="Padding"
+                Value="10,5" />
+
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="20" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="DangerBadgeStyle"
+           TargetType="Border">
+        <Setter Property="BackgroundColor"
+                Value="{StaticResource DriveFleetDangerSoft}" />
+        <Setter Property="StrokeThickness"
+                Value="0" />
+        <Setter Property="Padding"
+                Value="10,5" />
+
+        <Setter Property="StrokeShape">
+            <Setter.Value>
+                <RoundRectangle CornerRadius="20" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
+    

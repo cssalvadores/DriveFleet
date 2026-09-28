@@ -3,5 +3,8 @@
   <Project Path="DriveFleet.Application/DriveFleet.Application.csproj" />
   <Project Path="DriveFleet.Domain/DriveFleet.Domain.csproj" />
   <Project Path="DriveFleet.Infrastructure/DriveFleet.Infrastructure.csproj" />
+  <Project Path="DriveFleet.Mobile/DriveFleet.Mobile.csproj" Id="aae58945-9134-4a7b-a3ed-f6c8412dc28e">
+    <Deploy Solution="Debug|*" />
+  </Project>
   <Project Path="DriveFleet.Web/DriveFleet.Web.csproj" />
 </Solution>
