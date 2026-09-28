@@ -1,0 +1,482 @@
+﻿/* DriveFleet premium home experience. */
+
+.home-page {
+    background-color: #061a2b;
+}
+
+    /* =========================================================
+   HOME NAVIGATION
+   ========================================================= */
+
+    .home-page .navbar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        min-height: 98px;
+        z-index: 1000;
+        padding-top: 1.15rem;
+        padding-bottom: 1.15rem;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+
+.home-navbar-container {
+    width: 100%;
+    padding-left: clamp(2rem, 5vw, 6.5rem);
+    padding-right: clamp(2rem, 5vw, 6.5rem);
+}
+
+.home-page .navbar-collapse {
+    position: relative;
+    display: flex !important;
+    align-items: center;
+}
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.home-brand {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 220px;
+    margin-right: 3rem;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.home-brand-name {
+    display: block;
+    color: #ffffff;
+    font-size: clamp(1.65rem, 2vw, 2.25rem);
+    letter-spacing: -0.08rem;
+}
+
+    .home-brand-name strong {
+        font-weight: 700;
+    }
+
+    .home-brand-name span {
+        font-weight: 300;
+    }
+
+.home-brand-subtitle {
+    display: block;
+    margin-top: 0.45rem;
+    margin-left: 0.1rem;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.55rem;
+    font-weight: 600;
+    letter-spacing: 0.46rem;
+}
+
+/* =========================================================
+   NAVIGATION LINKS
+   ========================================================= */
+
+.home-main-navigation {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: clamp(1.3rem, 2.8vw, 3rem);
+}
+
+.home-account-navigation {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.home-page .navbar .nav-link {
+    position: relative;
+    padding-left: 0.45rem;
+    padding-right: 0.45rem;
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 0.92rem;
+    font-weight: 400;
+    white-space: nowrap;
+    opacity: 0.94;
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+    .home-page .navbar .nav-link:hover {
+        color: #ffffff !important;
+        opacity: 1;
+    }
+
+.home-nav-active::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -0.35rem;
+    width: 30px;
+    height: 3px;
+    border-radius: 10px;
+    background-color: #159cff;
+    transform: translateX(-50%);
+}
+
+/* =========================================================
+   MOBILE NAVIGATION
+   ========================================================= */
+
+.home-page .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+    .home-page .navbar-toggler:focus {
+        box-shadow: 0 0 0 0.15rem rgba(255, 255, 255, 0.18);
+    }
+
+.home-page .navbar-toggler-icon {
+    filter: invert(1);
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.home-hero {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    background-image: url("/images/home/drivefleet-hero.png");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    color: #ffffff;
+}
+
+.home-hero-shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient( 90deg, rgba(3, 26, 45, 0.88) 0%, rgba(4, 31, 53, 0.68) 31%, rgba(4, 31, 53, 0.25) 56%, rgba(4, 31, 53, 0.04) 78% ), linear-gradient( 0deg, rgba(1, 18, 31, 0.84) 0%, rgba(1, 18, 31, 0.12) 36%, rgba(1, 18, 31, 0) 65% );
+}
+
+.home-hero-container {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 9.5rem;
+    padding-bottom: 2rem;
+}
+
+/* =========================================================
+   HERO CONTENT
+   ========================================================= */
+
+.home-hero-copy {
+    width: min(620px, 55%);
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.home-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    margin-bottom: 1.65rem;
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.45rem;
+}
+
+.home-eyebrow-line {
+    display: block;
+    width: 52px;
+    height: 3px;
+    background: #159cff;
+}
+
+.home-hero-title {
+    margin: 0;
+    font-size: clamp(3.4rem, 5.5vw, 6.2rem);
+    font-weight: 650;
+    line-height: 0.98;
+    letter-spacing: -0.16rem;
+}
+
+    .home-hero-title span {
+        display: block;
+        font-weight: 300;
+    }
+
+.home-hero-description {
+    margin-top: 1.4rem;
+    margin-bottom: 2rem;
+    color: rgba(255, 255, 255, 0.94);
+    font-size: clamp(1.15rem, 1.7vw, 1.65rem);
+    font-weight: 300;
+}
+
+/* =========================================================
+   CTA
+   ========================================================= */
+
+.home-hero-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    min-height: 58px;
+    padding: 0 2rem;
+    border-radius: 999px;
+    background: #119df7;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 12px 30px rgba(0, 115, 200, 0.25);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .home-hero-button:hover {
+        background: #008ee7;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px rgba(0, 115, 200, 0.32);
+    }
+
+.home-hero-button-arrow {
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+/* =========================================================
+   BENEFITS
+   ========================================================= */
+
+.home-benefits {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: auto;
+    padding-top: 1.7rem;
+    padding-bottom: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.home-benefit {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+    padding: 0 1.75rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+    .home-benefit:first-child {
+        padding-left: 0;
+    }
+
+    .home-benefit:last-child {
+        padding-right: 0;
+        border-right: 0;
+    }
+
+.home-benefit-icon {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    color: #54b7ff;
+}
+
+    .home-benefit-icon svg {
+        width: 100%;
+        height: 100%;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.4px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+.home-benefit strong {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.home-benefit span {
+    display: block;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.76rem;
+    line-height: 1.4;
+}
+
+/* The landing page fills the viewport. */
+.home-page .footer {
+    display: none;
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1199.98px) {
+    .home-navbar-container {
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
+    }
+
+    .home-brand {
+        min-width: 180px;
+        margin-right: 1.5rem;
+    }
+
+    .home-main-navigation {
+        gap: 1rem;
+    }
+
+    .home-page .navbar .nav-link {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .home-hero {
+        background-position: 63% center;
+    }
+
+    .home-hero-shade {
+        background: linear-gradient( 90deg, rgba(3, 26, 45, 0.92) 0%, rgba(3, 26, 45, 0.76) 50%, rgba(3, 26, 45, 0.26) 100% ), linear-gradient( 0deg, rgba(1, 18, 31, 0.9) 0%, rgba(1, 18, 31, 0.05) 65% );
+    }
+
+    .home-hero-copy {
+        width: 70%;
+    }
+
+    .home-benefits {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        row-gap: 1.5rem;
+    }
+
+    .home-benefit:nth-child(2) {
+        border-right: 0;
+    }
+
+    .home-benefit:nth-child(3) {
+        padding-left: 0;
+    }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 767.98px) {
+    .home-page .navbar {
+        position: absolute;
+        min-height: 78px;
+        padding: 0.8rem 0;
+        background: rgba(3, 26, 45, 0.96) !important;
+    }
+
+    .home-navbar-container {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+
+    .home-brand {
+        min-width: auto;
+        margin-right: 0;
+    }
+
+    .home-brand-name {
+        font-size: 1.55rem;
+    }
+
+    .home-brand-subtitle {
+        font-size: 0.45rem;
+        letter-spacing: 0.34rem;
+    }
+
+    .home-page .navbar-collapse {
+        position: static;
+        display: none !important;
+        padding-top: 1.25rem;
+        padding-bottom: 1rem;
+    }
+
+        .home-page .navbar-collapse.show {
+            display: block !important;
+        }
+
+    .home-main-navigation {
+        position: static;
+        display: block;
+        transform: none;
+    }
+
+    .home-account-navigation {
+        display: block;
+        margin-left: 0;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .home-page .navbar .nav-link {
+        padding: 0.7rem 0;
+    }
+
+    .home-nav-active::after {
+        left: 0;
+        bottom: 0.25rem;
+        width: 25px;
+        transform: none;
+    }
+
+    .home-hero {
+        min-height: auto;
+        background-position: 66% center;
+    }
+
+    .home-hero-container {
+        min-height: 100svh;
+        padding-top: 8.5rem;
+        padding-bottom: 2rem;
+    }
+
+    .home-hero-copy {
+        width: 100%;
+        max-width: 520px;
+    }
+
+    .home-hero-title {
+        font-size: clamp(3rem, 14vw, 4.5rem);
+        letter-spacing: -0.1rem;
+    }
+
+    .home-benefits {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .home-benefit,
+    .home-benefit:first-child,
+    .home-benefit:nth-child(3) {
+        padding: 1rem 0;
+        border-right: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+        .home-benefit:last-child {
+            border-bottom: 0;
+        }
+}

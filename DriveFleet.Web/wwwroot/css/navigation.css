@@ -1,0 +1,253 @@
+﻿/* =========================================================
+   DRIVEFLEET GLOBAL NAVIGATION
+   ========================================================= */
+
+.drivefleet-navbar {
+    width: 100%;
+    min-height: 92px;
+    z-index: 1050;
+    padding: 1rem 0;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Transparent navigation used above visual hero sections. */
+.drivefleet-navbar--overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Solid navigation used throughout the application. */
+.drivefleet-navbar--solid {
+    position: relative;
+    background: #06243b;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 26px rgba(6, 36, 59, 0.08);
+}
+
+.drivefleet-nav-shell {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding-left: clamp(1.5rem, 4vw, 5rem);
+    padding-right: clamp(1.5rem, 4vw, 5rem);
+}
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.drivefleet-brand {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: clamp(2rem, 4vw, 5rem);
+    padding: 0;
+    color: #ffffff !important;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.drivefleet-brand-main {
+    display: block;
+    font-size: clamp(1.7rem, 2vw, 2.15rem);
+    letter-spacing: -0.07rem;
+}
+
+    .drivefleet-brand-main strong {
+        font-weight: 700;
+    }
+
+    .drivefleet-brand-main span {
+        font-weight: 300;
+    }
+
+.drivefleet-brand-subtitle {
+    display: block;
+    margin-top: 0.4rem;
+    margin-left: 0.08rem;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.48rem;
+    font-weight: 600;
+    letter-spacing: 0.42rem;
+}
+
+/* =========================================================
+   NAVIGATION STRUCTURE
+   ========================================================= */
+
+.drivefleet-navbar-collapse {
+    min-width: 0;
+}
+
+.drivefleet-primary-nav,
+.drivefleet-account-nav {
+    align-items: center;
+    gap: clamp(0.35rem, 1vw, 1rem);
+}
+
+.drivefleet-primary-nav {
+    margin-right: auto;
+}
+
+.drivefleet-account-nav {
+    margin-left: auto;
+}
+
+.drivefleet-navbar .nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.65rem 0.65rem !important;
+    color: rgba(255, 255, 255, 0.82) !important;
+    font-size: 0.9rem;
+    font-weight: 450;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: color 0.18s ease, opacity 0.18s ease;
+}
+
+    .drivefleet-navbar .nav-link:hover,
+    .drivefleet-navbar .nav-link:focus {
+        color: #ffffff !important;
+    }
+
+    .drivefleet-navbar .nav-link.active {
+        color: #ffffff !important;
+        font-weight: 600;
+    }
+
+        .drivefleet-navbar .nav-link.active::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            width: 28px;
+            height: 3px;
+            border-radius: 999px;
+            background: #159cff;
+            transform: translateX(-50%);
+        }
+
+/* =========================================================
+   AUTHENTICATION ACTIONS
+   ========================================================= */
+
+.drivefleet-logout-form {
+    display: flex;
+    align-items: stretch;
+}
+
+.drivefleet-logout-button {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.drivefleet-login-link {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    border-radius: 999px;
+}
+
+    .drivefleet-login-link:hover {
+        border-color: rgba(255, 255, 255, 0.75);
+    }
+
+/* =========================================================
+   MOBILE TOGGLER
+   ========================================================= */
+
+.drivefleet-navbar .navbar-toggler {
+    padding: 0.45rem 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 10px;
+    box-shadow: none;
+}
+
+    .drivefleet-navbar .navbar-toggler:focus {
+        box-shadow: 0 0 0 0.15rem rgba(21, 156, 255, 0.22);
+    }
+
+.drivefleet-navbar .navbar-toggler-icon {
+    filter: invert(1);
+}
+
+/* =========================================================
+   TABLET / MOBILE
+   ========================================================= */
+
+@media (max-width: 991.98px) {
+    .drivefleet-navbar {
+        min-height: 78px;
+        padding: 0.75rem 0;
+        background: rgba(4, 31, 52, 0.97);
+    }
+
+    .drivefleet-navbar--overlay {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .drivefleet-nav-shell {
+        padding-left: 1.25rem;
+        padding-right: 1.25rem;
+    }
+
+    .drivefleet-brand {
+        margin-right: 1rem;
+    }
+
+    .drivefleet-brand-main {
+        font-size: 1.55rem;
+    }
+
+    .drivefleet-brand-subtitle {
+        font-size: 0.42rem;
+        letter-spacing: 0.32rem;
+    }
+
+    .drivefleet-navbar-collapse {
+        margin-top: 0.9rem;
+        padding-top: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .drivefleet-primary-nav,
+    .drivefleet-account-nav {
+        display: block;
+        margin: 0;
+        padding: 0;
+    }
+
+    .drivefleet-account-nav {
+        margin-top: 0.35rem;
+        padding-top: 0.35rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .drivefleet-navbar .nav-link {
+        min-height: 42px;
+        padding: 0.65rem 0 !important;
+    }
+
+        .drivefleet-navbar .nav-link.active::after {
+            left: 0;
+            bottom: 0.25rem;
+            width: 24px;
+            transform: none;
+        }
+
+    .drivefleet-login-link {
+        display: inline-flex !important;
+        margin-top: 0.35rem;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}

@@ -1,0 +1,153 @@
+﻿@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="py-5">
+
+    <div class="mb-5">
+        <div class="text-primary fw-semibold text-uppercase small mb-2">
+            Backoffice
+        </div>
+
+        <h1 class="display-6 fw-semibold mb-2">
+            Reports
+        </h1>
+
+        <p class="text-muted mb-0">
+            Generate DriveFleet operational reports in PDF format.
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-7">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body p-4 p-lg-5">
+
+                    <div class="mb-4">
+                        <h2 class="h4 mb-2">
+                            Reservations report
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Export reservations for all records
+                            or for a selected rental period.
+                        </p>
+                    </div>
+
+                    <form asp-controller="Reports"
+                          asp-action="ReservationsPdf"
+                          method="get"
+                          target="_blank">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label for="fromDate"
+                                       class="form-label fw-semibold">
+                                    From
+                                </label>
+
+                                <input id="fromDate"
+                                       name="fromDate"
+                                       type="date"
+                                       class="form-control" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="toDate"
+                                       class="form-label fw-semibold">
+                                    To
+                                </label>
+
+                                <input id="toDate"
+                                       name="toDate"
+                                       type="date"
+                                       class="form-control" />
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 mt-4">
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+                                Generate PDF
+                            </button>
+
+                            <button type="submit"
+                                    formaction="@Url.Action("ReservationsXml", "Reports")"
+                                    class="btn btn-outline-primary px-4">
+                                Generate XML
+                            </button>
+
+                            <a asp-controller="Reports"
+                               asp-action="ReservationsPdf"
+                               target="_blank"
+                               class="btn btn-outline-secondary px-4">
+                                All reservations PDF
+                            </a>
+
+                            <a asp-controller="Reports"
+                               asp-action="ReservationsXml"
+                               target="_blank"
+                               class="btn btn-outline-secondary px-4">
+                                All reservations XML
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-5">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body p-4 p-lg-5 d-flex flex-column">
+
+                    <div>
+                        <h2 class="h4 mb-2">
+                            Vehicle inventory
+                        </h2>
+
+                        <p class="text-muted">
+                            Generate the current fleet inventory,
+                            including status, category and daily price.
+                        </p>
+                    </div>
+
+                    <div class="mt-auto pt-4 d-flex flex-wrap gap-2">
+
+                        <a asp-controller="Reports"
+                           asp-action="VehiclesPdf"
+                           target="_blank"
+                           class="btn btn-primary px-4">
+                            Generate inventory PDF
+                        </a>
+
+                        <a asp-controller="Reports"
+                           asp-action="VehiclesXml"
+                           target="_blank"
+                           class="btn btn-outline-primary px-4">
+                            Export inventory XML
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

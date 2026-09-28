@@ -1,42 +1,131 @@
-﻿@using DriveFleet.Web.Models.Auth
-@model DriveFleet.Web.Models.Auth.ConfirmEmailViewModel
+﻿@model DriveFleet.Web.Models.Auth.ConfirmEmailViewModel
 
 @{
-    ViewData["Title"] = "Email Confirmation";
+    ViewData["Title"] = "Email confirmation";
 
-    var alertClass = Model.State switch
-    {
-        ConfirmEmailViewState.Success => "alert-success",
-        ConfirmEmailViewState.AlreadyConfirmed => "alert-info",
-        _ => "alert-danger"
-    };
+    var isSuccess =
+        Model.State ==
+        DriveFleet.Web.Models.Auth.ConfirmEmailViewState.Success;
 
-    var heading = Model.State switch
-    {
-        ConfirmEmailViewState.Success => "Email confirmed",
-        ConfirmEmailViewState.AlreadyConfirmed => "Email already confirmed",
-        _ => "Email confirmation failed"
-    };
+    var isAlreadyConfirmed =
+        Model.State ==
+        DriveFleet.Web.Models.Auth.ConfirmEmailViewState.AlreadyConfirmed;
+
+    var isError =
+        Model.State ==
+        DriveFleet.Web.Models.Auth.ConfirmEmailViewState.Error;
 }
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
-                    <h1 class="h3 mb-4">@heading</h1>
+<div class="account-secondary-page">
 
-                    <div class="alert @alertClass" role="alert">
-                        @Model.Message
-                    </div>
+    <div class="account-secondary-card">
 
-                    <a asp-controller="Home"
-                       asp-action="Index"
-                       class="btn btn-primary">
-                        Return to home page
-                    </a>
-                </div>
+        @if (isSuccess)
+        {
+            <div class="account-status-icon account-status-icon--success"
+                 aria-hidden="true">
+                ✓
             </div>
-        </div>
+
+            <div class="account-secondary-eyebrow">
+                Email confirmed
+            </div>
+
+            <h1 class="account-secondary-title">
+                Your account is ready
+            </h1>
+
+            <p class="account-secondary-description">
+                @Model.Message
+            </p>
+
+            <div class="account-secondary-actions">
+
+                <a asp-controller="Account"
+                   asp-action="Login"
+                   class="account-secondary-button">
+                    Sign in
+                </a>
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="account-secondary-button account-secondary-button--outline">
+                    Back to home
+                </a>
+
+            </div>
+        }
+        else if (isAlreadyConfirmed)
+        {
+            <div class="account-status-icon account-status-icon--success"
+                 aria-hidden="true">
+                ✓
+            </div>
+
+            <div class="account-secondary-eyebrow">
+                Already confirmed
+            </div>
+
+            <h1 class="account-secondary-title">
+                Your email is already confirmed
+            </h1>
+
+            <p class="account-secondary-description">
+                @Model.Message
+            </p>
+
+            <div class="account-secondary-actions">
+
+                <a asp-controller="Account"
+                   asp-action="Login"
+                   class="account-secondary-button">
+                    Sign in
+                </a>
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="account-secondary-button account-secondary-button--outline">
+                    Back to home
+                </a>
+
+            </div>
+        }
+        else if (isError)
+        {
+            <div class="account-status-icon account-status-icon--error"
+                 aria-hidden="true">
+                !
+            </div>
+
+            <div class="account-secondary-eyebrow">
+                Confirmation failed
+            </div>
+
+            <h1 class="account-secondary-title">
+                We could not confirm your email
+            </h1>
+
+            <p class="account-secondary-description">
+                @Model.Message
+            </p>
+
+            <div class="account-secondary-actions">
+
+                <a asp-controller="Account"
+                   asp-action="Register"
+                   class="account-secondary-button">
+                    Create account
+                </a>
+
+                <a asp-controller="Account"
+                   asp-action="Login"
+                   class="account-secondary-button account-secondary-button--outline">
+                    Back to sign in
+                </a>
+
+            </div>
+        }
+
     </div>
+
 </div>

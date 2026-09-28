@@ -1,105 +1,148 @@
 ﻿@model DriveFleet.Web.Models.Auth.LoginViewModel
 
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Sign in";
 }
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-5 col-lg-4">
+<section class="account-shell">
 
-            <div class="card shadow-sm">
-                <div class="card-body p-3">
+    <div class="account-visual">
 
-                    <h1 class="h4 mb-2">
-                        Sign in
-                    </h1>
+        <div class="account-visual-content">
 
-                    <p class="text-muted small mb-3">
-                        Sign in to your DriveFleet account.
-                    </p>
+            <div class="account-visual-eyebrow">
+                DRIVEFLEET
+            </div>
 
-                    @if (TempData["RegistrationSuccess"]
-                        is string registrationSuccess)
-                    {
-                        <div class="alert alert-success py-2 small"
-                             role="alert">
-                            @registrationSuccess
-                        </div>
-                    }
+            <h1 class="account-visual-title">
+                Freedom
+                <span>
+                    starts here.
+                </span>
+            </h1>
 
-                    <form asp-controller="Account"
-                          asp-action="Login"
-                          method="post">
+            <p class="account-visual-description">
+                Sign in and manage your reservations,
+                vehicles and journeys from one place.
+            </p>
 
-                        <div asp-validation-summary="ModelOnly"
-                             class="text-danger mb-3">
-                        </div>
+        </div>
 
-                        <div class="mb-2">
+    </div>
 
-                            <label asp-for="Email"
-                                   class="form-label">
-                            </label>
+    <div class="account-form-panel">
 
-                            <input asp-for="Email"
-                                   class="form-control form-control-sm"
-                                   autocomplete="email" />
+        <div class="account-form-wrapper">
 
-                            <span asp-validation-for="Email"
-                                  class="text-danger">
-                            </span>
+            <div class="account-form-eyebrow">
+                Welcome back
+            </div>
 
-                        </div>
+            <h2 class="account-form-title">
+                Sign in
+            </h2>
 
-                        <div class="mb-2">
+            <p class="account-form-subtitle">
+                Sign in to your DriveFleet account.
+            </p>
 
-                            <label asp-for="Password"
-                                   class="form-label">
-                            </label>
+            @if (TempData["RegistrationSuccess"] is string successMessage)
+            {
+                <div class="alert alert-success account-alert"
+                     role="alert">
+                    @successMessage
+                </div>
+            }
 
-                            <input asp-for="Password"
-                                   class="form-control form-control-sm"
-                                   autocomplete="current-password" />
+            <form asp-controller="Account"
+                  asp-action="Login"
+                  method="post">
 
-                            <span asp-validation-for="Password"
-                                  class="text-danger">
-                            </span>
+                @Html.AntiForgeryToken()
 
-                        </div>
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger small mb-3">
+                </div>
 
-                        <div class="text-end mb-2">
-                            <a asp-controller="Account"
-                               asp-action="ForgotPassword"
-                               class="small text-decoration-none">
-                                Forgot password?
-                            </a>
-                        </div>
+                <div class="account-field">
 
-                        <div class="form-check mb-3 small">
+                    <label asp-for="Email"
+                           class="form-label account-form-label">
+                        Email
+                    </label>
 
-                            <input asp-for="RememberMe"
-                                   class="form-check-input" />
+                    <input asp-for="Email"
+                           class="form-control account-input"
+                           autocomplete="email" />
 
-                            <label asp-for="RememberMe"
-                                   class="form-check-label">
-                            </label>
-
-                        </div>
-
-                        <button type="submit"
-                                class="btn btn-primary btn-sm w-100">
-                            Sign in
-                        </button>
-
-                    </form>
+                    <span asp-validation-for="Email"
+                          class="text-danger account-validation">
+                    </span>
 
                 </div>
+
+                <div class="account-field">
+
+                    <label asp-for="Password"
+                           class="form-label account-form-label">
+                        Password
+                    </label>
+
+                    <input asp-for="Password"
+                           class="form-control account-input"
+                           autocomplete="current-password" />
+
+                    <span asp-validation-for="Password"
+                          class="text-danger account-validation">
+                    </span>
+
+                </div>
+
+                <div class="account-options">
+
+                    <div class="form-check">
+
+                        <input asp-for="RememberMe"
+                               class="form-check-input" />
+
+                        <label asp-for="RememberMe"
+                               class="form-check-label account-checkbox-label">
+                            Remember me
+                        </label>
+
+                    </div>
+
+                    <a asp-controller="Account"
+                       asp-action="ForgotPassword">
+                        Forgot password?
+                    </a>
+
+                </div>
+
+                <button type="submit"
+                        class="account-primary-button">
+                    Sign in
+                </button>
+
+            </form>
+
+            <div class="account-form-footer">
+
+                New to DriveFleet?
+
+                <a asp-controller="Account"
+                   asp-action="Register"
+                   class="account-secondary-link">
+                    Create an account
+                </a>
+
             </div>
 
         </div>
+
     </div>
-</div>
+
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

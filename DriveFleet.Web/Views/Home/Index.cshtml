@@ -1,8 +1,148 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Início";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="home-hero">
+
+    <div class="home-hero-shade"></div>
+
+    <div class="container home-hero-container">
+
+        <div class="home-hero-copy">
+
+            <div class="home-eyebrow">
+                <span class="home-eyebrow-line"></span>
+
+                <span>
+                    RENT A CAR
+                </span>
+            </div>
+
+            <h1 class="home-hero-title">
+                A liberdade
+                <span>
+                    começa aqui.
+                </span>
+            </h1>
+
+            <p class="home-hero-description">
+                Viaturas para todas as suas viagens.
+            </p>
+
+            <a asp-controller="Vehicles"
+               asp-action="Index"
+               class="home-hero-button">
+
+                <span>
+                    Reservar Viatura
+                </span>
+
+                <span class="home-hero-button-arrow"
+                      aria-hidden="true">
+                    →
+                </span>
+            </a>
+
+        </div>
+
+        <div class="home-benefits">
+
+            <div class="home-benefit">
+                <div class="home-benefit-icon"
+                     aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 3L19 6V11C19 15.5 16.2 19.1 12 21C7.8 19.1 5 15.5 5 11V6L12 3Z"></path>
+                        <path d="M9 12L11 14L15 10"></path>
+                    </svg>
+                </div>
+
+                <div>
+                    <strong>
+                        Seguro Incluído
+                    </strong>
+
+                    <span>
+                        Viaje com tranquilidade
+                    </span>
+                </div>
+            </div>
+
+            <div class="home-benefit">
+                <div class="home-benefit-icon"
+                     aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12"
+                                cy="12"
+                                r="9"></circle>
+
+                        <path d="M12 7V12L15 14"></path>
+                    </svg>
+                </div>
+
+                <div>
+                    <strong>
+                        Apoio 24/7
+                    </strong>
+
+                    <span>
+                        Estamos sempre consigo
+                    </span>
+                </div>
+            </div>
+
+            <div class="home-benefit">
+                <div class="home-benefit-icon"
+                     aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 21C12 21 18 15.5 18 10A6 6 0 1 0 6 10C6 15.5 12 21 12 21Z"></path>
+
+                        <circle cx="12"
+                                cy="10"
+                                r="2"></circle>
+                    </svg>
+                </div>
+
+                <div>
+                    <strong>
+                        Reserva Simples
+                    </strong>
+
+                    <span>
+                        Escolha e reserve online
+                    </span>
+                </div>
+            </div>
+
+            <div class="home-benefit">
+                <div class="home-benefit-icon"
+                     aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M5 16L6.5 10H17.5L19 16"></path>
+                        <path d="M4 16H20V20H4V16Z"></path>
+                        <path d="M8 20V22"></path>
+                        <path d="M16 20V22"></path>
+                        <circle cx="7"
+                                cy="18"
+                                r="1"></circle>
+                        <circle cx="17"
+                                cy="18"
+                                r="1"></circle>
+                    </svg>
+                </div>
+
+                <div>
+                    <strong>
+                        Frota Moderna
+                    </strong>
+
+                    <span>
+                        Diversos modelos e categorias
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>

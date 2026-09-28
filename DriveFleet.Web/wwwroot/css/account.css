@@ -1,0 +1,438 @@
+﻿/* =========================================================
+   DRIVEFLEET ACCOUNT EXPERIENCE
+   ========================================================= */
+
+.account-page {
+    background: #f4f7fa;
+}
+
+.account-shell {
+    min-height: calc(100vh - 92px);
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(420px, 0.95fr);
+    background: #ffffff;
+}
+
+/* =========================================================
+   VISUAL PANEL
+   ========================================================= */
+
+.account-visual {
+    position: relative;
+    min-height: calc(100vh - 92px);
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    padding: clamp(2rem, 5vw, 5rem);
+    background-image: url("/images/home/drivefleet-hero.png");
+    background-size: cover;
+    background-position: 62% center;
+    background-repeat: no-repeat;
+    color: #ffffff;
+}
+
+    .account-visual::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient( 90deg, rgba(3, 27, 46, 0.88) 0%, rgba(3, 31, 53, 0.56) 52%, rgba(3, 31, 53, 0.18) 100% ), linear-gradient( 0deg, rgba(2, 21, 36, 0.84) 0%, rgba(2, 21, 36, 0.08) 62% );
+    }
+
+.account-visual-content {
+    position: relative;
+    z-index: 2;
+    max-width: 520px;
+}
+
+.account-visual-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.38rem;
+}
+
+    .account-visual-eyebrow::before {
+        content: "";
+        display: block;
+        width: 45px;
+        height: 3px;
+        background: #159cff;
+    }
+
+.account-visual-title {
+    margin-bottom: 1rem;
+    font-size: clamp(2.6rem, 4vw, 4.5rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.08rem;
+}
+
+    .account-visual-title span {
+        display: block;
+        font-weight: 300;
+    }
+
+.account-visual-description {
+    max-width: 440px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   FORM PANEL
+   ========================================================= */
+
+.account-form-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem clamp(2rem, 5vw, 5rem);
+    background: #ffffff;
+}
+
+.account-form-wrapper {
+    width: 100%;
+    max-width: 470px;
+}
+
+.account-form-eyebrow {
+    margin-bottom: 0.65rem;
+    color: #159cff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.16rem;
+    text-transform: uppercase;
+}
+
+.account-form-title {
+    margin-bottom: 0.55rem;
+    color: #0b2942;
+    font-size: clamp(2rem, 3vw, 2.7rem);
+    font-weight: 650;
+    letter-spacing: -0.05rem;
+}
+
+.account-form-subtitle {
+    margin-bottom: 2rem;
+    color: #7a8695;
+    line-height: 1.55;
+}
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+.account-field {
+    margin-bottom: 1.2rem;
+}
+
+.account-field-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.account-form-label {
+    margin-bottom: 0.4rem;
+    color: #23384b;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.account-input {
+    min-height: 48px;
+    border: 1px solid #d8e0e7;
+    border-radius: 10px;
+    background: #fbfcfd;
+    box-shadow: none !important;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .account-input:focus {
+        border-color: #159cff;
+        background: #ffffff;
+        box-shadow: 0 0 0 0.2rem rgba(21, 156, 255, 0.1) !important;
+    }
+
+.account-validation {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.78rem;
+}
+
+/* =========================================================
+   OPTIONS / LINKS
+   ========================================================= */
+
+.account-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.82rem;
+}
+
+    .account-options a,
+    .account-secondary-link {
+        color: #087fc9;
+        text-decoration: none;
+    }
+
+        .account-options a:hover,
+        .account-secondary-link:hover {
+            text-decoration: underline;
+        }
+
+.account-checkbox-label {
+    color: #536273;
+    font-size: 0.82rem;
+}
+
+/* =========================================================
+   PRIMARY BUTTON
+   ========================================================= */
+
+.account-primary-button {
+    width: 100%;
+    min-height: 50px;
+    border: 0;
+    border-radius: 999px;
+    background: #119df7;
+    color: #ffffff;
+    font-size: 0.92rem;
+    font-weight: 600;
+    box-shadow: 0 12px 28px rgba(0, 125, 210, 0.22);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .account-primary-button:hover {
+        background: #008ee7;
+        transform: translateY(-1px);
+        box-shadow: 0 15px 32px rgba(0, 125, 210, 0.28);
+    }
+
+/* =========================================================
+   FOOTER MESSAGE
+   ========================================================= */
+
+.account-form-footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    color: #748191;
+    font-size: 0.84rem;
+}
+
+.account-alert {
+    margin-bottom: 1.5rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+/* =========================================================
+   ACCOUNT SECONDARY PAGES
+   ========================================================= */
+
+.account-secondary-page {
+    min-height: calc(100vh - 170px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 3.5rem 1.5rem;
+}
+
+.account-secondary-card {
+    width: 100%;
+    max-width: 520px;
+    padding: 2.5rem;
+    border: 1px solid #e4e9ee;
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow: 0 18px 50px rgba(12, 42, 66, 0.08);
+}
+
+.account-secondary-mark {
+    width: 52px;
+    height: 4px;
+    margin-bottom: 1.4rem;
+    border-radius: 999px;
+    background: #159cff;
+}
+
+.account-secondary-eyebrow {
+    margin-bottom: 0.5rem;
+    color: #159cff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.15rem;
+    text-transform: uppercase;
+}
+
+.account-secondary-title {
+    margin-bottom: 0.75rem;
+    color: #0b2942;
+    font-size: 2rem;
+    font-weight: 650;
+    letter-spacing: -0.04rem;
+}
+
+.account-secondary-description {
+    margin-bottom: 1.8rem;
+    color: #758293;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   STATUS STATES
+   ========================================================= */
+
+.account-status-icon {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.4rem;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.account-status-icon--success {
+    background: #e8f7ef;
+    color: #198754;
+}
+
+.account-status-icon--error {
+    background: #fbecec;
+    color: #b94646;
+}
+
+/* =========================================================
+   SECONDARY ACTIONS
+   ========================================================= */
+
+.account-secondary-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.account-secondary-button {
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.4rem;
+    border: 0;
+    border-radius: 999px;
+    background: #119df7;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+    .account-secondary-button:hover {
+        background: #008ee7;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+.account-secondary-button--outline {
+    border: 1px solid #cfd8e1;
+    background: transparent;
+    color: #31495d;
+}
+
+    .account-secondary-button--outline:hover {
+        border-color: #159cff;
+        background: #f5fbff;
+        color: #087fc9;
+    }
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 991.98px) {
+    .account-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .account-visual {
+        min-height: 320px;
+        align-items: flex-end;
+        padding: 6rem 2rem 2.5rem;
+    }
+
+    .account-visual-title {
+        font-size: 2.7rem;
+    }
+
+    .account-form-panel {
+        padding: 3rem 1.5rem;
+    }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 575.98px) {
+    .account-visual {
+        min-height: 260px;
+        padding: 5.5rem 1.25rem 2rem;
+    }
+
+    .account-visual-title {
+        font-size: 2.3rem;
+    }
+
+    .account-visual-description {
+        font-size: 0.9rem;
+    }
+
+    .account-field-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .account-form-panel {
+        padding: 2.5rem 1.25rem;
+    }
+
+    .account-options {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .account-secondary-page {
+        padding: 2rem 0;
+    }
+
+    .account-secondary-card {
+        padding: 1.75rem;
+        border-radius: 16px;
+    }
+
+    .account-secondary-title {
+        font-size: 1.75rem;
+    }
+
+    .account-secondary-actions {
+        flex-direction: column;
+    }
+
+    .account-secondary-button {
+        width: 100%;
+    }
+}

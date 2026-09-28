@@ -1,7 +1,96 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var currentController =
+        ViewContext.RouteData.Values["controller"]
+            ?.ToString();
+
+    var currentAction =
+        ViewContext.RouteData.Values["action"]
+            ?.ToString();
+
+    var isHomePage =
+        string.Equals(
+            currentController,
+            "Home",
+            StringComparison.OrdinalIgnoreCase)
+        &&
+        string.Equals(
+            currentAction,
+            "Index",
+            StringComparison.OrdinalIgnoreCase);
+
+    var isVehicleCatalogPage =
+        string.Equals(
+            currentController,
+            "Vehicles",
+            StringComparison.OrdinalIgnoreCase)
+        &&
+        string.Equals(
+            currentAction,
+            "Index",
+            StringComparison.OrdinalIgnoreCase);
+
+    var isVehiclesSection =
+        string.Equals(
+            currentController,
+            "Vehicles",
+            StringComparison.OrdinalIgnoreCase);
+
+    var isReservationsSection =
+        string.Equals(
+            currentController,
+            "Reservations",
+            StringComparison.OrdinalIgnoreCase);
+
+    var isReviewsSection =
+        string.Equals(
+            currentController,
+            "Reviews",
+            StringComparison.OrdinalIgnoreCase);
+
+    var isProfileSection =
+        string.Equals(
+            currentController,
+            "Profile",
+            StringComparison.OrdinalIgnoreCase);
+
+    var isAccountEntryPage =
+        string.Equals(
+            currentController,
+            "Account",
+            StringComparison.OrdinalIgnoreCase)
+        &&
+        (
+            string.Equals(
+                currentAction,
+                "Login",
+                StringComparison.OrdinalIgnoreCase)
+            ||
+            string.Equals(
+                currentAction,
+                "Register",
+                StringComparison.OrdinalIgnoreCase)
+        );
+
+    var useOverlayNavigation =
+        isHomePage ||
+        isVehicleCatalogPage;
+
+    var bodyClass =
+        isHomePage
+            ? "home-page"
+            : isVehicleCatalogPage
+                ? "vehicles-page"
+                : isAccountEntryPage
+                    ? "account-page"
+                    : null;
+}
+
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
+
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0" />
 
@@ -19,180 +108,237 @@
           asp-append-version="true" />
 
     <link rel="stylesheet"
+          href="~/css/home.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/vehicles.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/navigation.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+      href="~/css/account.css"
+      asp-append-version="true" />
+
+    <link rel="stylesheet"
           href="~/DriveFleet.Web.styles.css"
           asp-append-version="true" />
 </head>
 
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+<body class="@bodyClass">
 
-                <a class="navbar-brand"
+    <header>
+
+        <nav class="navbar navbar-expand-lg drivefleet-navbar @(useOverlayNavigation
+            ? "drivefleet-navbar--overlay"
+            : "drivefleet-navbar--solid")">
+
+            <div class="container-fluid drivefleet-nav-shell">
+
+                <a class="navbar-brand drivefleet-brand"
                    asp-area=""
                    asp-controller="Home"
                    asp-action="Index">
-                    DriveFleet
+
+                    <span class="drivefleet-brand-main">
+                        <strong>Drive</strong><span>Fleet</span>
+                    </span>
+
+                    <span class="drivefleet-brand-subtitle">
+                        RENT A CAR
+                    </span>
+
                 </a>
 
                 <button class="navbar-toggler"
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent"
+                        data-bs-target="#drivefleetNavigation"
+                        aria-controls="drivefleetNavigation"
                         aria-expanded="false"
                         aria-label="Toggle navigation">
 
                     <span class="navbar-toggler-icon"></span>
+
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="collapse navbar-collapse drivefleet-navbar-collapse"
+                     id="drivefleetNavigation">
 
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav drivefleet-primary-nav">
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark"
+
+                            <a class="nav-link @(isHomePage ? "active" : null)"
                                asp-area=""
                                asp-controller="Home"
-                               asp-action="Index">
+                               asp-action="Index"
+                               aria-current="@(isHomePage ? "page" : null)">
                                 Home
                             </a>
+
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark"
+
+                            <a class="nav-link @(isVehiclesSection ? "active" : null)"
                                asp-area=""
                                asp-controller="Vehicles"
-                               asp-action="Index">
+                               asp-action="Index"
+                               aria-current="@(isVehiclesSection ? "page" : null)">
                                 Vehicles
                             </a>
+
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-area=""
-                               asp-controller="Home"
-                               asp-action="Privacy">
-                                Privacy
-                            </a>
-                        </li>
                     </ul>
 
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav drivefleet-account-nav">
+
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item">
-                                <span class="nav-link text-dark">
-                                    Hello, @User.Identity.Name
-                                </span>
-                            </li>
-
                             @if (User.IsInRole("Client"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark"
+
+                                    <a class="nav-link @(isReservationsSection ? "active" : null)"
                                        asp-controller="Reservations"
-                                       asp-action="Index">
+                                       asp-action="Index"
+                                       aria-current="@(isReservationsSection ? "page" : null)">
                                         My reservations
                                     </a>
+
                                 </li>
                             }
                             else if (User.IsInRole("Admin") ||
                                      User.IsInRole("Employee"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark"
+
+                                    <a class="nav-link @(isReservationsSection ? "active" : null)"
                                        asp-controller="Reservations"
-                                       asp-action="Index">
+                                       asp-action="Index"
+                                       aria-current="@(isReservationsSection ? "page" : null)">
                                         Reservations
                                     </a>
+
                                 </li>
 
                                 @if (User.IsInRole("Admin"))
                                 {
                                     <li class="nav-item">
-                                        <a class="nav-link text-dark"
+
+                                        <a class="nav-link @(isReviewsSection ? "active" : null)"
                                            asp-controller="Reviews"
-                                           asp-action="Index">
+                                           asp-action="Index"
+                                           aria-current="@(isReviewsSection ? "page" : null)">
                                             Reviews
                                         </a>
+
                                     </li>
+
+                                    
                                 }
                             }
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+
+                                <a class="nav-link @(isProfileSection ? "active" : null)"
                                    asp-controller="Profile"
-                                   asp-action="Index">
-                                    My profile
+                                   asp-action="Index"
+                                   aria-current="@(isProfileSection ? "page" : null)">
+                                    Profile
                                 </a>
+
                             </li>
 
-                            @* Previous profile navigation kept for reference.
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="Account"
-                                   asp-action="Profile">
-                                    My profile
-                                </a>
-                            </li>
-                            *@
 
-                            <li class="nav-item">
                                 <form asp-controller="Account"
                                       asp-action="Logout"
                                       method="post"
-                                      class="d-inline">
+                                      class="drivefleet-logout-form">
 
                                     @Html.AntiForgeryToken()
 
                                     <button type="submit"
-                                            class="nav-link btn btn-link text-dark border-0">
+                                            class="nav-link drivefleet-logout-button">
                                         Logout
                                     </button>
+
                                 </form>
+
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+
+                                <a class="nav-link"
                                    asp-controller="Account"
                                    asp-action="Register">
                                     Register
                                 </a>
+
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+
+                                <a class="nav-link drivefleet-login-link"
                                    asp-controller="Account"
                                    asp-action="Login">
                                     Login
                                 </a>
+
                             </li>
                         }
+
                     </ul>
 
                 </div>
+
             </div>
+
         </nav>
+
     </header>
 
-    <div class="container">
-        <main role="main"
-              class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    @if (useOverlayNavigation ||
+     isAccountEntryPage)
+{
+    <main role="main">
+        @RenderBody()
+    </main>
+}
+    else
+    {
+        <div class="container">
+
+            <main role="main"
+                  class="pb-3">
+                @RenderBody()
+            </main>
+
+        </div>
+    }
 
     <footer class="border-top footer text-muted">
+
         <div class="container">
+
             &copy; 2026 - DriveFleet -
+
             <a asp-area=""
                asp-controller="Home"
                asp-action="Privacy">
                 Privacy
             </a>
+
         </div>
+
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -205,5 +351,7 @@
     @await RenderSectionAsync(
         "Scripts",
         required: false)
+
 </body>
+
 </html>

@@ -1,108 +1,201 @@
-﻿@model List<DriveFleet.Web.Models.Vehicles.VehicleListItemViewModel>
+﻿@model IEnumerable<DriveFleet.Web.Models.Vehicles.VehicleListItemViewModel>
 
 @{
     ViewData["Title"] = "Vehicles";
+
+    var isStaff =
+        User.IsInRole("Admin") ||
+        User.IsInRole("Employee");
+
+    var vehicles =
+        Model.ToList();
 }
 
-<div class="container mt-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h1 class="h3 mb-1">Vehicles</h1>
+<section class="vehicles-hero">
 
-            <p class="text-muted small mb-0">
-                Explore the vehicles currently available in DriveFleet.
-            </p>
-        </div>
+    <div class="container vehicles-hero-content">
 
-        @* Shows vehicle management actions only to authorized staff. *@
-        @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
-        {
-            <a asp-controller="Vehicles"
-               asp-action="Create"
-               class="btn btn-primary btn-sm">
-                Create vehicle
-            </a>
-        }
-    </div>
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-4">
 
-    @if (Model.Count == 0)
-    {
-        <div class="alert alert-info py-2"
-             role="alert">
-            No vehicles are currently available.
-        </div>
-    }
-    else
-    {
-        <div class="row g-3">
-            @foreach (var vehicle in Model)
+            <div>
+                <div class="vehicles-hero-eyebrow">
+                    OUR FLEET
+                </div>
+
+                <h1 class="vehicles-hero-title">
+                    Find the right car
+                    <br />
+                    for your journey.
+                </h1>
+
+                <p class="vehicles-hero-description">
+                    Explore our fleet and choose the vehicle
+                    that best fits your next trip.
+                </p>
+            </div>
+
+            @if (isStaff)
             {
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm">
-
-                        @if (!string.IsNullOrWhiteSpace(vehicle.MainPhotoUrl))
-                        {
-                            <div class="ratio ratio-16x9">
-                                <img src="@vehicle.MainPhotoUrl"
-                                     class="card-img-top object-fit-cover"
-                                     alt="@vehicle.Brand @vehicle.Model main catalog photo" />
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="ratio ratio-16x9 bg-light">
-                                <div class="d-flex align-items-center justify-content-center
-                                    text-muted small">
-                                    No photo available.
-                                </div>
-                            </div>
-                        }
-
-                        <div class="card-body p-3">
-
-                            <h5 class="card-title mb-1">
-                                @vehicle.Brand @vehicle.Model
-                            </h5>
-
-                            <p class="card-text text-muted small mb-3">
-                                @vehicle.Year · @vehicle.CategoryName
-                            </p>
-
-                            <dl class="row mb-0 small">
-                                <dt class="col-6 mb-1">
-                                    Seats
-                                </dt>
-                                <dd class="col-6 mb-1">
-                                    @vehicle.Seats
-                                </dd>
-
-                                <dt class="col-6 mb-1">
-                                    Daily price
-                                </dt>
-                                <dd class="col-6 mb-1">
-                                    @vehicle.DailyPrice.ToString("0.00") €
-                                </dd>
-
-                                <dt class="col-6 mb-1">
-                                    Status
-                                </dt>
-                                <dd class="col-6 mb-1">
-                                    @vehicle.VehicleStatusName
-                                </dd>
-                            </dl>
-
-                            <a asp-controller="Vehicles"
-                               asp-action="Details"
-                               asp-route-vehicleId="@vehicle.VehicleId"
-                               class="btn btn-outline-primary btn-sm mt-2">
-                                View details
-                            </a>
-
-                        </div>
-
-                    </div>
+                <div class="pb-1">
+                    <a asp-controller="Vehicles"
+                       asp-action="Create"
+                       class="vehicles-create-button">
+                        Create vehicle
+                    </a>
                 </div>
             }
+
         </div>
-    }
-</div>
+
+    </div>
+
+</section>
+
+<section class="vehicles-catalog">
+
+    <div class="container">
+
+        <div class="vehicles-catalog-surface">
+
+            <div class="vehicles-catalog-heading">
+
+                <div>
+                    <h2>
+                        Available vehicles
+                    </h2>
+
+                    <p>
+                        @vehicles.Count vehicle@(vehicles.Count == 1 ? "" : "s") in the fleet
+                    </p>
+                </div>
+
+            </div>
+
+            @if (vehicles.Count == 0)
+            {
+                <div class="vehicles-empty-state">
+
+                    <h2>
+                        No vehicles available
+                    </h2>
+
+                    <p>
+                        The fleet does not currently contain
+                        any vehicles to display.
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+
+                    @foreach (var vehicle in vehicles)
+                    {
+                        var statusClass =
+                            vehicle.VehicleStatusName switch
+                            {
+                                "Available" =>
+                                    "vehicle-status-available",
+
+                                "Reserved" =>
+                                    "vehicle-status-reserved",
+
+                                "Unavailable" =>
+                                    "vehicle-status-unavailable",
+
+                                _ =>
+                                    "vehicle-status-unavailable"
+                            };
+
+                        <div class="col-12 col-md-6 col-xl-4">
+
+                            <article class="vehicle-premium-card">
+
+                                <div class="vehicle-card-image-wrapper">
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        vehicle.MainPhotoUrl))
+                                    {
+                                        <img src="@vehicle.MainPhotoUrl"
+                                             alt="@vehicle.Brand @vehicle.Model"
+                                             class="vehicle-card-image"
+                                             loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="vehicle-card-placeholder">
+                                            No photo available
+                                        </div>
+                                    }
+
+                                    <span class="vehicle-status-badge @statusClass">
+                                        @vehicle.VehicleStatusName
+                                    </span>
+
+                                </div>
+
+                                <div class="vehicle-card-body">
+
+                                    <div class="vehicle-card-category">
+                                        @vehicle.CategoryName
+                                    </div>
+
+                                    <h2 class="vehicle-card-title">
+                                        @vehicle.Brand @vehicle.Model
+                                    </h2>
+
+                                    <div class="vehicle-card-meta">
+
+                                        <span>
+                                            @vehicle.Year
+                                        </span>
+
+                                        <span>
+                                            @vehicle.Seats seats
+                                        </span>
+
+                                    </div>
+
+                                    <hr class="vehicle-card-divider" />
+
+                                    <div class="vehicle-card-footer">
+
+                                        <div>
+                                            <span class="vehicle-card-price-label">
+                                                From
+                                            </span>
+
+                                            <div class="vehicle-card-price">
+                                                @vehicle.DailyPrice.ToString("C")
+
+                                                <small>
+                                                    / day
+                                                </small>
+                                            </div>
+                                        </div>
+
+                                        <a asp-controller="Vehicles"
+                                           asp-action="Details"
+                                           asp-route-vehicleId="@vehicle.VehicleId"
+                                           class="vehicle-details-button">
+                                            View details
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </article>
+
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</section>
