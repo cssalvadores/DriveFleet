@@ -4,90 +4,254 @@
     ViewData["Title"] = "Edit profile";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-7 col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
+<link rel="stylesheet"
+      href="~/css/profile.css"
+      asp-append-version="true" />
 
-                    <h2 class="mb-3">
-                        Edit profile
-                    </h2>
+<section class="profile-page">
 
-                    <p class="text-muted mb-4">
-                        Update your personal information below.
-                    </p>
+    <div class="profile-back">
 
-                    <form asp-controller="Profile"
-                          asp-action="Edit"
-                          method="post">
+        <a asp-controller="Profile"
+           asp-action="Index">
 
-                        <div asp-validation-summary="ModelOnly"
-                             class="text-danger mb-3">
+            <span aria-hidden="true">
+                ←
+            </span>
+
+            Back to profile
+
+        </a>
+
+    </div>
+
+    <header class="profile-editor-hero">
+
+        <span class="profile-eyebrow">
+            ACCOUNT SETTINGS
+        </span>
+
+        <h1>
+            Edit profile
+        </h1>
+
+        <p>
+            Update the personal information
+            associated with your DriveFleet account.
+        </p>
+
+    </header>
+
+    <form asp-controller="Profile"
+          asp-action="Edit"
+          method="post"
+          asp-antiforgery="true">
+
+        <div asp-validation-summary="ModelOnly"
+             class="profile-validation"
+             role="alert">
+        </div>
+
+        <div class="profile-editor-layout">
+
+            <main class="profile-editor-main">
+
+                <section class="profile-form-card">
+
+                    <header class="profile-form-card__header">
+
+                        <span class="profile-form-card__number">
+                            01
+                        </span>
+
+                        <div>
+
+                            <span>
+                                PERSONAL INFORMATION
+                            </span>
+
+                            <h2>
+                                Basic details
+                            </h2>
+
+                            <p>
+                                Update your name and
+                                contact information.
+                            </p>
+
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="FirstName"
-                                   class="form-label">
+                    </header>
+
+                    <div class="profile-form-grid">
+
+                        <div class="profile-form-field">
+
+                            <label asp-for="FirstName">
                             </label>
 
                             <input asp-for="FirstName"
                                    class="form-control"
-                                   autocomplete="given-name" />
+                                   autocomplete="given-name"
+                                   placeholder="First name" />
 
                             <span asp-validation-for="FirstName"
-                                  class="text-danger">
+                                  class="profile-form-error">
                             </span>
+
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="LastName"
-                                   class="form-label">
+                        <div class="profile-form-field">
+
+                            <label asp-for="LastName">
                             </label>
 
                             <input asp-for="LastName"
                                    class="form-control"
-                                   autocomplete="family-name" />
+                                   autocomplete="family-name"
+                                   placeholder="Last name" />
 
                             <span asp-validation-for="LastName"
-                                  class="text-danger">
+                                  class="profile-form-error">
                             </span>
+
                         </div>
 
-                        <div class="mb-4">
-                            <label asp-for="Phone"
-                                   class="form-label">
-                            </label>
+                    </div>
 
-                            <input asp-for="Phone"
-                                   class="form-control"
-                                   autocomplete="tel" />
+                    <div class="profile-form-field profile-form-field--full">
 
-                            <span asp-validation-for="Phone"
-                                  class="text-danger">
+                        <label asp-for="Phone">
+                        </label>
+
+                        <input asp-for="Phone"
+                               class="form-control"
+                               autocomplete="tel"
+                               placeholder="+351 ..." />
+
+                        <span asp-validation-for="Phone"
+                              class="profile-form-error">
+                        </span>
+
+                    </div>
+
+                </section>
+
+            </main>
+
+            <aside class="profile-editor-sidebar">
+
+                <section class="profile-editor-summary">
+
+                    <span class="profile-editor-summary__eyebrow">
+                        PROFILE UPDATE
+                    </span>
+
+                    <h2>
+                        Save your changes
+                    </h2>
+
+                    <p>
+                        Your email address, account role and
+                        authentication method are not changed
+                        by this form.
+                    </p>
+
+                    <div class="profile-editor-summary__divider">
+                    </div>
+
+                    <div class="profile-editor-summary__item">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                First name
+                            </strong>
+
+                            <small>
+                                Required
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="profile-editor-summary__item">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Last name
+                            </strong>
+
+                            <small>
+                                Optional
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="profile-editor-summary__item">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Phone number
+                            </strong>
+
+                            <small>
+                                Optional
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <div class="profile-editor-actions">
+
+                        <button type="submit"
+                                class="profile-primary-action">
+
+                            Save changes
+
+                            <span aria-hidden="true">
+                                →
                             </span>
-                        </div>
 
-                        <div class="d-flex gap-2">
-                            <button type="submit"
-                                    class="btn btn-primary">
-                                Save changes
-                            </button>
+                        </button>
 
-                            <a asp-controller="Profile"
-                               asp-action="Index"
-                               class="btn btn-outline-secondary">
-                                Cancel
-                            </a>
-                        </div>
+                        <a asp-controller="Profile"
+                           asp-action="Index"
+                           class="profile-secondary-action">
 
-                    </form>
+                            Cancel
 
-                </div>
-            </div>
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </aside>
+
         </div>
-    </div>
-</div>
+
+    </form>
+
+</section>
 
 @section Scripts
 {

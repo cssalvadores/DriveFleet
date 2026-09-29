@@ -2,85 +2,304 @@
 
 @{
     ViewData["Title"] = "Profile photo";
+
+    var currentPhotoUrl =
+        string.IsNullOrWhiteSpace(Model.CurrentPhoto)
+            ? null
+            : $"https://localhost:7094{Model.CurrentPhoto}";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-7 col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
+<link rel="stylesheet"
+      href="~/css/profile.css"
+      asp-append-version="true" />
 
-                    <h2 class="mb-3">
-                        Profile photo
-                    </h2>
+<section class="profile-page">
 
-                    <p class="text-muted mb-4">
-                        Upload a new photo for your DriveFleet profile.
-                    </p>
+    <div class="profile-back">
 
-                    @if (!string.IsNullOrWhiteSpace(Model.CurrentPhoto))
-                    {
-                        <div class="mb-4 text-center">
-                            <p class="mb-2">
-                                Current photo
-                            </p>
+        <a asp-controller="Profile"
+           asp-action="Index">
 
-                            <img src="@($"https://localhost:7094{Model.CurrentPhoto}")"
-                                 alt="Current profile photo"
-                                 class="img-thumbnail"
-                                 style="max-width: 220px; max-height: 220px;" />
-                        </div>
-                    }
+            <span aria-hidden="true">
+                ←
+            </span>
 
-                    <form asp-controller="Profile"
-                          asp-action="Photo"
-                          method="post"
-                          enctype="multipart/form-data">
+            Back to profile
 
-                        <div asp-validation-summary="ModelOnly"
-                             class="text-danger mb-3">
-                        </div>
+        </a>
 
-                        <div class="mb-4">
-                            <label asp-for="Photo"
-                                   class="form-label">
-                            </label>
+    </div>
 
-                            <input asp-for="Photo"
-                                   class="form-control"
-                                   accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+    <header class="profile-editor-hero">
 
-                            <span asp-validation-for="Photo"
-                                  class="text-danger">
-                            </span>
+        <span class="profile-eyebrow">
+            ACCOUNT SETTINGS
+        </span>
 
-                            <div class="form-text">
-                                JPG, JPEG or PNG. Maximum size: 5 MB.
-                            </div>
-                        </div>
+        <h1>
+            Profile photo
+        </h1>
 
-                        <div class="d-flex gap-2">
-                            <button type="submit"
-                                    class="btn btn-primary">
-                                Upload photo
-                            </button>
+        <p>
+            Update the image associated
+            with your DriveFleet account.
+        </p>
 
-                            <a asp-controller="Profile"
-                               asp-action="Index"
-                               class="btn btn-outline-secondary">
-                                Cancel
-                            </a>
-                        </div>
+    </header>
 
-                    </form>
+    <div class="profile-photo-layout">
+
+        <!-- Current photo -->
+        <section class="profile-photo-current">
+
+            <span class="profile-photo-current__eyebrow">
+                CURRENT PHOTO
+            </span>
+
+            <div class="profile-photo-current__preview">
+
+                @if (!string.IsNullOrWhiteSpace(currentPhotoUrl))
+                {
+                    <img src="@currentPhotoUrl"
+                         alt="Current profile photo"
+                         id="currentProfilePhoto" />
+                }
+                else
+                {
+                    <div class="profile-photo-current__empty"
+                         id="currentProfilePhotoPlaceholder">
+
+                        <span>
+                            +
+                        </span>
+
+                        <strong>
+                            No profile photo
+                        </strong>
+
+                        <small>
+                            Upload an image to personalise
+                            your DriveFleet account.
+                        </small>
+
+                    </div>
+                }
+
+                <img id="profilePhotoPreview"
+                     alt="New profile photo preview"
+                     class="profile-photo-preview-image"
+                     hidden />
+
+            </div>
+
+            <div class="profile-photo-current__status">
+
+                <span class="profile-photo-current__status-dot">
+                </span>
+
+                <span id="profilePhotoStatus">
+
+                    @(string.IsNullOrWhiteSpace(Model.CurrentPhoto)
+                        ? "No image currently uploaded"
+                        : "Current account photo")
+
+                </span>
+
+            </div>
+
+        </section>
+
+        <!-- Upload -->
+        <section class="profile-photo-upload-card">
+
+            <span class="profile-photo-upload-card__eyebrow">
+                NEW IMAGE
+            </span>
+
+            <h2>
+                Upload profile photo
+            </h2>
+
+            <p>
+                Select a new image from your device.
+                The photo will replace the current profile image.
+            </p>
+
+            <form asp-controller="Profile"
+                  asp-action="Photo"
+                  method="post"
+                  enctype="multipart/form-data"
+                  asp-antiforgery="true">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="profile-validation"
+                     role="alert">
+                </div>
+
+                <div class="profile-photo-dropzone">
+
+                    <span class="profile-photo-dropzone__icon"
+                          aria-hidden="true">
+                        ↑
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Choose an image
+                        </strong>
+
+                        <span>
+                            Select a profile photo from your device.
+                        </span>
+
+                    </div>
+
+                    <input asp-for="Photo"
+                           type="file"
+                           accept="image/jpeg,image/png"
+                           class="form-control"
+                           id="profilePhotoInput" />
 
                 </div>
-            </div>
-        </div>
+
+                <span asp-validation-for="Photo"
+                      class="profile-form-error">
+                </span>
+
+                <div class="profile-photo-guidance">
+
+                    <div>
+
+                        <span>
+                            01
+                        </span>
+
+                        <p>
+                            Use a clear image where the subject
+                            is easy to recognise.
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <span>
+                            02
+                        </span>
+
+                        <p>
+                            Square images work best with the
+                            circular DriveFleet profile display.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="profile-photo-actions">
+
+                    <button type="submit"
+                            class="profile-primary-action">
+
+                        Upload photo
+
+                        <span aria-hidden="true">
+                            ↑
+                        </span>
+
+                    </button>
+
+                    <a asp-controller="Profile"
+                       asp-action="Index"
+                       class="profile-secondary-action">
+
+                        Cancel
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
     </div>
-</div>
+
+</section>
 
 @section Scripts
 {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (() => {
+            const input =
+                document.getElementById(
+                    "profilePhotoInput");
+
+            const preview =
+                document.getElementById(
+                    "profilePhotoPreview");
+
+            const current =
+                document.getElementById(
+                    "currentProfilePhoto");
+
+            const placeholder =
+                document.getElementById(
+                    "currentProfilePhotoPlaceholder");
+
+            const status =
+                document.getElementById(
+                    "profilePhotoStatus");
+
+            if (!input || !preview) {
+                return;
+            }
+
+            input.addEventListener(
+                "change",
+                event => {
+
+                    const file =
+                        event.target.files?.[0];
+
+                    if (!file) {
+                        return;
+                    }
+
+                    const reader =
+                        new FileReader();
+
+                    reader.onload =
+                        loadEvent => {
+
+                            preview.src =
+                                loadEvent.target.result;
+
+                            preview.hidden =
+                                false;
+
+                            if (current) {
+                                current.hidden =
+                                    true;
+                            }
+
+                            if (placeholder) {
+                                placeholder.hidden =
+                                    true;
+                            }
+
+                            if (status) {
+                                status.textContent =
+                                    "New photo selected";
+                            }
+                        };
+
+                    reader.readAsDataURL(
+                        file);
+                });
+        })();
+    </script>
 }

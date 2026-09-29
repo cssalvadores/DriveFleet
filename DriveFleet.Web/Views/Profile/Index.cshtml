@@ -2,129 +2,501 @@
 
 @{
     ViewData["Title"] = "My profile";
+
+    var displayName =
+        string.Join(
+            " ",
+            new[]
+            {
+                Model.FirstName,
+                Model.LastName
+            }
+            .Where(value =>
+                !string.IsNullOrWhiteSpace(value)));
+
+    var profileInitial =
+        string.IsNullOrWhiteSpace(Model.FirstName)
+            ? "U"
+            : Model.FirstName
+                .Trim()
+                .Substring(0, 1)
+                .ToUpperInvariant();
+
+    var authenticationMethod =
+        string.IsNullOrWhiteSpace(Model.Provider)
+            ? "Email and password"
+            : Model.Provider;
+
+    var profilePhotoUrl =
+        string.IsNullOrWhiteSpace(Model.Photo)
+            ? null
+            : $"https://localhost:7094{Model.Photo}";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
+<link rel="stylesheet"
+      href="~/css/profile.css"
+      asp-append-version="true" />
 
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h2 class="mb-1">
-                                My profile
-                            </h2>
+<section class="profile-page">
 
-                            <p class="text-muted mb-0">
-                                View your DriveFleet account information.
-                            </p>
-                        </div>
+    <!-- Hero -->
+    <header class="profile-hero">
 
-                        <div class="d-flex gap-2">
-                            <a asp-controller="Profile"
-                               asp-action="Photo"
-                               class="btn btn-outline-primary">
-                                Change photo
-                            </a>
+        <div class="profile-hero__content">
 
-                            <a asp-controller="Profile"
-                               asp-action="Edit"
-                               class="btn btn-primary">
-                                Edit profile
-                            </a>
-                        </div>
-                    </div>
+            <div class="profile-hero__identity">
 
-                    @if (!string.IsNullOrWhiteSpace(Model.Photo))
+                <div class="profile-avatar">
+
+                    @if (!string.IsNullOrWhiteSpace(profilePhotoUrl))
                     {
-                        <div class="text-center mb-4">
-                            <img src="@($"https://localhost:7094{Model.Photo}")"
-                                 alt="Profile photo"
-                                 class="rounded-circle img-thumbnail"
-                                 style="width: 160px; height: 160px; object-fit: cover;" />
-                        </div>
+                        <img src="@profilePhotoUrl"
+                             alt="@displayName profile photo" />
                     }
                     else
                     {
-                        <div class="text-center mb-4">
-                            <div class="border rounded-circle d-inline-flex align-items-center justify-content-center bg-light"
-                                 style="width: 160px; height: 160px;">
-                                <span class="text-muted">
-                                    No photo
-                                </span>
-                            </div>
-                        </div>
+                        <span>
+                            @profileInitial
+                        </span>
                     }
 
-                    <dl class="row mb-0">
+                </div>
 
-                        <dt class="col-sm-4">
+                <div>
+
+                    <span class="profile-eyebrow">
+                        DRIVEFLEET ACCOUNT
+                    </span>
+
+                    <h1>
+                        @displayName
+                    </h1>
+
+                    <div class="profile-hero__meta">
+
+                        <span class="profile-role-badge">
+                            @Model.Role
+                        </span>
+
+                        @if (Model.EmailConfirmed)
+                        {
+                            <span class="profile-verified">
+
+                                <span aria-hidden="true">
+                                    ✓
+                                </span>
+
+                                Email verified
+
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="profile-unverified">
+
+                                <span aria-hidden="true">
+                                    !
+                                </span>
+
+                                Email not verified
+
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="profile-hero__actions">
+
+                <a asp-controller="Profile"
+                   asp-action="Photo"
+                   class="profile-hero__button profile-hero__button--secondary">
+
+                    Change photo
+
+                </a>
+
+                <a asp-controller="Profile"
+                   asp-action="Edit"
+                   class="profile-hero__button profile-hero__button--primary">
+
+                    Edit profile
+
+                    <span aria-hidden="true">
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="profile-hero__footer">
+
+            <div>
+
+                <span class="profile-hero__status-dot">
+                </span>
+
+                <span>
+                    Authenticated account
+                </span>
+
+            </div>
+
+            <span>
+                User #@Model.UserId
+            </span>
+
+        </div>
+
+    </header>
+
+    <!-- Quick overview -->
+    <section class="profile-overview">
+
+        <article class="profile-overview-card">
+
+            <span class="profile-overview-card__label">
+                ACCOUNT ROLE
+            </span>
+
+            <strong>
+                @Model.Role
+            </strong>
+
+            <p>
+                Current DriveFleet access level.
+            </p>
+
+        </article>
+
+        <article class="profile-overview-card">
+
+            <span class="profile-overview-card__label">
+                EMAIL STATUS
+            </span>
+
+            <strong>
+                @(Model.EmailConfirmed
+                    ? "Verified"
+                    : "Pending")
+            </strong>
+
+            <p>
+                Status of your registered email address.
+            </p>
+
+        </article>
+
+        <article class="profile-overview-card">
+
+            <span class="profile-overview-card__label">
+                SIGN-IN METHOD
+            </span>
+
+            <strong>
+                @authenticationMethod
+            </strong>
+
+            <p>
+                Authentication method linked to this account.
+            </p>
+
+        </article>
+
+    </section>
+
+    <div class="profile-layout">
+
+        <!-- Personal information -->
+        <main class="profile-main">
+
+            <section class="profile-card">
+
+                <header class="profile-card__header">
+
+                    <div>
+
+                        <span class="profile-card__eyebrow">
+                            PERSONAL INFORMATION
+                        </span>
+
+                        <h2>
+                            Profile details
+                        </h2>
+
+                        <p>
+                            The personal information associated
+                            with your DriveFleet account.
+                        </p>
+
+                    </div>
+
+                    <a asp-controller="Profile"
+                       asp-action="Edit">
+
+                        Edit →
+
+                    </a>
+
+                </header>
+
+                <dl class="profile-details">
+
+                    <div>
+
+                        <dt>
                             First name
                         </dt>
 
-                        <dd class="col-sm-8">
+                        <dd>
                             @Model.FirstName
                         </dd>
 
-                        <dt class="col-sm-4">
+                    </div>
+
+                    <div>
+
+                        <dt>
                             Last name
                         </dt>
 
-                        <dd class="col-sm-8">
+                        <dd class="@(string.IsNullOrWhiteSpace(Model.LastName)
+                                                        ? "profile-details__empty"
+                                                        : null)">
+
                             @(string.IsNullOrWhiteSpace(Model.LastName)
                                 ? "Not provided"
                                 : Model.LastName)
+
                         </dd>
 
-                        <dt class="col-sm-4">
-                            Email
+                    </div>
+
+                    <div>
+
+                        <dt>
+                            Email address
                         </dt>
 
-                        <dd class="col-sm-8">
+                        <dd>
                             @Model.Email
                         </dd>
 
-                        <dt class="col-sm-4">
-                            Phone
+                    </div>
+
+                    <div>
+
+                        <dt>
+                            Phone number
                         </dt>
 
-                        <dd class="col-sm-8">
+                        <dd class="@(string.IsNullOrWhiteSpace(Model.Phone)
+                                                        ? "profile-details__empty"
+                                                        : null)">
+
                             @(string.IsNullOrWhiteSpace(Model.Phone)
                                 ? "Not provided"
                                 : Model.Phone)
+
                         </dd>
 
-                        <dt class="col-sm-4">
-                            Role
-                        </dt>
+                    </div>
 
-                        <dd class="col-sm-8">
-                            @Model.Role
-                        </dd>
+                </dl>
 
-                        <dt class="col-sm-4">
-                            Email confirmed
-                        </dt>
+            </section>
 
-                        <dd class="col-sm-8">
-                            @(Model.EmailConfirmed ? "Yes" : "No")
-                        </dd>
+            <!-- Account -->
+            <section class="profile-card">
 
-                        <dt class="col-sm-4">
-                            Provider
-                        </dt>
+                <header class="profile-card__header">
 
-                        <dd class="col-sm-8">
-                            @(string.IsNullOrWhiteSpace(Model.Provider)
-                                ? "Email and password"
-                                : Model.Provider)
-                        </dd>
+                    <div>
 
-                    </dl>
+                        <span class="profile-card__eyebrow">
+                            ACCOUNT ACCESS
+                        </span>
+
+                        <h2>
+                            Account information
+                        </h2>
+
+                        <p>
+                            Authentication and authorization
+                            details for your DriveFleet account.
+                        </p>
+
+                    </div>
+
+                </header>
+
+                <div class="profile-account-grid">
+
+                    <div class="profile-account-item">
+
+                        <span class="profile-account-item__icon">
+                            #
+                        </span>
+
+                        <div>
+
+                            <span>
+                                User ID
+                            </span>
+
+                            <strong>
+                                @Model.UserId
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="profile-account-item">
+
+                        <span class="profile-account-item__icon">
+                            R
+                        </span>
+
+                        <div>
+
+                            <span>
+                                Role
+                            </span>
+
+                            <strong>
+                                @Model.Role
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="profile-account-item">
+
+                        <span class="profile-account-item__icon">
+                            @@
+                        </span>
+
+                        <div>
+
+                            <span>
+                                Authentication
+                            </span>
+
+                            <strong>
+                                @authenticationMethod
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="profile-account-item">
+
+                        <span class="profile-account-item__icon">
+                            ✓
+                        </span>
+
+                        <div>
+
+                            <span>
+                                Email confirmation
+                            </span>
+
+                            <strong>
+                                @(Model.EmailConfirmed
+                                    ? "Confirmed"
+                                    : "Not confirmed")
+                            </strong>
+
+                        </div>
+
+                    </div>
 
                 </div>
-            </div>
-        </div>
+
+            </section>
+
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="profile-sidebar">
+
+            <section class="profile-sidebar-card">
+
+                <span class="profile-sidebar-card__eyebrow">
+                    PROFILE PHOTO
+                </span>
+
+                <div class="profile-sidebar-photo">
+
+                    @if (!string.IsNullOrWhiteSpace(profilePhotoUrl))
+                    {
+                        <img src="@profilePhotoUrl"
+                             alt="@displayName profile photo" />
+                    }
+                    else
+                    {
+                        <span>
+                            @profileInitial
+                        </span>
+                    }
+
+                </div>
+
+                <h2>
+                    Your profile image
+                </h2>
+
+                <p>
+                    Keep your account recognisable
+                    with an up-to-date profile photo.
+                </p>
+
+                <a asp-controller="Profile"
+                   asp-action="Photo">
+
+                    Change profile photo
+
+                    <span aria-hidden="true">
+                        →
+                    </span>
+
+                </a>
+
+            </section>
+
+            <section class="profile-sidebar-card profile-sidebar-card--security">
+
+                <span class="profile-sidebar-security-icon"
+                      aria-hidden="true">
+                    ✓
+                </span>
+
+                <div>
+
+                    <strong>
+                        Secure account
+                    </strong>
+
+                    <p>
+                        Your profile is available only
+                        while you are authenticated.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </aside>
+
     </div>
-</div>
+
+</section>
