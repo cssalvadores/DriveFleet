@@ -399,6 +399,14 @@
                             Style="{StaticResource CardStyle}"
                             Padding="0">
 
+                            <Border.GestureRecognizers>
+
+                                <TapGestureRecognizer
+                                    Tapped="OnVehicleTapped"
+                                    CommandParameter="{Binding VehicleId}" />   
+
+                            </Border.GestureRecognizers>
+
                             <VerticalStackLayout
                                 Spacing="0">
 

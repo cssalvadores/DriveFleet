@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    x:Class="DriveFleet.Mobile.Pages.VehicleDetailsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{StaticResource DriveFleetBackground}">
+
+    <Grid
+        RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Border
+            Grid.Row="0"
+            StrokeThickness="0"
+            Padding="22,24,22,22">
+
+            <Border.Background>
+
+                <LinearGradientBrush
+                    StartPoint="0,0"
+                    EndPoint="1,1">
+
+                    <GradientStop
+                        Color="{StaticResource DriveFleetNavyDark}"
+                        Offset="0" />
+
+                    <GradientStop
+                        Color="{StaticResource DriveFleetNavy}"
+                        Offset="0.7" />
+
+                    <GradientStop
+                        Color="#244867"
+                        Offset="1" />
+
+                </LinearGradientBrush>
+
+            </Border.Background>
+
+            <Border.StrokeShape>
+                <RoundRectangle
+                    CornerRadius="0,0,28,28" />
+            </Border.StrokeShape>
+
+            <Grid
+                ColumnDefinitions="Auto,*"
+                ColumnSpacing="15">
+
+                <Button
+                    Grid.Column="0"
+                    Text="←"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    Padding="0"
+                    CornerRadius="22"
+                    BackgroundColor="#1D3852"
+                    TextColor="White"
+                    FontSize="19"
+                    Clicked="OnBackClicked" />
+
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    VerticalOptions="Center"
+                    Spacing="1">
+
+                    <Label
+                        Text="Vehicle details"
+                        TextColor="White"
+                        FontSize="24"
+                        FontAttributes="Bold" />
+
+                    <Label
+                        Text="Fleet information"
+                        TextColor="#A9BAC9"
+                        FontSize="11" />
+
+                </VerticalStackLayout>
+
+            </Grid>
+
+        </Border>
+
+        <!-- Page body -->
+        <Grid
+            Grid.Row="1">
+
+            <!-- Loading -->
+            <VerticalStackLayout
+                x:Name="LoadingContainer"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Spacing="12">
+
+                <ActivityIndicator
+                    IsRunning="True"
+                    WidthRequest="34"
+                    HeightRequest="34"
+                    Color="{StaticResource DriveFleetNavy}" />
+
+                <Label
+                    Text="Loading vehicle..."
+                    Style="{StaticResource BodyTextStyle}" />
+
+            </VerticalStackLayout>
+
+            <!-- Error -->
+            <Border
+                x:Name="ErrorContainer"
+                IsVisible="False"
+                Margin="22"
+                MaximumWidthRequest="500"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Style="{StaticResource CardStyle}">
+
+                <VerticalStackLayout
+                    Spacing="14">
+
+                    <Label
+                        Text="Unable to load vehicle"
+                        HorizontalTextAlignment="Center"
+                        TextColor="{StaticResource DriveFleetTextPrimary}"
+                        FontSize="18"
+                        FontAttributes="Bold" />
+
+                    <Label
+                        x:Name="ErrorMessageLabel"
+                        HorizontalTextAlignment="Center"
+                        Style="{StaticResource BodyTextStyle}" />
+
+                    <Button
+                        Text="Try again"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Clicked="OnRetryClicked" />
+
+                </VerticalStackLayout>
+
+            </Border>
+
+            <!-- Vehicle content -->
+            <ScrollView
+                x:Name="VehicleContent"
+                IsVisible="False">
+
+                <VerticalStackLayout
+                    MaximumWidthRequest="900"
+                    HorizontalOptions="Center"
+                    Padding="20,22,20,40"
+                    Spacing="18">
+
+                    <!-- Main photo -->
+                    <Border
+                        Padding="0"
+                        Stroke="{StaticResource DriveFleetBorder}"
+                        StrokeThickness="1"
+                        BackgroundColor="{StaticResource DriveFleetAccentSoft}">
+
+                        <Border.StrokeShape>
+                            <RoundRectangle
+                                CornerRadius="22" />
+                        </Border.StrokeShape>
+
+                        <Grid
+                            HeightRequest="230">
+
+                            <Label
+                                Text="DRIVEFLEET"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                TextColor="{StaticResource DriveFleetAccent}"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                CharacterSpacing="2"
+                                Opacity="0.35" />
+
+                            <Image
+                                x:Name="MainPhotoImage"
+                                Aspect="AspectFill"
+                                IsVisible="False" />
+
+                        </Grid>
+
+                    </Border>
+
+                    <!-- Identity card -->
+                    <Border
+                        Style="{StaticResource CardStyle}">
+
+                        <VerticalStackLayout
+                            Spacing="16">
+
+                            <Grid
+                                ColumnDefinitions="*,Auto"
+                                ColumnSpacing="12">
+
+                                <VerticalStackLayout
+                                    Grid.Column="0"
+                                    Spacing="4">
+
+                                    <Label
+                                        x:Name="VehicleNameLabel"
+                                        Text="Vehicle"
+                                        TextColor="{StaticResource DriveFleetTextPrimary}"
+                                        FontSize="25"
+                                        FontAttributes="Bold" />
+
+                                    <Label
+                                        x:Name="CategoryYearLabel"
+                                        Style="{StaticResource BodyTextStyle}" />
+
+                                </VerticalStackLayout>
+
+                                <Border
+                                    x:Name="StatusBorder"
+                                    Grid.Column="1"
+                                    VerticalOptions="Start"
+                                    StrokeThickness="0"
+                                    Padding="11,6"
+                                    BackgroundColor="{StaticResource DriveFleetAccentSoft}">
+
+                                    <Border.StrokeShape>
+                                        <RoundRectangle
+                                            CornerRadius="18" />
+                                    </Border.StrokeShape>
+
+                                    <Label
+                                        x:Name="StatusLabel"
+                                        Text="STATUS"
+                                        TextColor="{StaticResource DriveFleetAccent}"
+                                        FontSize="9"
+                                        FontAttributes="Bold"
+                                        CharacterSpacing="0.8" />
+
+                                </Border>
+
+                            </Grid>
+
+                            <BoxView
+                                HeightRequest="1"
+                                BackgroundColor="{StaticResource DriveFleetBorder}" />
+
+                            <Grid
+                                ColumnDefinitions="*,*"
+                                RowDefinitions="Auto,Auto"
+                                ColumnSpacing="20"
+                                RowSpacing="18">
+
+                                <VerticalStackLayout
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Spacing="3">
+
+                                    <Label
+                                        Text="LICENSE PLATE"
+                                        Style="{StaticResource CaptionStyle}" />
+
+                                    <Label
+                                        x:Name="LicensePlateLabel"
+                                        TextColor="{StaticResource DriveFleetTextPrimary}"
+                                        FontSize="14"
+                                        FontAttributes="Bold" />
+
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Spacing="3">
+
+                                    <Label
+                                        Text="SEATS"
+                                        Style="{StaticResource CaptionStyle}" />
+
+                                    <Label
+                                        x:Name="SeatsLabel"
+                                        TextColor="{StaticResource DriveFleetTextPrimary}"
+                                        FontSize="14"
+                                        FontAttributes="Bold" />
+
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Spacing="3">
+
+                                    <Label
+                                        Text="YEAR"
+                                        Style="{StaticResource CaptionStyle}" />
+
+                                    <Label
+                                        x:Name="YearLabel"
+                                        TextColor="{StaticResource DriveFleetTextPrimary}"
+                                        FontSize="14"
+                                        FontAttributes="Bold" />
+
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Spacing="3">
+
+                                    <Label
+                                        Text="CATEGORY"
+                                        Style="{StaticResource CaptionStyle}" />
+
+                                    <Label
+                                        x:Name="CategoryLabel"
+                                        TextColor="{StaticResource DriveFleetTextPrimary}"
+                                        FontSize="14"
+                                        FontAttributes="Bold" />
+
+                                </VerticalStackLayout>
+
+                            </Grid>
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                    <!-- Daily rate -->
+                    <Border
+                        Style="{StaticResource CardStyle}">
+
+                        <Grid
+                            ColumnDefinitions="*,Auto">
+
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Spacing="3">
+
+                                <Label
+                                    Text="Daily rental rate"
+                                    Style="{StaticResource CaptionStyle}" />
+
+                                <Label
+                                    x:Name="DailyPriceLabel"
+                                    Text="€0.00 / day"
+                                    TextColor="{StaticResource DriveFleetNavy}"
+                                    FontSize="23"
+                                    FontAttributes="Bold" />
+
+                            </VerticalStackLayout>
+
+                            <Border
+                                Grid.Column="1"
+                                WidthRequest="48"
+                                HeightRequest="48"
+                                VerticalOptions="Center"
+                                StrokeThickness="0"
+                                Padding="0"
+                                BackgroundColor="{StaticResource DriveFleetAccentSoft}">
+
+                                <Border.StrokeShape>
+                                    <RoundRectangle
+                                        CornerRadius="16" />
+                                </Border.StrokeShape>
+
+                                <Label
+                                    Text="€"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    TextColor="{StaticResource DriveFleetAccent}"
+                                    FontSize="18"
+                                    FontAttributes="Bold" />
+
+                            </Border>
+
+                        </Grid>
+
+                    </Border>
+
+                    <!-- Operational status -->
+                    <Border
+                        Style="{StaticResource CardStyle}">
+
+                        <VerticalStackLayout
+                            Spacing="15">
+
+                            <VerticalStackLayout
+                                Spacing="4">
+
+                                <Label
+                                    Text="Operational status"
+                                    Style="{StaticResource SectionTitleStyle}" />
+
+                                <Label
+                                    Text="Current status used by DriveFleet fleet operations."
+                                    Style="{StaticResource BodyTextStyle}" />
+
+                            </VerticalStackLayout>
+
+                            <BoxView
+                                HeightRequest="1"
+                                BackgroundColor="{StaticResource DriveFleetBorder}" />
+
+                            <Grid
+                                ColumnDefinitions="Auto,*"
+                                ColumnSpacing="14">
+
+                                <Border
+                                    x:Name="StatusIndicatorBorder"
+                                    Grid.Column="0"
+                                    WidthRequest="44"
+                                    HeightRequest="44"
+                                    StrokeThickness="0"
+                                    Padding="0"
+                                    BackgroundColor="{StaticResource DriveFleetAccentSoft}">
+
+                                    <Border.StrokeShape>
+                                        <RoundRectangle
+                                            CornerRadius="22" />
+                                    </Border.StrokeShape>
+
+                                    <Label
+                                        x:Name="StatusIndicatorLabel"
+                                        Text="●"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center"
+                                        TextColor="{StaticResource DriveFleetAccent}"
+                                        FontSize="19" />
+
+                                </Border>
+
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    VerticalOptions="Center"
+                                    Spacing="2">
+
+                                    <Label
+                                        x:Name="OperationalStatusLabel"
+                                        Text="Status"
+                                        TextColor="{StaticResource DriveFleetTextPrimary}"
+                                        FontSize="15"
+                                        FontAttributes="Bold" />
+
+                                    <Label
+                                        Text="Status management will be available from this vehicle workspace."
+                                        Style="{StaticResource CaptionStyle}" />
+
+                                </VerticalStackLayout>
+
+                            </Grid>
+
+                            <BoxView
+                                HeightRequest="1"
+                                BackgroundColor="{StaticResource DriveFleetBorder}" />
+
+                            <Label
+                                Text="Update status"
+                                Style="{StaticResource FormLabelStyle}" />
+
+                            <Grid
+                                ColumnDefinitions="*,*"
+                                ColumnSpacing="10">
+
+                            <Button
+                                    x:Name="MarkAvailableButton"
+                                    Grid.Column="0"
+                                    Text="Available"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Clicked="OnMarkAvailableClicked" />
+
+                            <Button
+                                    x:Name="MarkUnavailableButton"
+                                    Grid.Column="1"
+                                    Text="Unavailable"
+                                    BackgroundColor="{StaticResource DriveFleetDangerSoft}"
+                                    TextColor="{StaticResource DriveFleetDanger}"
+                                    BorderColor="{StaticResource DriveFleetDanger}"
+                                    BorderWidth="1"
+                                    FontAttributes="Bold"
+                                    HeightRequest="52"
+                                    CornerRadius="14"
+                                    Clicked="OnMarkUnavailableClicked" />
+
+                            </Grid>
+
+                            <Border
+                                x:Name="StatusMessageBorder"
+                                IsVisible="False"
+                                StrokeThickness="0"
+                                Padding="12">
+
+                            <Border.StrokeShape>
+                                <RoundRectangle
+                                    CornerRadius="12" />
+                                </Border.StrokeShape>
+
+                            <Label
+                                x:Name="StatusMessageLabel"
+                                FontSize="12"
+                                LineBreakMode="WordWrap" />
+
+                            </Border>
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                    <!-- Description -->
+                    <Border
+                        x:Name="DescriptionCard"
+                        IsVisible="False"
+                        Style="{StaticResource CardStyle}">
+
+                        <VerticalStackLayout
+                            Spacing="10">
+
+                            <Label
+                                Text="Description"
+                                Style="{StaticResource SectionTitleStyle}" />
+
+                            <Label
+                                x:Name="DescriptionLabel"
+                                Style="{StaticResource BodyTextStyle}"
+                                LineBreakMode="WordWrap" />
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                    <!-- Future history area -->
+                    <Border
+                        Style="{StaticResource CardStyle}">
+
+                        <VerticalStackLayout
+                            Spacing="10">
+
+                            <Label
+                                Text="Reservation history"
+                                Style="{StaticResource SectionTitleStyle}" />
+
+                            <Label
+                                Text="Vehicle reservation history will be connected in the next step."
+                                Style="{StaticResource BodyTextStyle}" />
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                </VerticalStackLayout>
+
+            </ScrollView>
+
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

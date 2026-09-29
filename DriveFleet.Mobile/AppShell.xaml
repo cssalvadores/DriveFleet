@@ -23,4 +23,9 @@
         Route="VehiclesPage"
         ContentTemplate="{DataTemplate pages:VehiclesPage}" />
 
+    <ShellContent
+    Title="Vehicle Details"
+    Route="VehicleDetailsPage"
+    ContentTemplate="{DataTemplate pages:VehicleDetailsPage}" />
+
 </Shell>

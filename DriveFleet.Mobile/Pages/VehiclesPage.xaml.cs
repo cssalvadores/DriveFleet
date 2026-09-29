@@ -27,17 +27,12 @@ public partial class VehiclesPage : ContentPage
     }
 
     /// <summary>
-    /// Loads the current fleet whenever
+    /// Refreshes the fleet whenever
     /// the page becomes visible.
     /// </summary>
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-
-        if (_allVehicles.Count > 0)
-        {
-            return;
-        }
 
         await LoadVehiclesAsync();
     }
@@ -200,26 +195,26 @@ public partial class VehiclesPage : ContentPage
 
         var filteredVehicles =
             string.IsNullOrWhiteSpace(
-                search)
-                ? _allVehicles
-                : _allVehicles
-                    .Where(vehicle =>
-                        ContainsSearch(
-                            vehicle.Brand,
-                            search) ||
-                        ContainsSearch(
-                            vehicle.Model,
-                            search) ||
-                        ContainsSearch(
-                            vehicle.LicensePlate,
-                            search) ||
-                        ContainsSearch(
-                            vehicle.CategoryName,
-                            search) ||
-                        ContainsSearch(
-                            vehicle.VehicleStatusName,
-                            search))
-                    .ToList();
+        search)
+        ? _allVehicles.ToList()
+        : _allVehicles
+            .Where(vehicle =>
+                ContainsSearch(
+                    vehicle.Brand,
+                    search) ||
+                ContainsSearch(
+                    vehicle.Model,
+                    search) ||
+                ContainsSearch(
+                    vehicle.LicensePlate,
+                    search) ||
+                ContainsSearch(
+                    vehicle.CategoryName,
+                    search) ||
+                ContainsSearch(
+                    vehicle.VehicleStatusName,
+                    search))
+            .ToList();
 
         VehiclesCollectionView.ItemsSource =
             filteredVehicles;
@@ -282,6 +277,27 @@ public partial class VehiclesPage : ContentPage
         EventArgs e)
     {
         await LoadVehiclesAsync();
+    }
+
+    /// <summary>
+    /// Opens the details page for the
+    /// selected fleet vehicle.
+    /// </summary>
+    private async void OnVehicleTapped(
+        object sender,
+        TappedEventArgs e)
+    {
+        if (e.Parameter is null ||
+            !int.TryParse(
+                e.Parameter.ToString(),
+                out var vehicleId) ||
+            vehicleId <= 0)
+        {
+            return;
+        }
+
+        await Shell.Current.GoToAsync(
+            $"//VehicleDetailsPage?vehicleId={vehicleId}");
     }
 
     /// <summary>
