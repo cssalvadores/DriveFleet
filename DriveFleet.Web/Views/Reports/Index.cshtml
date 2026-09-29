@@ -2,152 +2,527 @@
     ViewData["Title"] = "Reports";
 }
 
-<div class="py-5">
+<link rel="stylesheet"
+      href="~/css/reports.css"
+      asp-append-version="true" />
 
-    <div class="mb-5">
-        <div class="text-primary fw-semibold text-uppercase small mb-2">
-            Backoffice
-        </div>
+<section class="reports-page">
 
-        <h1 class="display-6 fw-semibold mb-2">
-            Reports
-        </h1>
+    <!-- Back navigation -->
+    <div class="reports-back">
 
-        <p class="text-muted mb-0">
-            Generate DriveFleet operational reports in PDF format.
-        </p>
+        <a asp-controller="Dashboard"
+           asp-action="Index"
+           class="reports-back__link">
+
+            <span aria-hidden="true">
+                ←
+            </span>
+
+            <span>
+                Back to dashboard
+            </span>
+
+        </a>
+
     </div>
 
-    <div class="row g-4">
+    <!-- Hero -->
+    <header class="reports-hero">
 
-        <div class="col-lg-7">
+        <div class="reports-hero__content">
 
-            <div class="card border-0 shadow-sm h-100">
+            <div>
 
-                <div class="card-body p-4 p-lg-5">
+                <span class="reports-eyebrow">
+                    DRIVEFLEET BACKOFFICE
+                </span>
 
-                    <div class="mb-4">
-                        <h2 class="h4 mb-2">
-                            Reservations report
-                        </h2>
+                <h1>
+                    Reports
+                </h1>
 
-                        <p class="text-muted mb-0">
-                            Export reservations for all records
-                            or for a selected rental period.
-                        </p>
-                    </div>
+                <p>
+                    Generate operational documents and structured
+                    exports from DriveFleet reservation and fleet data.
+                </p>
 
-                    <form asp-controller="Reports"
-                          asp-action="ReservationsPdf"
-                          method="get"
-                          target="_blank">
+            </div>
 
-                        <div class="row g-3">
+            <div class="reports-hero__status">
 
-                            <div class="col-md-6">
-                                <label for="fromDate"
-                                       class="form-label fw-semibold">
-                                    From
-                                </label>
+                <span class="reports-hero__status-dot">
+                </span>
 
-                                <input id="fromDate"
-                                       name="fromDate"
-                                       type="date"
-                                       class="form-control" />
-                            </div>
+                <div>
+                    <strong>
+                        Export centre
+                    </strong>
 
-                            <div class="col-md-6">
-                                <label for="toDate"
-                                       class="form-label fw-semibold">
-                                    To
-                                </label>
-
-                                <input id="toDate"
-                                       name="toDate"
-                                       type="date"
-                                       class="form-control" />
-                            </div>
-
-                        </div>
-
-                        <div class="d-flex flex-wrap gap-2 mt-4">
-
-                            <button type="submit"
-                                    class="btn btn-primary px-4">
-                                Generate PDF
-                            </button>
-
-                            <button type="submit"
-                                    formaction="@Url.Action("ReservationsXml", "Reports")"
-                                    class="btn btn-outline-primary px-4">
-                                Generate XML
-                            </button>
-
-                            <a asp-controller="Reports"
-                               asp-action="ReservationsPdf"
-                               target="_blank"
-                               class="btn btn-outline-secondary px-4">
-                                All reservations PDF
-                            </a>
-
-                            <a asp-controller="Reports"
-                               asp-action="ReservationsXml"
-                               target="_blank"
-                               class="btn btn-outline-secondary px-4">
-                                All reservations XML
-                            </a>
-
-                        </div>
-
-                    </form>
-
+                    <span>
+                        PDF &amp; XML
+                    </span>
                 </div>
 
             </div>
 
         </div>
 
-        <div class="col-lg-5">
+        <div class="reports-hero__formats">
 
-            <div class="card border-0 shadow-sm h-100">
+            <div>
 
-                <div class="card-body p-4 p-lg-5 d-flex flex-column">
+                <span class="reports-format-icon">
+                    PDF
+                </span>
+
+                <div>
+                    <strong>
+                        PDF documents
+                    </strong>
+
+                    <span>
+                        Human-readable reports for review and presentation.
+                    </span>
+                </div>
+
+            </div>
+
+            <div>
+
+                <span class="reports-format-icon reports-format-icon--xml">
+                    XML
+                </span>
+
+                <div>
+                    <strong>
+                        XML exports
+                    </strong>
+
+                    <span>
+                        Structured information for external-system integration.
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- Reservation reports -->
+    <section class="reports-section">
+
+        <header class="reports-section__heading">
+
+            <div>
+
+                <span class="reports-section__eyebrow">
+                    RESERVATION DATA
+                </span>
+
+                <h2>
+                    Reservation reports
+                </h2>
+
+                <p>
+                    Export reservation activity for a selected rental period.
+                </p>
+
+            </div>
+
+            <span class="reports-section__badge">
+                Date filter available
+            </span>
+
+        </header>
+
+        <div class="reports-reservation-layout">
+
+            <!-- Period configuration -->
+            <div class="reports-filter-card">
+
+                <div class="reports-filter-card__header">
+
+                    <span class="reports-card-number">
+                        01
+                    </span>
 
                     <div>
-                        <h2 class="h4 mb-2">
-                            Vehicle inventory
-                        </h2>
 
-                        <p class="text-muted">
-                            Generate the current fleet inventory,
-                            including status, category and daily price.
+                        <h3>
+                            Select reporting period
+                        </h3>
+
+                        <p>
+                            Leave both dates empty to export
+                            all reservation records.
                         </p>
-                    </div>
-
-                    <div class="mt-auto pt-4 d-flex flex-wrap gap-2">
-
-                        <a asp-controller="Reports"
-                           asp-action="VehiclesPdf"
-                           target="_blank"
-                           class="btn btn-primary px-4">
-                            Generate inventory PDF
-                        </a>
-
-                        <a asp-controller="Reports"
-                           asp-action="VehiclesXml"
-                           target="_blank"
-                           class="btn btn-outline-primary px-4">
-                            Export inventory XML
-                        </a>
 
                     </div>
 
                 </div>
 
+                <form method="get"
+                      class="reports-filter-form">
+
+                    <div class="reports-filter-grid">
+
+                        <div class="reports-field">
+
+                            <label for="fromDate">
+                                From date
+                            </label>
+
+                            <input id="fromDate"
+                                   name="fromDate"
+                                   type="date"
+                                   class="form-control" />
+
+                        </div>
+
+                        <div class="reports-filter-arrow"
+                             aria-hidden="true">
+                            →
+                        </div>
+
+                        <div class="reports-field">
+
+                            <label for="toDate">
+                                To date
+                            </label>
+
+                            <input id="toDate"
+                                   name="toDate"
+                                   type="date"
+                                   class="form-control" />
+
+                        </div>
+
+                    </div>
+
+                    <div class="reports-export-actions">
+
+                        <button type="submit"
+                                formaction="/reports/reservations/pdf"
+                                class="reports-export-button reports-export-button--pdf">
+
+                            <span class="reports-export-button__type">
+                                PDF
+                            </span>
+
+                            <span class="reports-export-button__content">
+
+                                <strong>
+                                    Export reservation report
+                                </strong>
+
+                                <small>
+                                    Formatted printable document
+                                </small>
+
+                            </span>
+
+                            <span class="reports-export-button__arrow"
+                                  aria-hidden="true">
+                                ↓
+                            </span>
+
+                        </button>
+
+                        <button type="submit"
+                                formaction="/reports/reservations/xml"
+                                class="reports-export-button reports-export-button--xml">
+
+                            <span class="reports-export-button__type">
+                                XML
+                            </span>
+
+                            <span class="reports-export-button__content">
+
+                                <strong>
+                                    Export reservation data
+                                </strong>
+
+                                <small>
+                                    Structured integration file
+                                </small>
+
+                            </span>
+
+                            <span class="reports-export-button__arrow"
+                                  aria-hidden="true">
+                                ↓
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
             </div>
+
+            <!-- Reservation information -->
+            <aside class="reports-info-card">
+
+                <span class="reports-info-card__eyebrow">
+                    INCLUDED DATA
+                </span>
+
+                <h3>
+                    Reservation export
+                </h3>
+
+                <p>
+                    The report uses the reservation information
+                    already stored and calculated by DriveFleet.
+                </p>
+
+                <div class="reports-info-list">
+
+                    <div class="reports-info-item">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <div>
+                            <strong>
+                                Reservation details
+                            </strong>
+
+                            <small>
+                                Identifier, customer and status
+                            </small>
+                        </div>
+
+                    </div>
+
+                    <div class="reports-info-item">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <div>
+                            <strong>
+                                Rental periods
+                            </strong>
+
+                            <small>
+                                Start and return information
+                            </small>
+                        </div>
+
+                    </div>
+
+                    <div class="reports-info-item">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <div>
+                            <strong>
+                                Vehicle information
+                            </strong>
+
+                            <small>
+                                Reserved vehicles and associated totals
+                            </small>
+                        </div>
+
+                    </div>
+
+                    <div class="reports-info-item">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <div>
+                            <strong>
+                                Financial values
+                            </strong>
+
+                            <small>
+                                Reservation and rental totals
+                            </small>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </aside>
 
         </div>
 
-    </div>
+    </section>
 
-</div>
+    <!-- Fleet reports -->
+    <section class="reports-section">
+
+        <header class="reports-section__heading">
+
+            <div>
+
+                <span class="reports-section__eyebrow">
+                    FLEET DATA
+                </span>
+
+                <h2>
+                    Vehicle inventory
+                </h2>
+
+                <p>
+                    Export the complete current DriveFleet vehicle inventory.
+                </p>
+
+            </div>
+
+            <span class="reports-section__badge">
+                Full inventory
+            </span>
+
+        </header>
+
+        <div class="reports-fleet-grid">
+
+            <!-- Vehicle PDF -->
+            <article class="reports-document-card">
+
+                <div class="reports-document-card__top">
+
+                    <span class="reports-document-icon reports-document-icon--pdf">
+                        PDF
+                    </span>
+
+                    <span class="reports-document-card__category">
+                        DOCUMENT
+                    </span>
+
+                </div>
+
+                <h3>
+                    Vehicle inventory report
+                </h3>
+
+                <p>
+                    Generate a formatted PDF containing the
+                    current vehicle fleet and operational information.
+                </p>
+
+                <div class="reports-document-card__meta">
+
+                    <span>
+                        Fleet inventory
+                    </span>
+
+                    <span>
+                        Printable
+                    </span>
+
+                </div>
+
+                <a href="/reports/vehicles/pdf"
+                   class="reports-document-card__button">
+
+                    <span>
+                        Export PDF
+                    </span>
+
+                    <span aria-hidden="true">
+                        ↓
+                    </span>
+
+                </a>
+
+            </article>
+
+            <!-- Vehicle XML -->
+            <article class="reports-document-card">
+
+                <div class="reports-document-card__top">
+
+                    <span class="reports-document-icon reports-document-icon--xml">
+                        XML
+                    </span>
+
+                    <span class="reports-document-card__category">
+                        DATA EXPORT
+                    </span>
+
+                </div>
+
+                <h3>
+                    Vehicle inventory data
+                </h3>
+
+                <p>
+                    Export the complete fleet as structured XML
+                    for integration or external processing.
+                </p>
+
+                <div class="reports-document-card__meta">
+
+                    <span>
+                        Structured data
+                    </span>
+
+                    <span>
+                        Integration ready
+                    </span>
+
+                </div>
+
+                <a href="/reports/vehicles/xml"
+                   class="reports-document-card__button">
+
+                    <span>
+                        Export XML
+                    </span>
+
+                    <span aria-hidden="true">
+                        ↓
+                    </span>
+
+                </a>
+
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- Footer information -->
+    <section class="reports-footer-card">
+
+        <div class="reports-footer-card__icon"
+             aria-hidden="true">
+            i
+        </div>
+
+        <div>
+
+            <strong>
+                Administrative exports
+            </strong>
+
+            <p>
+                Reports are generated from the current DriveFleet data.
+                Reservation PDF and XML exports support the same
+                optional date range.
+            </p>
+
+        </div>
+
+        <a asp-controller="Dashboard"
+           asp-action="Index">
+            View dashboard →
+        </a>
+
+    </section>
+
+</section>
