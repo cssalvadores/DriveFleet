@@ -1,251 +1,632 @@
 ﻿@model IReadOnlyList<DriveFleet.Web.Models.Reviews.AdminReviewViewModel>
 
+@using System.Globalization
+
 @{
     ViewData["Title"] = "Review moderation";
+
+    var englishCulture =
+        CultureInfo.GetCultureInfo("en-GB");
 
     var totalReviews =
         Model.Count;
 
     var visibleReviews =
-        Model.Count(review => review.IsVisible);
+        Model.Count(review =>
+            review.IsVisible);
 
     var hiddenReviews =
-        Model.Count(review => !review.IsVisible);
+        Model.Count(review =>
+            !review.IsVisible);
+
+    var averageRating =
+        totalReviews == 0
+            ? 0
+            : Model.Average(review =>
+                review.Stars);
+
+    var fiveStarReviews =
+        Model.Count(review =>
+            review.Stars == 5);
+
+    var orderedReviews =
+        Model
+            .OrderByDescending(review =>
+                review.CreatedAt)
+            .ToList();
 }
 
-<div class="container py-4"
-     style="max-width: 1100px;">
+<link rel="stylesheet"
+      href="~/css/reviews.css"
+      asp-append-version="true" />
 
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
-        <div>
-            <h1 class="h3 mb-1">
-                Review moderation
-            </h1>
+<section class="review-moderation-page">
 
-            <p class="text-muted mb-0">
-                Manage customer reviews published in the vehicle catalog.
-            </p>
-        </div>
+    <!-- Back navigation -->
+    <div class="review-moderation-back">
 
-        <a asp-controller="Vehicles"
+        <a asp-controller="Dashboard"
            asp-action="Index"
-           class="btn btn-outline-secondary btn-sm">
-            View vehicle catalog
+           class="review-moderation-back__link">
+
+            <span aria-hidden="true">
+                ←
+            </span>
+
+            <span>
+                Back to dashboard
+            </span>
+
         </a>
+
     </div>
 
+    <!-- Hero -->
+    <header class="review-moderation-hero">
+
+        <div class="review-moderation-hero__content">
+
+            <div>
+
+                <span class="review-moderation-eyebrow">
+                    DRIVEFLEET BACKOFFICE
+                </span>
+
+                <h1>
+                    Review moderation
+                </h1>
+
+                <p>
+                    Monitor customer feedback and control which
+                    reviews are publicly visible in the vehicle catalog.
+                </p>
+
+            </div>
+
+            <a asp-controller="Vehicles"
+               asp-action="Index"
+               class="review-moderation-hero__action">
+
+                <span class="review-moderation-hero__action-icon"
+                      aria-hidden="true">
+                    ↗
+                </span>
+
+                <span>
+                    View vehicle catalog
+                </span>
+
+            </a>
+
+        </div>
+
+        <div class="review-moderation-hero__footer">
+
+            <div>
+
+                <span class="review-moderation-live-dot">
+                </span>
+
+                <span>
+                    Administrative moderation
+                </span>
+
+            </div>
+
+            <div>
+                Customer feedback management
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- Feedback -->
     @if (TempData["ReviewSuccess"] is string successMessage)
     {
-        <div class="alert alert-success"
+        <div class="review-feedback review-feedback--success"
              role="alert">
-            @successMessage
+
+            <span class="review-feedback__icon"
+                  aria-hidden="true">
+                ✓
+            </span>
+
+            <span>
+                @successMessage
+            </span>
+
         </div>
     }
 
     @if (TempData["ReviewError"] is string errorMessage)
     {
-        <div class="alert alert-danger"
+        <div class="review-feedback review-feedback--error"
              role="alert">
-            @errorMessage
+
+            <span class="review-feedback__icon"
+                  aria-hidden="true">
+                !
+            </span>
+
+            <span>
+                @errorMessage
+            </span>
+
         </div>
     }
 
-    <div class="row g-3 mb-4">
-        <div class="col-12 col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <div class="text-muted small mb-1">
-                        Total reviews
-                    </div>
+    <!-- Summary -->
+    <section class="review-moderation-summary">
 
-                    <div class="fs-3 fw-semibold">
-                        @totalReviews
-                    </div>
-                </div>
+        <article class="review-stat">
+
+            <div class="review-stat__top">
+
+                <span>
+                    TOTAL REVIEWS
+                </span>
+
+                <span class="review-stat__icon"
+                      aria-hidden="true">
+                    R
+                </span>
+
             </div>
+
+            <strong>
+                @totalReviews
+            </strong>
+
+            <p>
+                Customer reviews submitted to DriveFleet.
+            </p>
+
+        </article>
+
+        <article class="review-stat review-stat--visible">
+
+            <div class="review-stat__top">
+
+                <span>
+                    VISIBLE
+                </span>
+
+                <span class="review-stat__icon"
+                      aria-hidden="true">
+                    ✓
+                </span>
+
+            </div>
+
+            <strong>
+                @visibleReviews
+            </strong>
+
+            <p>
+                Reviews currently shown in the public catalog.
+            </p>
+
+        </article>
+
+        <article class="review-stat review-stat--hidden">
+
+            <div class="review-stat__top">
+
+                <span>
+                    HIDDEN
+                </span>
+
+                <span class="review-stat__icon"
+                      aria-hidden="true">
+                    —
+                </span>
+
+            </div>
+
+            <strong>
+                @hiddenReviews
+            </strong>
+
+            <p>
+                Reviews currently hidden from customers.
+            </p>
+
+        </article>
+
+        <article class="review-stat review-stat--rating">
+
+            <div class="review-stat__top">
+
+                <span>
+                    AVERAGE RATING
+                </span>
+
+                <span class="review-stat__icon"
+                      aria-hidden="true">
+                    ★
+                </span>
+
+            </div>
+
+            <strong>
+                @averageRating.ToString(
+                    "0.0",
+                    CultureInfo.InvariantCulture)
+            </strong>
+
+            <p>
+                Average rating across all submitted reviews.
+            </p>
+
+        </article>
+
+    </section>
+
+    <!-- List heading -->
+    <div class="review-moderation-heading">
+
+        <div>
+
+            <span>
+                CUSTOMER FEEDBACK
+            </span>
+
+            <h2>
+                Reviews
+            </h2>
+
+            <p>
+                Review customer feedback and manage public visibility.
+            </p>
+
         </div>
 
-        <div class="col-12 col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <div class="text-muted small mb-1">
-                        Visible
-                    </div>
+        <div class="review-moderation-heading__insight">
 
-                    <div class="fs-3 fw-semibold">
-                        @visibleReviews
-                    </div>
-                </div>
+            <span aria-hidden="true">
+                ★
+            </span>
+
+            <div>
+
+                <strong>
+                    @fiveStarReviews
+                </strong>
+
+                <small>
+                    5-star
+                    @(fiveStarReviews == 1
+                        ? "review"
+                        : "reviews")
+                </small>
+
             </div>
+
         </div>
 
-        <div class="col-12 col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <div class="text-muted small mb-1">
-                        Hidden
-                    </div>
-
-                    <div class="fs-3 fw-semibold">
-                        @hiddenReviews
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    @if (Model.Count == 0)
+    @if (totalReviews == 0)
     {
-        <div class="card shadow-sm">
-            <div class="card-body text-center py-5">
-                <h2 class="h5 mb-2">
-                    No reviews available
-                </h2>
+        <!-- Empty state -->
+        <section class="review-empty">
 
-                <p class="text-muted mb-0">
-                    Customer reviews will appear here once they are submitted.
-                </p>
+            <div class="review-empty__icon"
+                 aria-hidden="true">
+                ☆
             </div>
-        </div>
+
+            <h2>
+                No reviews available
+            </h2>
+
+            <p>
+                Customer reviews will appear here once
+                completed rentals receive feedback.
+            </p>
+
+            <a asp-controller="Vehicles"
+               asp-action="Index">
+
+                View vehicle catalog
+
+                <span aria-hidden="true">
+                    →
+                </span>
+
+            </a>
+
+        </section>
     }
     else
     {
-        <div class="d-flex flex-column gap-3">
-            @foreach (var review in Model)
+        <!-- Review list -->
+        <div class="review-list">
+
+            @foreach (var review in orderedReviews)
             {
-                <div class="card shadow-sm">
-                    <div class="card-body">
+                var visibilityClass =
+                    review.IsVisible
+                        ? "visible"
+                        : "hidden";
 
-                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <article class="review-card review-card--@visibilityClass">
 
-                            <div class="flex-grow-1">
+                    <div class="review-card__body">
 
-                                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                                    <div class="fw-semibold"
-                                         aria-label="@review.Stars out of 5 stars">
-                                        @for (var star = 1; star <= 5; star++)
-                                        {
-                                            if (star <= review.Stars)
-                                            {
-                                                <span aria-hidden="true">
-                                                    ★
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-muted"
-                                                      aria-hidden="true">
-                                                    ☆
-                                                </span>
-                                            }
-                                        }
-                                    </div>
+                        <!-- Rating -->
+                        <div class="review-card__rating-column">
 
-                                    @if (review.IsVisible)
+                            <div class="review-rating"
+                                 aria-label="@review.Stars out of 5 stars">
+
+                                @for (var star = 1;
+                                      star <= 5;
+                                      star++)
+                                {
+                                    if (star <= review.Stars)
                                     {
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle">
-                                            Visible
+                                        <span class="review-rating__star review-rating__star--filled"
+                                              aria-hidden="true">
+                                            ★
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
-                                            Hidden
+                                        <span class="review-rating__star"
+                                              aria-hidden="true">
+                                            ☆
                                         </span>
                                     }
+                                }
+
+                            </div>
+
+                            <strong class="review-rating__value">
+                                @review.Stars
+                            </strong>
+
+                            <span class="review-rating__caption">
+                                out of 5
+                            </span>
+
+                        </div>
+
+                        <!-- Main content -->
+                        <div class="review-card__content">
+
+                            <div class="review-card__header">
+
+                                <div>
+
+                                    <div class="review-card__identity">
+
+                                        <span class="review-card__number">
+                                            Review #@review.ReviewId
+                                        </span>
+
+                                        @if (review.IsVisible)
+                                        {
+                                            <span class="review-visibility review-visibility--visible">
+
+                                                <span class="review-visibility__dot">
+                                                </span>
+
+                                                Visible
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="review-visibility review-visibility--hidden">
+
+                                                <span class="review-visibility__dot">
+                                                </span>
+
+                                                Hidden
+
+                                            </span>
+                                        }
+
+                                    </div>
+
+                                    <span class="review-card__date">
+                                        @(review.CreatedAt
+                                            .ToLocalTime()
+                                            .ToString(
+                                                "dd MMM yyyy · HH:mm",
+                                                englishCulture))
+                                    </span>
+
                                 </div>
 
-                                @if (string.IsNullOrWhiteSpace(review.Comment))
+                                <a asp-controller="Vehicles"
+                                   asp-action="Details"
+                                   asp-route-vehicleId="@review.VehicleId"
+                                   class="review-card__vehicle-link">
+
+                                    Vehicle #@review.VehicleId
+
+                                    <span aria-hidden="true">
+                                        →
+                                    </span>
+
+                                </a>
+
+                            </div>
+
+                            <!-- Comment -->
+                            <div class="review-comment">
+
+                                @if (string.IsNullOrWhiteSpace(
+                                    review.Comment))
                                 {
-                                    <p class="text-muted fst-italic mb-3">
-                                        No written comment.
+                                    <p class="review-comment__empty">
+                                        No written comment was provided
+                                        with this rating.
                                     </p>
                                 }
                                 else
                                 {
-                                    <p class="mb-3"
-                                       style="max-width: 780px; white-space: pre-line;">
+                                    <p>
                                         @review.Comment
                                     </p>
                                 }
 
-                                <div class="d-flex flex-wrap gap-3 small text-muted">
-                                    <span>
-                                        Review #@review.ReviewId
-                                    </span>
-
-                                    <span>
-                                        Vehicle #@review.VehicleId
-                                    </span>
-
-                                    <span>
-                                        Reservation vehicle #@review.ReservationVehicleId
-                                    </span>
-
-                                    <span>
-                                        @review.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-                                    </span>
-                                </div>
-
-                                <div class="mt-3">
-                                    <a asp-controller="Vehicles"
-                                       asp-action="Details"
-                                       asp-route-vehicleId="@review.VehicleId"
-                                       class="btn btn-sm btn-outline-secondary">
-                                        Vehicle details
-                                    </a>
-                                </div>
                             </div>
 
-                            <div class="d-flex flex-column flex-sm-row gap-2 ms-sm-auto">
+                            <!-- Metadata -->
+                            <div class="review-card__meta">
 
-                                <form asp-controller="Reviews"
-                                      asp-action="SetVisibility"
-                                      asp-route-reviewId="@review.ReviewId"
-                                      method="post">
+                                <div>
 
-                                    @Html.AntiForgeryToken()
+                                    <span>
+                                        REVIEW ID
+                                    </span>
 
-                                    @if (review.IsVisible)
-                                    {
-                                        <button type="submit"
-                                                name="isVisible"
-                                                value="false"
-                                                class="btn btn-sm btn-outline-secondary">
-                                            Hide
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <button type="submit"
-                                                name="isVisible"
-                                                value="true"
-                                                class="btn btn-sm btn-outline-primary">
-                                            Show
-                                        </button>
-                                    }
-                                </form>
+                                    <strong>
+                                        #@review.ReviewId
+                                    </strong>
 
-                                <form asp-controller="Reviews"
-                                      asp-action="Delete"
-                                      asp-route-reviewId="@review.ReviewId"
-                                      method="post"
-                                      onsubmit="return confirm('Are you sure you want to permanently delete this review?');">
+                                </div>
 
-                                    @Html.AntiForgeryToken()
+                                <div>
 
-                                    <button type="submit"
-                                            class="btn btn-sm btn-outline-danger">
-                                        Delete
-                                    </button>
-                                </form>
+                                    <span>
+                                        VEHICLE ID
+                                    </span>
+
+                                    <strong>
+                                        #@review.VehicleId
+                                    </strong>
+
+                                </div>
+
+                                <div>
+
+                                    <span>
+                                        RESERVATION VEHICLE
+                                    </span>
+
+                                    <strong>
+                                        #@review.ReservationVehicleId
+                                    </strong>
+
+                                </div>
+
+                                <div>
+
+                                    <span>
+                                        VISIBILITY
+                                    </span>
+
+                                    <strong>
+                                        @(review.IsVisible
+                                            ? "Public"
+                                            : "Hidden")
+                                    </strong>
+
+                                </div>
 
                             </div>
 
                         </div>
+
                     </div>
-                </div>
+
+                    <!-- Moderation actions -->
+                    <footer class="review-card__footer">
+
+                        <div class="review-card__status">
+
+                            <span class="review-card__status-icon review-card__status-icon--@visibilityClass">
+                            </span>
+
+                            <span>
+                                @if (review.IsVisible)
+                                {
+                                    <text>
+                                        This review is visible in the public vehicle catalog.
+                                    </text>
+                                }
+                                else
+                                {
+                                    <text>
+                                        This review is currently hidden from the public catalog.
+                                    </text>
+                                }
+                            </span>
+
+                        </div>
+
+                        <div class="review-card__actions">
+
+                            <form asp-controller="Reviews"
+                                  asp-action="SetVisibility"
+                                  asp-route-reviewId="@review.ReviewId"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                @if (review.IsVisible)
+                                {
+                                    <button type="submit"
+                                            name="isVisible"
+                                            value="false"
+                                            class="review-action review-action--secondary">
+
+                                        <span aria-hidden="true">
+                                            —
+                                        </span>
+
+                                        Hide review
+
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="submit"
+                                            name="isVisible"
+                                            value="true"
+                                            class="review-action review-action--primary">
+
+                                        <span aria-hidden="true">
+                                            ✓
+                                        </span>
+
+                                        Show review
+
+                                    </button>
+                                }
+
+                            </form>
+
+                            <form asp-controller="Reviews"
+                                  asp-action="Delete"
+                                  asp-route-reviewId="@review.ReviewId"
+                                  method="post"
+                                  onsubmit="return confirm('Are you sure you want to permanently delete this review?');">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="review-action review-action--danger">
+
+                                    Delete
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </footer>
+
+                </article>
             }
+
         </div>
     }
-</div>
+
+</section>
