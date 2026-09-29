@@ -1,0 +1,595 @@
+﻿@{
+    ViewData["Title"] = "About us";
+}
+
+<link rel="stylesheet"
+      href="~/css/company.css"
+      asp-append-version="true" />
+
+<section class="company-page">
+
+    <!-- Hero -->
+    <header class="about-hero">
+
+        <div class="about-hero__glow about-hero__glow--one">
+        </div>
+
+        <div class="about-hero__glow about-hero__glow--two">
+        </div>
+
+        <div class="about-hero__content">
+
+            <div class="about-hero__copy">
+
+                <span class="company-eyebrow">
+                    ABOUT DRIVEFLEET
+                </span>
+
+                <h1>
+                    More than
+                    <span>a rental platform.</span>
+                </h1>
+
+                <p class="about-hero__lead">
+                    DriveFleet brings vehicle rental,
+                    reservations and fleet operations together
+                    in one simple digital experience.
+                </p>
+
+                <div class="about-hero__actions">
+
+                    <a asp-controller="Vehicles"
+                       asp-action="Index"
+                       class="company-button company-button--light">
+
+                        Explore the fleet
+
+                        <span aria-hidden="true">
+                            →
+                        </span>
+
+                    </a>
+
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       class="company-button company-button--ghost">
+
+                        Back to home
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="about-hero__visual"
+                 aria-hidden="true">
+
+                <div class="about-system-card about-system-card--main">
+
+                    <span class="about-system-card__label">
+                        DRIVEFLEET
+                    </span>
+
+                    <strong>
+                        One platform.
+                        <br />
+                        One connected fleet.
+                    </strong>
+
+                    <div class="about-system-card__line">
+                    </div>
+
+                    <div class="about-system-card__status">
+
+                        <span>
+                        </span>
+
+                        Fleet operations connected
+
+                    </div>
+
+                </div>
+
+                <div class="about-system-card about-system-card--floating">
+
+                    <span class="about-system-card__mini-label">
+                        RENTAL EXPERIENCE
+                    </span>
+
+                    <strong>
+                        Simple.
+                        <br />
+                        Clear.
+                        <br />
+                        Connected.
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="about-hero__footer">
+
+            <span>
+                VEHICLES
+            </span>
+
+            <span>
+                RESERVATIONS
+            </span>
+
+            <span>
+                CUSTOMERS
+            </span>
+
+            <span>
+                FLEET OPERATIONS
+            </span>
+
+        </div>
+
+    </header>
+
+    <!-- Intro -->
+    <section class="about-intro">
+
+        <div>
+
+            <span class="company-section-number">
+                01
+            </span>
+
+            <span class="company-eyebrow company-eyebrow--dark">
+                OUR PURPOSE
+            </span>
+
+        </div>
+
+        <div class="about-intro__content">
+
+            <h2>
+                Making vehicle rental
+                easier to manage
+                and easier to use.
+            </h2>
+
+            <div class="about-intro__text">
+
+                <p>
+                    DriveFleet was designed around a simple idea:
+                    customers and rental teams should be able to
+                    access the information they need without unnecessary
+                    complexity.
+                </p>
+
+                <p>
+                    The platform combines vehicle discovery,
+                    reservation management and fleet operations
+                    while providing an experience adapted to
+                    customers, employees and administrators.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Experience pillars -->
+    <section class="about-pillars">
+
+        <article class="about-pillar about-pillar--featured">
+
+            <div class="about-pillar__top">
+
+                <span>
+                    01
+                </span>
+
+                <span>
+                    CUSTOMER EXPERIENCE
+                </span>
+
+            </div>
+
+            <div class="about-pillar__content">
+
+                <h3>
+                    Find.
+                    <br />
+                    Choose.
+                    <br />
+                    Reserve.
+                </h3>
+
+                <p>
+                    Customers can explore the fleet,
+                    review vehicle information and manage
+                    their reservations through one
+                    consistent experience.
+                </p>
+
+            </div>
+
+            <a asp-controller="Vehicles"
+               asp-action="Index">
+
+                Browse vehicles →
+
+            </a>
+
+        </article>
+
+        <article class="about-pillar">
+
+            <div class="about-pillar__top">
+
+                <span>
+                    02
+                </span>
+
+                <span>
+                    FLEET CONTROL
+                </span>
+
+            </div>
+
+            <div class="about-pillar__icon">
+                F
+            </div>
+
+            <h3>
+                A clearer view
+                of the fleet.
+            </h3>
+
+            <p>
+                Vehicle information, operational status
+                and rental activity are organised so staff
+                can work with up-to-date fleet information.
+            </p>
+
+        </article>
+
+        <article class="about-pillar">
+
+            <div class="about-pillar__top">
+
+                <span>
+                    03
+                </span>
+
+                <span>
+                    CONNECTED OPERATIONS
+                </span>
+
+            </div>
+
+            <div class="about-pillar__icon">
+                O
+            </div>
+
+            <h3>
+                Web and mobile,
+                working together.
+            </h3>
+
+            <p>
+                DriveFleet connects the customer-facing
+                rental experience with the tools employees
+                need for day-to-day vehicle operations.
+            </p>
+
+        </article>
+
+    </section>
+
+    <!-- Platform -->
+    <section class="about-platform">
+
+        <div class="about-platform__visual">
+
+            <div class="about-platform__panel">
+
+                <span class="company-eyebrow">
+                    DRIVEFLEET ECOSYSTEM
+                </span>
+
+                <div class="about-platform__flow">
+
+                    <div>
+
+                        <span>
+                            01
+                        </span>
+
+                        <strong>
+                            Discover
+                        </strong>
+
+                        <small>
+                            Explore available vehicles
+                        </small>
+
+                    </div>
+
+                    <span class="about-platform__connector">
+                    </span>
+
+                    <div>
+
+                        <span>
+                            02
+                        </span>
+
+                        <strong>
+                            Reserve
+                        </strong>
+
+                        <small>
+                            Build and manage rentals
+                        </small>
+
+                    </div>
+
+                    <span class="about-platform__connector">
+                    </span>
+
+                    <div>
+
+                        <span>
+                            03
+                        </span>
+
+                        <strong>
+                            Operate
+                        </strong>
+
+                        <small>
+                            Keep the fleet moving
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="about-platform__content">
+
+            <span class="company-section-number">
+                02
+            </span>
+
+            <span class="company-eyebrow company-eyebrow--dark">
+                ONE CONNECTED EXPERIENCE
+            </span>
+
+            <h2>
+                Built around the
+                complete rental journey.
+            </h2>
+
+            <p>
+                DriveFleet connects the different stages
+                of vehicle rental instead of treating them
+                as isolated tasks.
+            </p>
+
+            <div class="about-feature-list">
+
+                <div>
+
+                    <span>
+                        ✓
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Vehicle catalog
+                        </strong>
+
+                        <p>
+                            Clear vehicle information,
+                            photography and availability.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        ✓
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Reservation management
+                        </strong>
+
+                        <p>
+                            Rental periods, extras,
+                            pricing and reservation status.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <span>
+                        ✓
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Operational tools
+                        </strong>
+
+                        <p>
+                            Dedicated functionality for
+                            employees and administrators.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Values -->
+    <section class="about-values">
+
+        <header class="about-values__heading">
+
+            <div>
+
+                <span class="company-section-number">
+                    03
+                </span>
+
+                <span class="company-eyebrow company-eyebrow--dark">
+                    WHAT GUIDES US
+                </span>
+
+                <h2>
+                    Designed around
+                    what matters.
+                </h2>
+
+            </div>
+
+            <p>
+                A rental experience should be understandable,
+                dependable and easy to navigate from the
+                first search to the end of the rental.
+            </p>
+
+        </header>
+
+        <div class="about-values__grid">
+
+            <article>
+
+                <span>
+                    01
+                </span>
+
+                <h3>
+                    Simplicity
+                </h3>
+
+                <p>
+                    Clear interfaces and straightforward
+                    workflows reduce unnecessary friction.
+                </p>
+
+            </article>
+
+            <article>
+
+                <span>
+                    02
+                </span>
+
+                <h3>
+                    Transparency
+                </h3>
+
+                <p>
+                    Vehicle, reservation and account
+                    information should be easy to understand.
+                </p>
+
+            </article>
+
+            <article>
+
+                <span>
+                    03
+                </span>
+
+                <h3>
+                    Reliability
+                </h3>
+
+                <p>
+                    Fleet information needs to remain
+                    organised and accessible when it matters.
+                </p>
+
+            </article>
+
+            <article>
+
+                <span>
+                    04
+                </span>
+
+                <h3>
+                    Connection
+                </h3>
+
+                <p>
+                    Customer experience and fleet operations
+                    work better when they share one system.
+                </p>
+
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- CTA -->
+    <section class="about-cta">
+
+        <div>
+
+            <span class="company-eyebrow">
+                READY TO DRIVE?
+            </span>
+
+            <h2>
+                Find the right vehicle
+                for your next journey.
+            </h2>
+
+            <p>
+                Explore the DriveFleet catalog
+                and discover the vehicles available
+                for your next reservation.
+            </p>
+
+        </div>
+
+        <a asp-controller="Vehicles"
+           asp-action="Index"
+           class="company-button company-button--light">
+
+            View vehicles
+
+            <span aria-hidden="true">
+                →
+            </span>
+
+        </a>
+
+    </section>
+
+</section>

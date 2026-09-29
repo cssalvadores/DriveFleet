@@ -10,7 +10,11 @@ namespace DriveFleet.Web.Controllers
         {
             return View();
         }
-
+        [HttpGet("/about")]
+        public IActionResult About()
+        {
+            return View();
+        }
         public IActionResult Privacy()
         {
             return View();
