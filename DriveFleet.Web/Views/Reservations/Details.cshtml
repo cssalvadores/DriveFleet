@@ -1,6 +1,6 @@
 ﻿@model DriveFleet.Web.Models.Reservations.ReservationViewModel
 
-@using DriveFleet.Web.Helpers
+@using System.Globalization
 
 @{
     ViewData["Title"] =
@@ -9,509 +9,758 @@
     var canManageAllReservations =
         User.IsInRole("Admin") ||
         User.IsInRole("Employee");
+
+    var statusClass =
+        Model.ReservationStatusName
+            .Trim()
+            .ToLowerInvariant();
+
+    var englishCulture =
+        CultureInfo.GetCultureInfo("en-GB");
+
+    var portugueseCulture =
+        CultureInfo.GetCultureInfo("pt-PT");
 }
 
-<div class="container mt-4 mb-5"
-     style="max-width: 1050px;">
+<link rel="stylesheet"
+      href="~/css/reservations.css"
+      asp-append-version="true" />
 
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+<section class="reservation-details-page">
 
-        <div>
-            <h1 class="h3 mb-1">
-                Reservation #@Model.ReservationId
-            </h1>
-
-            <span class="badge @ReservationDisplayHelper.GetStatusBadgeClass(
-                                Model.ReservationStatusName)">
-                @Model.ReservationStatusName
-            </span>
-        </div>
+    <!-- Back navigation -->
+    <div class="reservation-details-back">
 
         <a asp-controller="Reservations"
            asp-action="Index"
-           class="btn btn-outline-secondary btn-sm">
-            Back to reservations
+           class="reservation-details-back__link">
+
+            <span aria-hidden="true">
+                ←
+            </span>
+
+            <span>
+                Back to reservations
+            </span>
+
         </a>
 
     </div>
 
+    <!-- Hero -->
+    <header class="reservation-details-hero">
+
+        <div class="reservation-details-hero__top">
+
+            <div>
+
+                <span class="reservation-details-eyebrow">
+                    RENTAL OPERATION
+                </span>
+
+                <div class="reservation-details-title-row">
+
+                    <h1>
+                        Reservation #@Model.ReservationId
+                    </h1>
+
+                    <span class="reservation-status reservation-status--@statusClass">
+                        @Model.ReservationStatusName
+                    </span>
+
+                </div>
+
+                <p>
+                    Complete rental information, vehicles and operational workflow.
+                </p>
+
+            </div>
+
+            <div class="reservation-details-hero__total">
+
+                <span>
+                    Reservation total
+                </span>
+
+                <strong>
+                    @Model.TotalValue.ToString(
+                        "C2",
+                        portugueseCulture)
+                </strong>
+
+            </div>
+
+        </div>
+
+        <div class="reservation-details-hero__meta">
+
+            <div class="reservation-details-hero__meta-item">
+
+                <span>
+                    CREATED
+                </span>
+
+                <strong>
+                    @(Model.CreatedAt
+                        .ToLocalTime()
+                        .ToString(
+                            "dd MMM yyyy",
+                            englishCulture))
+                </strong>
+
+                <small>
+                    @(Model.CreatedAt
+                        .ToLocalTime()
+                        .ToString(
+                            "HH:mm",
+                            CultureInfo.InvariantCulture))
+                </small>
+
+            </div>
+
+            <div class="reservation-details-hero__meta-item">
+
+                <span>
+                    VEHICLES
+                </span>
+
+                <strong>
+                    @Model.Vehicles.Count
+                </strong>
+
+                <small>
+                    @(Model.Vehicles.Count == 1
+                        ? "vehicle"
+                        : "vehicles")
+                </small>
+
+            </div>
+
+            <div class="reservation-details-hero__meta-item">
+
+                <span>
+                    STATUS
+                </span>
+
+                <strong>
+                    @Model.ReservationStatusName
+                </strong>
+
+                <small>
+                    Current workflow state
+                </small>
+
+            </div>
+
+            @if (Model.UpdatedAt.HasValue)
+            {
+                <div class="reservation-details-hero__meta-item">
+
+                    <span>
+                        LAST UPDATED
+                    </span>
+
+                    <strong>
+                        @(Model.UpdatedAt.Value
+                            .ToLocalTime()
+                            .ToString(
+                                "dd MMM yyyy",
+                                englishCulture))
+                    </strong>
+
+                    <small>
+                        @(Model.UpdatedAt.Value
+                            .ToLocalTime()
+                            .ToString(
+                                "HH:mm",
+                                CultureInfo.InvariantCulture))
+                    </small>
+
+                </div>
+            }
+
+        </div>
+
+    </header>
+
+    <!-- Feedback -->
     @if (TempData["ReservationSuccess"] is string successMessage)
     {
-        <div class="alert alert-success"
+        <div class="reservation-feedback reservation-feedback--success"
              role="alert">
-            @successMessage
+
+            <span class="reservation-feedback__icon">
+                ✓
+            </span>
+
+            <span>
+                @successMessage
+            </span>
+
         </div>
     }
 
     @if (TempData["ReservationError"] is string errorMessage)
     {
-        <div class="alert alert-danger"
+        <div class="reservation-feedback reservation-feedback--error"
              role="alert">
-            @errorMessage
+
+            <span class="reservation-feedback__icon">
+                !
+            </span>
+
+            <span>
+                @errorMessage
+            </span>
+
         </div>
     }
 
-    <div class="row g-3 mb-4">
+    <!-- Main information -->
+    <div class="reservation-details-grid">
 
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
+        <section class="reservation-details-panel">
 
-                <div class="card-body">
+            <div class="reservation-details-panel__heading">
 
-                    <h2 class="h5 mb-3">
+                <div>
+
+                    <span class="reservation-details-panel__eyebrow">
+                        RESERVATION
+                    </span>
+
+                    <h2>
                         Reservation information
                     </h2>
 
-                    <dl class="row mb-0">
+                </div>
 
-                        <dt class="col-sm-5">
-                            Created
-                        </dt>
+            </div>
 
-                        <dd class="col-sm-7">
-                            @ReservationDisplayHelper.FormatDateTime(
-                                Model.CreatedAt)
-                        </dd>
+            <div class="reservation-info-grid">
 
-                        @if (Model.UpdatedAt.HasValue)
-                        {
-                            <dt class="col-sm-5">
-                                Last updated
-                            </dt>
+                <div class="reservation-info-item">
 
-                            <dd class="col-sm-7">
-                                @ReservationDisplayHelper.FormatDateTime(
-                                    Model.UpdatedAt.Value)
-                            </dd>
-                        }
+                    <span>
+                        Reservation ID
+                    </span>
 
-                        <dt class="col-sm-5">
-                            Status
-                        </dt>
-
-                        <dd class="col-sm-7">
-                            @Model.ReservationStatusName
-                        </dd>
-
-                        <dt class="col-sm-5">
-                            Total
-                        </dt>
-
-                        <dd class="col-sm-7 fw-bold">
-                            @Model.TotalValue.ToString("C")
-                        </dd>
-
-                    </dl>
+                    <strong>
+                        #@Model.ReservationId
+                    </strong>
 
                 </div>
+
+                <div class="reservation-info-item">
+
+                    <span>
+                        Status
+                    </span>
+
+                    <strong>
+                        @Model.ReservationStatusName
+                    </strong>
+
+                </div>
+
+                <div class="reservation-info-item">
+
+                    <span>
+                        Created
+                    </span>
+
+                    <strong>
+                        @(Model.CreatedAt
+                            .ToLocalTime()
+                            .ToString(
+                                "dd MMM yyyy HH:mm",
+                                englishCulture))
+                    </strong>
+
+                </div>
+
+                @if (Model.UpdatedAt.HasValue)
+                {
+                    <div class="reservation-info-item">
+
+                        <span>
+                            Last updated
+                        </span>
+
+                        <strong>
+                            @(Model.UpdatedAt.Value
+                                .ToLocalTime()
+                                .ToString(
+                                    "dd MMM yyyy HH:mm",
+                                    englishCulture))
+                        </strong>
+
+                    </div>
+                }
+
             </div>
-        </div>
+
+        </section>
 
         @if (canManageAllReservations)
         {
-            <div class="col-md-6">
-                <div class="card shadow-sm h-100">
+            <section class="reservation-details-panel">
 
-                    <div class="card-body">
+                <div class="reservation-details-panel__heading">
 
-                        <h2 class="h5 mb-3">
-                            Client
+                    <div>
+
+                        <span class="reservation-details-panel__eyebrow">
+                            CUSTOMER
+                        </span>
+
+                        <h2>
+                            Customer information
                         </h2>
 
-                        <dl class="row mb-0">
+                    </div>
 
-                            <dt class="col-sm-4">
-                                Name
-                            </dt>
+                    <div class="reservation-customer-avatar"
+                         aria-hidden="true">
 
-                            <dd class="col-sm-8">
-                                @Model.UserFullName
-                            </dd>
-
-                            <dt class="col-sm-4">
-                                Email
-                            </dt>
-
-                            <dd class="col-sm-8">
-                                @Model.UserEmail
-                            </dd>
-
-                        </dl>
+                        @(string.IsNullOrWhiteSpace(Model.UserFullName)
+                            ? "C"
+                            : Model.UserFullName
+                                .Trim()
+                                .Substring(0, 1)
+                                .ToUpperInvariant())
 
                     </div>
+
                 </div>
-            </div>
+
+                <div class="reservation-customer">
+
+                    <strong>
+                        @Model.UserFullName
+                    </strong>
+
+                    <span>
+                        @Model.UserEmail
+                    </span>
+
+                </div>
+
+            </section>
         }
 
     </div>
 
-    <h2 class="h4 mb-3">
-        Vehicles
-    </h2>
+    <!-- Vehicles -->
+    <section class="reservation-vehicles-section">
 
-    @foreach (var vehicle in Model.Vehicles)
-    {
-        <div class="card shadow-sm mb-3">
-
-            <div class="card-header bg-light">
-
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-
-                    <div>
-                        <strong>
-                            @vehicle.VehicleBrand
-                            @vehicle.VehicleModel
-                        </strong>
-
-                        <span class="text-muted ms-2">
-                            @vehicle.LicensePlate
-                        </span>
-                    </div>
-
-                    <a asp-controller="Vehicles"
-                       asp-action="Details"
-                       asp-route-vehicleId="@vehicle.VehicleId"
-                       class="btn btn-sm btn-outline-secondary">
-                        Vehicle details
-                    </a>
-
-                </div>
-
-            </div>
-
-            <div class="card-body">
-
-                <div class="row g-3">
-
-                    <div class="col-md-7">
-
-                        <dl class="row mb-0">
-
-                            <dt class="col-sm-5">
-                                Start
-                            </dt>
-
-                            <dd class="col-sm-7">
-                                @ReservationDisplayHelper.FormatDateTime(
-                                    vehicle.StartDate)
-                            </dd>
-
-                            <dt class="col-sm-5">
-                                End
-                            </dt>
-
-                            <dd class="col-sm-7">
-                                @ReservationDisplayHelper.FormatDateTime(
-                                    vehicle.EndDate)
-                            </dd>
-
-                            <dt class="col-sm-5">
-                                Rental days
-                            </dt>
-
-                            <dd class="col-sm-7">
-                                @vehicle.RentalDays
-                            </dd>
-
-                            <dt class="col-sm-5">
-                                Daily price
-                            </dt>
-
-                            <dd class="col-sm-7">
-                                @vehicle.DailyPrice.ToString("C")
-                            </dd>
-
-                            <dt class="col-sm-5">
-                                Rental value
-                            </dt>
-
-                            <dd class="col-sm-7">
-                                @vehicle.RentalValue.ToString("C")
-                            </dd>
-
-                        </dl>
-
-                    </div>
-
-                    <div class="col-md-5">
-
-                        <h3 class="h6">
-                            Extras
-                        </h3>
-
-                        @if (vehicle.Extras.Count == 0)
-                        {
-                            <p class="text-muted mb-0">
-                                No extras selected.
-                            </p>
-                        }
-                        else
-                        {
-                            <ul class="list-group list-group-flush">
-
-                                @foreach (var extra in vehicle.Extras)
-                                {
-                                    <li class="list-group-item px-0 d-flex justify-content-between gap-3">
-
-                                        <span>
-                                            @extra.Name
-                                            × @extra.Quantity
-                                        </span>
-
-                                        <span>
-                                            @extra.Total.ToString("C")
-                                        </span>
-
-                                    </li>
-                                }
-
-                            </ul>
-                        }
-
-                        <hr />
-
-                        <div class="d-flex justify-content-between">
-
-                            <span>
-                                Extras
-                            </span>
-
-                            <strong>
-                                @vehicle.ExtrasValue.ToString("C")
-                            </strong>
-
-                        </div>
-
-                        @* <div class="d-flex justify-content-between mt-2">
-
-                            <span>
-                                Vehicle total
-                            </span>
-
-                            <strong>
-                                @vehicle.TotalValue.ToString("C")
-                            </strong>
-
-                        </div> *@
-                        @if (User.IsInRole("Client") &&
-     Model.CanReview)
-                        {
-                            <hr class="my-4" />
-
-                            <div>
-                                <h3 class="h6 mb-3">
-                                    Your review
-                                </h3>
-
-                                @if (vehicle.Review is not null)
-                                {
-                                    <div class="border rounded p-3 bg-light">
-
-                                        <div class="mb-2"
-                                             aria-label="@($"{vehicle.Review.Stars} out of 5 stars")">
-
-                                            <span class="fs-5">
-                                                @for (var star = 1;
-                                                      star <= 5;
-                                                      star++)
-                                                {
-                                                    <span>
-                                                        @(star <= vehicle.Review.Stars
-                                                            ? "★"
-                                                            : "☆")
-                                                    </span>
-                                                }
-                                            </span>
-
-                                            <span class="ms-2 text-muted">
-                                                @vehicle.Review.Stars / 5
-                                            </span>
-
-                                        </div>
-
-                                        @if (!string.IsNullOrWhiteSpace(
-                                            vehicle.Review.Comment))
-                                        {
-                                            <p class="mb-2">
-                                                @vehicle.Review.Comment
-                                            </p>
-                                        }
-
-                                        <small class="text-muted">
-                                            Submitted
-                                            @ReservationDisplayHelper.FormatDateTime(
-                                                vehicle.Review.CreatedAt)
-                                        </small>
-
-                                    </div>
-                                }
-                                else
-                                {
-                                    <form asp-controller="Reservations"
-                                          asp-action="ReviewVehicle"
-                                          asp-route-reservationId="@Model.ReservationId"
-                                          asp-route-reservationVehicleId="@vehicle.ReservationVehicleId"
-                                          method="post">
-
-                                        @Html.AntiForgeryToken()
-
-                                        <div class="mb-3">
-
-                                            <label class="form-label"
-                                                   for="stars-@vehicle.ReservationVehicleId">
-                                                Rating
-                                            </label>
-
-                                            <select id="stars-@vehicle.ReservationVehicleId"
-                                                    name="Stars"
-                                                    class="form-select"
-                                                    required>
-
-                                                <option value="">
-                                                    Select a rating
-                                                </option>
-
-                                                <option value="5">
-                                                    5 - Excellent
-                                                </option>
-
-                                                <option value="4">
-                                                    4 - Very good
-                                                </option>
-
-                                                <option value="3">
-                                                    3 - Good
-                                                </option>
-
-                                                <option value="2">
-                                                    2 - Fair
-                                                </option>
-
-                                                <option value="1">
-                                                    1 - Poor
-                                                </option>
-
-                                            </select>
-
-                                        </div>
-
-                                        <div class="mb-3">
-
-                                            <label class="form-label"
-                                                   for="comment-@vehicle.ReservationVehicleId">
-                                                Comment
-                                            </label>
-
-                                            <textarea id="comment-@vehicle.ReservationVehicleId"
-                                                      name="Comment"
-                                                      class="form-control"
-                                                      rows="3"
-                                                      maxlength="1000"
-                                                      placeholder="Tell us about your experience with this vehicle."></textarea>
-
-                                            <div class="form-text">
-                                                Optional. Maximum 1000 characters.
-                                            </div>
-
-                                        </div>
-
-                                        <button type="submit"
-                                                class="btn btn-primary">
-                                            Submit review
-                                        </button>
-
-                                    </form>
-                                }
-                            </div>
-                        }
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-    }
-
-    <div class="card shadow-sm mt-4">
-
-        <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="reservation-details-section-title">
 
             <div>
 
-                <span class="text-muted">
-                    Reservation total
+                <span>
+                    RENTAL ITEMS
                 </span>
 
-                <div class="fs-4 fw-bold">
-                    @Model.TotalValue.ToString("C")
-                </div>
+                <h2>
+                    Vehicles
+                </h2>
 
             </div>
 
-            <div class="d-flex flex-wrap justify-content-end gap-2">
-
-                @if (canManageAllReservations &&
-                     Model.CanStart)
-                {
-                    <form asp-controller="Reservations"
-                          asp-action="Start"
-                          asp-route-reservationId="@Model.ReservationId"
-                          method="post"
-                          onsubmit="return confirm('Start this reservation?');">
-
-                        @Html.AntiForgeryToken()
-
-                        <button type="submit"
-                                class="btn btn-primary">
-                            Start reservation
-                        </button>
-
-                    </form>
-                }
-
-                @if (canManageAllReservations &&
-                     Model.CanComplete)
-                {
-                    <form asp-controller="Reservations"
-                          asp-action="Complete"
-                          asp-route-reservationId="@Model.ReservationId"
-                          method="post"
-                          onsubmit="return confirm('Complete this reservation?');">
-
-                        @Html.AntiForgeryToken()
-
-                        <button type="submit"
-                                class="btn btn-success">
-                            Complete reservation
-                        </button>
-
-                    </form>
-                }
-
-                @if ((canManageAllReservations && Model.CanCancel) ||
-                     (!canManageAllReservations && Model.CanClientCancel))
-                {
-                    <form asp-controller="Reservations"
-                          asp-action="Cancel"
-                          asp-route-reservationId="@Model.ReservationId"
-                          method="post"
-                          onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
-
-                        @Html.AntiForgeryToken()
-
-                        <button type="submit"
-                                class="btn btn-outline-danger">
-                            Cancel reservation
-                        </button>
-
-                    </form>
-                }
-
+            <div class="reservation-details-section-count">
+                @Model.Vehicles.Count
+                @(Model.Vehicles.Count == 1
+                    ? "vehicle"
+                    : "vehicles")
             </div>
 
         </div>
 
-    </div>
+        <div class="reservation-vehicle-list">
 
-</div>
+            @foreach (var vehicle in Model.Vehicles)
+            {
+                <article class="reservation-vehicle-card">
+
+                    <div class="reservation-vehicle-card__header">
+
+                        <div>
+
+                            <span class="reservation-vehicle-card__eyebrow">
+                                RESERVED VEHICLE
+                            </span>
+
+                            <h3>
+                                @vehicle.VehicleBrand
+                                @vehicle.VehicleModel
+                            </h3>
+
+                            <span class="reservation-vehicle-card__plate">
+                                @vehicle.LicensePlate
+                            </span>
+
+                        </div>
+
+                        <a asp-controller="Vehicles"
+                           asp-action="Details"
+                           asp-route-vehicleId="@vehicle.VehicleId"
+                           class="reservation-vehicle-card__link">
+
+                            Vehicle details
+
+                            <span aria-hidden="true">
+                                →
+                            </span>
+
+                        </a>
+
+                    </div>
+
+                    <div class="reservation-vehicle-card__body">
+
+                        <!-- Rental information -->
+                        <div class="reservation-vehicle-card__rental">
+
+                            <div class="reservation-rental-period">
+
+                                <div class="reservation-rental-period__point">
+
+                                    <span>
+                                        PICK-UP
+                                    </span>
+
+                                    <strong>
+                                        @vehicle.StartDate.ToString(
+                                            "dd MMM yyyy",
+                                            englishCulture)
+                                    </strong>
+
+                                    <small>
+                                        @vehicle.StartDate.ToString(
+                                            "HH:mm",
+                                            CultureInfo.InvariantCulture)
+                                    </small>
+
+                                </div>
+
+                                <div class="reservation-rental-period__line">
+
+                                    <span></span>
+
+                                    <small>
+                                        @vehicle.RentalDays
+                                        @(vehicle.RentalDays == 1
+                                            ? "day"
+                                            : "days")
+                                    </small>
+
+                                    <span></span>
+
+                                </div>
+
+                                <div class="reservation-rental-period__point reservation-rental-period__point--end">
+
+                                    <span>
+                                        RETURN
+                                    </span>
+
+                                    <strong>
+                                        @vehicle.EndDate.ToString(
+                                            "dd MMM yyyy",
+                                            englishCulture)
+                                    </strong>
+
+                                    <small>
+                                        @vehicle.EndDate.ToString(
+                                            "HH:mm",
+                                            CultureInfo.InvariantCulture)
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <div class="reservation-vehicle-metrics">
+
+                                <div>
+
+                                    <span>
+                                        DAILY RATE
+                                    </span>
+
+                                    <strong>
+                                        @vehicle.DailyPrice.ToString(
+                                            "C2",
+                                            portugueseCulture)
+                                    </strong>
+
+                                </div>
+
+                                <div>
+
+                                    <span>
+                                        RENTAL
+                                    </span>
+
+                                    <strong>
+                                        @vehicle.RentalValue.ToString(
+                                            "C2",
+                                            portugueseCulture)
+                                    </strong>
+
+                                </div>
+
+                                <div>
+
+                                    <span>
+                                        EXTRAS
+                                    </span>
+
+                                    <strong>
+                                        @vehicle.ExtrasValue.ToString(
+                                            "C2",
+                                            portugueseCulture)
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Extras -->
+                        <aside class="reservation-extras">
+
+                            <div class="reservation-extras__heading">
+
+                                <span>
+                                    EXTRAS
+                                </span>
+
+                                <strong>
+                                    @vehicle.ExtrasValue.ToString(
+                                        "C2",
+                                        portugueseCulture)
+                                </strong>
+
+                            </div>
+
+                            @if (vehicle.Extras.Count == 0)
+                            {
+                                <div class="reservation-extras__empty">
+
+                                    <span class="reservation-extras__empty-icon">
+                                        —
+                                    </span>
+
+                                    <span>
+                                        No extras selected
+                                    </span>
+
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="reservation-extras__list">
+
+                                    @foreach (var extra in vehicle.Extras)
+                                    {
+                                        <div class="reservation-extra-item">
+
+                                            <div>
+
+                                                <strong>
+                                                    @extra.Name
+                                                </strong>
+
+                                                <span>
+                                                    Quantity @extra.Quantity
+                                                </span>
+
+                                            </div>
+
+                                            <strong>
+                                                @extra.Total.ToString(
+                                                    "C2",
+                                                    portugueseCulture)
+                                            </strong>
+
+                                        </div>
+                                    }
+
+                                </div>
+                            }
+
+                            <div class="reservation-extras__total">
+
+                                <span>
+                                    Vehicle total
+                                </span>
+
+                                <strong>
+                                    @vehicle.TotalValue.ToString(
+                                        "C2",
+                                        portugueseCulture)
+                                </strong>
+
+                            </div>
+
+                        </aside>
+
+                    </div>
+
+                </article>
+            }
+
+        </div>
+
+    </section>
+
+    <!-- Workflow -->
+    <section class="reservation-workflow">
+
+        <div class="reservation-workflow__summary">
+
+            <span class="reservation-details-panel__eyebrow">
+                TOTAL
+            </span>
+
+            <h2>
+                Reservation total
+            </h2>
+
+            <strong class="reservation-workflow__total">
+                @Model.TotalValue.ToString(
+                    "C2",
+                    portugueseCulture)
+            </strong>
+
+            <p>
+                Total value calculated from all vehicles and selected extras.
+            </p>
+
+        </div>
+
+        <div class="reservation-workflow__actions">
+
+            @if (canManageAllReservations &&
+                 Model.CanStart)
+            {
+                <form asp-controller="Reservations"
+                      asp-action="Start"
+                      asp-route-reservationId="@Model.ReservationId"
+                      method="post"
+                      onsubmit="return confirm('Start this reservation?');">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="reservation-action reservation-action--primary">
+
+                        Start reservation
+
+                        <span aria-hidden="true">
+                            →
+                        </span>
+
+                    </button>
+
+                </form>
+            }
+
+            @if (canManageAllReservations &&
+                 Model.CanComplete)
+            {
+                <form asp-controller="Reservations"
+                      asp-action="Complete"
+                      asp-route-reservationId="@Model.ReservationId"
+                      method="post"
+                      onsubmit="return confirm('Complete this reservation?');">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="reservation-action reservation-action--success">
+
+                        Complete reservation
+
+                        <span aria-hidden="true">
+                            ✓
+                        </span>
+
+                    </button>
+
+                </form>
+            }
+
+            @if ((canManageAllReservations &&
+                  Model.CanCancel) ||
+                 (!canManageAllReservations &&
+                  Model.CanClientCancel))
+            {
+                <form asp-controller="Reservations"
+                      asp-action="Cancel"
+                      asp-route-reservationId="@Model.ReservationId"
+                      method="post"
+                      onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="reservation-action reservation-action--danger">
+
+                        Cancel reservation
+
+                    </button>
+
+                </form>
+            }
+
+            @if (!(canManageAllReservations && Model.CanStart) &&
+                 !(canManageAllReservations && Model.CanComplete) &&
+                 !((canManageAllReservations && Model.CanCancel) ||
+                   (!canManageAllReservations && Model.CanClientCancel)))
+            {
+                <div class="reservation-workflow__readonly">
+
+                    <span class="reservation-workflow__readonly-dot reservation-card__dot--@statusClass">
+                    </span>
+
+                    <span>
+                        @switch (statusClass)
+                        {
+                            case "completed":
+                                <text>
+                                    This reservation has been completed.
+                                </text>
+                                break;
+
+                            case "cancelled":
+                                <text>
+                                    This reservation has been cancelled.
+                                </text>
+                                break;
+
+                            case "active":
+                                <text>
+                                    This reservation is currently active.
+                                </text>
+                                break;
+
+                            default:
+                                <text>
+                                    No actions are currently available.
+                                </text>
+                                break;
+                        }
+                    </span>
+
+                </div>
+            }
+
+        </div>
+
+    </section>
+
+</section>
