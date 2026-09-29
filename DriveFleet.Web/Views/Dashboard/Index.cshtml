@@ -5,6 +5,12 @@
 @{
     ViewData["Title"] = "Dashboard";
 
+    var portugueseCulture =
+        CultureInfo.GetCultureInfo("pt-PT");
+
+    var englishCulture =
+        CultureInfo.GetCultureInfo("en-GB");
+
     var maximumMonthlyReservations =
         Model.ReservationsByMonth.Count == 0
             ? 0
@@ -16,195 +22,370 @@
             ? 0
             : Model.MostRentedVehicles
                 .Max(item => item.RentalCount);
+
+    var occupancyWidth =
+        Model.FleetOccupancyRate
+            .ToString(
+                "0.##",
+                CultureInfo.InvariantCulture);
 }
 
 <link rel="stylesheet"
       href="~/css/dashboard.css"
       asp-append-version="true" />
 
-<section class="dashboard-page">
+<section class="admin-dashboard">
 
-    <div class="dashboard-heading">
+    <!-- Hero -->
+    <header class="dashboard-hero">
 
-        <div>
-            <span class="dashboard-eyebrow">
-                Backoffice
-            </span>
-
-            <h1>
-                Dashboard
-            </h1>
-
-            <p>
-                Monitor reservations, revenue and fleet performance.
-            </p>
-        </div>
-
-        <a asp-controller="Reports"
-           asp-action="Index"
-           class="dashboard-reports-link">
-            Open reports
-        </a>
-
-    </div>
-
-    <form asp-controller="Dashboard"
-          asp-action="Index"
-          method="get"
-          class="dashboard-filter">
-
-        <div class="dashboard-filter-heading">
-            <strong>
-                Reporting period
-            </strong>
-
-            <span>
-                Select the period used to calculate the dashboard metrics.
-            </span>
-        </div>
-
-        <div class="dashboard-filter-fields">
+        <div class="dashboard-hero__content">
 
             <div>
+
+                <span class="dashboard-eyebrow">
+                    DRIVEFLEET BACKOFFICE
+                </span>
+
+                <h1>
+                    Dashboard
+                </h1>
+
+                <p>
+                    Monitor reservations, revenue and fleet
+                    performance from one operational workspace.
+                </p>
+
+            </div>
+
+            <a asp-controller="Reports"
+               asp-action="Index"
+               class="dashboard-hero__action">
+
+                <span class="dashboard-hero__action-icon"
+                      aria-hidden="true">
+                    ↗
+                </span>
+
+                <span>
+                    Open reports
+                </span>
+
+            </a>
+
+        </div>
+
+        <div class="dashboard-hero__period">
+
+            <div>
+
+                <span>
+                    CURRENT ANALYSIS PERIOD
+                </span>
+
+                <strong>
+                    @Model.FromDate.ToString(
+                        "dd MMM yyyy",
+                        englishCulture)
+                    →
+                    @Model.ToDate.ToString(
+                        "dd MMM yyyy",
+                        englishCulture)
+                </strong>
+
+            </div>
+
+            <div class="dashboard-hero__period-status">
+
+                <span class="dashboard-live-dot">
+                </span>
+
+                <span>
+                    Live operational data
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- Period filter -->
+    <section class="dashboard-filter">
+
+        <div class="dashboard-filter__heading">
+
+            <div>
+
+                <span>
+                    DATE RANGE
+                </span>
+
+                <h2>
+                    Performance period
+                </h2>
+
+            </div>
+
+            <p>
+                Adjust the period used by the dashboard statistics.
+            </p>
+
+        </div>
+
+        <form asp-controller="Dashboard"
+              asp-action="Index"
+              method="get"
+              class="dashboard-filter__form">
+
+            <div class="dashboard-filter__field">
+
                 <label for="fromDate">
-                    From
+                    From date
                 </label>
 
                 <input id="fromDate"
                        name="fromDate"
                        type="date"
+                       class="form-control"
                        value="@Model.FromDate.ToString("yyyy-MM-dd")" />
+
             </div>
 
-            <div>
+            <div class="dashboard-filter__separator"
+                 aria-hidden="true">
+                →
+            </div>
+
+            <div class="dashboard-filter__field">
+
                 <label for="toDate">
-                    To
+                    To date
                 </label>
 
                 <input id="toDate"
                        name="toDate"
                        type="date"
+                       class="form-control"
                        value="@Model.ToDate.ToString("yyyy-MM-dd")" />
+
             </div>
 
-            <button type="submit">
-                Apply filter
+            <button type="submit"
+                    class="dashboard-filter__button">
+                Apply period
             </button>
 
-        </div>
+        </form>
 
-    </form>
+    </section>
 
-    <div class="dashboard-kpi-grid">
+    <!-- KPI cards -->
+    <section class="dashboard-kpis">
 
-        <article class="dashboard-kpi-card">
+        <article class="dashboard-kpi">
 
-            <span class="dashboard-kpi-label">
-                Reservations
-            </span>
+            <div class="dashboard-kpi__top">
 
-            <strong class="dashboard-kpi-value">
+                <span class="dashboard-kpi__label">
+                    RESERVATIONS
+                </span>
+
+                <span class="dashboard-kpi__icon"
+                      aria-hidden="true">
+                    R
+                </span>
+
+            </div>
+
+            <strong class="dashboard-kpi__value">
                 @Model.TotalReservations
             </strong>
 
-            <span class="dashboard-kpi-description">
-                Reservations in the selected period
-            </span>
+            <p>
+                Reservations starting within the selected period.
+            </p>
 
-        </article>
+            <div class="dashboard-kpi__footer">
 
-        <article class="dashboard-kpi-card">
+                <span class="dashboard-kpi__indicator">
+                </span>
 
-            <span class="dashboard-kpi-label">
-                Revenue
-            </span>
-
-            <strong class="dashboard-kpi-value">
-                @Model.TotalRevenue.ToString(
-                    "C2",
-                    CultureInfo.GetCultureInfo("pt-PT"))
-            </strong>
-
-            <span class="dashboard-kpi-description">
-                Non-cancelled reservation value
-            </span>
-
-        </article>
-
-        <article class="dashboard-kpi-card">
-
-            <span class="dashboard-kpi-label">
-                Fleet
-            </span>
-
-            <strong class="dashboard-kpi-value">
-                @Model.TotalVehicles
-            </strong>
-
-            <span class="dashboard-kpi-description">
-                Vehicles currently registered
-            </span>
-
-        </article>
-
-        <article class="dashboard-kpi-card">
-
-            <span class="dashboard-kpi-label">
-                Fleet occupancy
-            </span>
-
-            <strong class="dashboard-kpi-value">
-                @Model.FleetOccupancyRate.ToString("0.00")%
-            </strong>
-
-            <div class="dashboard-occupancy-track"
-                 aria-label="Fleet occupancy rate">
-
-                <div class="dashboard-occupancy-fill"
-                     style="width: @Model.FleetOccupancyRate.ToString(
-                                             "0.##",
-                                             CultureInfo.InvariantCulture)%;">
-                </div>
+                <span>
+                    Selected period
+                </span>
 
             </div>
 
-            <span class="dashboard-kpi-description">
-                Vehicle usage across the selected period
-            </span>
+        </article>
+
+        <article class="dashboard-kpi dashboard-kpi--revenue">
+
+            <div class="dashboard-kpi__top">
+
+                <span class="dashboard-kpi__label">
+                    REVENUE
+                </span>
+
+                <span class="dashboard-kpi__icon"
+                      aria-hidden="true">
+                    €
+                </span>
+
+            </div>
+
+            <strong class="dashboard-kpi__value">
+                @Model.TotalRevenue.ToString(
+                    "C2",
+                    portugueseCulture)
+            </strong>
+
+            <p>
+                Revenue from non-cancelled reservations.
+            </p>
+
+            <div class="dashboard-kpi__footer">
+
+                <span class="dashboard-kpi__indicator">
+                </span>
+
+                <span>
+                    Cancelled excluded
+                </span>
+
+            </div>
 
         </article>
 
-    </div>
+        <article class="dashboard-kpi">
 
-    <div class="dashboard-analysis-grid">
+            <div class="dashboard-kpi__top">
 
+                <span class="dashboard-kpi__label">
+                    FLEET
+                </span>
+
+                <span class="dashboard-kpi__icon"
+                      aria-hidden="true">
+                    V
+                </span>
+
+            </div>
+
+            <strong class="dashboard-kpi__value">
+                @Model.TotalVehicles
+            </strong>
+
+            <p>
+                Vehicles currently registered in DriveFleet.
+            </p>
+
+            <div class="dashboard-kpi__footer">
+
+                <span class="dashboard-kpi__indicator">
+                </span>
+
+                <span>
+                    Total fleet
+                </span>
+
+            </div>
+
+        </article>
+
+        <article class="dashboard-kpi dashboard-kpi--occupancy">
+
+            <div class="dashboard-kpi__top">
+
+                <span class="dashboard-kpi__label">
+                    FLEET OCCUPANCY
+                </span>
+
+                <span class="dashboard-kpi__icon"
+                      aria-hidden="true">
+                    %
+                </span>
+
+            </div>
+
+            <strong class="dashboard-kpi__value">
+                @Model.FleetOccupancyRate.ToString(
+                    "0.##",
+                    CultureInfo.InvariantCulture)%
+            </strong>
+
+            <p>
+                Rental time used across the available fleet capacity.
+            </p>
+
+            <div class="dashboard-occupancy">
+
+                <div class="dashboard-occupancy__track">
+
+                    <span class="dashboard-occupancy__fill"
+                          style="width: @occupancyWidth%;">
+                    </span>
+
+                </div>
+
+                <span>
+                    @Model.FleetOccupancyRate.ToString(
+                        "0.##",
+                        CultureInfo.InvariantCulture)%
+                </span>
+
+            </div>
+
+        </article>
+
+    </section>
+
+    <!-- Analytics -->
+    <section class="dashboard-analytics">
+
+        <!-- Reservations by month -->
         <article class="dashboard-panel">
 
-            <div class="dashboard-panel-heading">
+            <header class="dashboard-panel__header">
 
                 <div>
-                    <span class="dashboard-panel-eyebrow">
-                        Activity
+
+                    <span class="dashboard-panel__eyebrow">
+                        RESERVATION ACTIVITY
                     </span>
 
                     <h2>
                         Reservations by month
                     </h2>
+
+                    <p>
+                        Rental demand across the selected period.
+                    </p>
+
                 </div>
 
-                <span class="dashboard-period-badge">
-                    @Model.FromDate.ToString("dd MMM yyyy")
-                    –
-                    @Model.ToDate.ToString("dd MMM yyyy")
-                </span>
+                <div class="dashboard-panel__metric">
+                    @Model.TotalReservations total
+                </div>
 
-            </div>
+            </header>
 
             @if (Model.ReservationsByMonth.Count == 0)
             {
                 <div class="dashboard-empty">
-                    No reservation information is available
-                    for this period.
+
+                    <span>
+                        —
+                    </span>
+
+                    <strong>
+                        No reservation activity
+                    </strong>
+
+                    <p>
+                        There are no reservations for this period.
+                    </p>
+
                 </div>
             }
             else
@@ -213,35 +394,32 @@
 
                     @foreach (var item in Model.ReservationsByMonth)
                     {
-                        var width =
-                            maximumMonthlyReservations == 0
-                                ? 0
-                                : item.ReservationCount * 100.0 /
-                                  maximumMonthlyReservations;
+                        var barWidth =
+                            maximumMonthlyReservations <= 0
+                                ? 0m
+                                : (decimal)item.ReservationCount /
+                                  maximumMonthlyReservations *
+                                  100m;
 
-                        <div class="dashboard-bar-row">
+                        <div class="dashboard-chart__row">
 
-                            <div class="dashboard-bar-meta">
+                            <div class="dashboard-chart__label">
+                                @item.Month
+                            </div>
 
-                                <span>
-                                    @item.Month
+                            <div class="dashboard-chart__track">
+
+                                <span class="dashboard-chart__bar"
+                                      style="width: @(barWidth.ToString(
+                                                                              "0.##",
+                                                                              CultureInfo.InvariantCulture))%;">
                                 </span>
 
-                                <strong>
-                                    @item.ReservationCount
-                                </strong>
-
                             </div>
 
-                            <div class="dashboard-bar-track">
-
-                                <div class="dashboard-bar-fill"
-                                     style="width: @width.ToString(
-                                                                             "0.##",
-                                                                             CultureInfo.InvariantCulture)%;">
-                                </div>
-
-                            </div>
+                            <strong class="dashboard-chart__value">
+                                @item.ReservationCount
+                            </strong>
 
                         </div>
                     }
@@ -251,61 +429,107 @@
 
         </article>
 
+        <!-- Most rented -->
         <article class="dashboard-panel">
 
-            <div class="dashboard-panel-heading">
+            <header class="dashboard-panel__header">
 
                 <div>
-                    <span class="dashboard-panel-eyebrow">
-                        Fleet performance
+
+                    <span class="dashboard-panel__eyebrow">
+                        FLEET PERFORMANCE
                     </span>
 
                     <h2>
                         Most rented vehicles
                     </h2>
+
+                    <p>
+                        Top vehicles by reservation frequency.
+                    </p>
+
                 </div>
 
-                <span class="dashboard-period-badge">
+                <div class="dashboard-panel__metric">
                     Top 5
-                </span>
+                </div>
 
-            </div>
+            </header>
 
             @if (Model.MostRentedVehicles.Count == 0)
             {
                 <div class="dashboard-empty">
-                    No vehicle rentals are available
-                    for this period.
+
+                    <span>
+                        —
+                    </span>
+
+                    <strong>
+                        No rental activity
+                    </strong>
+
+                    <p>
+                        No vehicles were rented during this period.
+                    </p>
+
                 </div>
             }
             else
             {
-                <div class="dashboard-chart">
+                <div class="dashboard-ranking">
+
+                    @{
+                        var rankingPosition = 0;
+                    }
 
                     @foreach (var vehicle in Model.MostRentedVehicles)
                     {
-                        var width =
-                            maximumVehicleRentals == 0
-                                ? 0
-                                : vehicle.RentalCount * 100.0 /
-                                  maximumVehicleRentals;
+                        rankingPosition++;
 
-                        <div class="dashboard-bar-row">
+                        var barWidth =
+                            maximumVehicleRentals <= 0
+                                ? 0m
+                                : (decimal)vehicle.RentalCount /
+                                  maximumVehicleRentals *
+                                  100m;
 
-                            <div class="dashboard-vehicle-meta">
+                        <a asp-controller="Vehicles"
+                           asp-action="Details"
+                           asp-route-vehicleId="@vehicle.VehicleId"
+                           class="dashboard-ranking__item">
 
-                                <div>
-                                    <strong>
-                                        @vehicle.VehicleName
-                                    </strong>
+                            <div class="dashboard-ranking__position">
+                                @rankingPosition.ToString("00")
+                            </div>
 
-                                    <span>
-                                        @vehicle.LicensePlate
+                            <div class="dashboard-ranking__vehicle">
+
+                                <strong>
+                                    @vehicle.VehicleName
+                                </strong>
+
+                                <span>
+                                    @vehicle.LicensePlate
+                                </span>
+
+                                <div class="dashboard-ranking__bar">
+
+                                    <span style="width: @(barWidth.ToString(
+                                                                                "0.##",
+                                                                                CultureInfo.InvariantCulture))%;">
                                     </span>
+
                                 </div>
 
-                                <span class="dashboard-rental-count">
+                            </div>
+
+                            <div class="dashboard-ranking__count">
+
+                                <strong>
                                     @vehicle.RentalCount
+                                </strong>
+
+                                <span>
                                     @(vehicle.RentalCount == 1
                                         ? "rental"
                                         : "rentals")
@@ -313,17 +537,7 @@
 
                             </div>
 
-                            <div class="dashboard-bar-track">
-
-                                <div class="dashboard-bar-fill"
-                                     style="width: @width.ToString(
-                                                                             "0.##",
-                                                                             CultureInfo.InvariantCulture)%;">
-                                </div>
-
-                            </div>
-
-                        </div>
+                        </a>
                     }
 
                 </div>
@@ -331,20 +545,54 @@
 
         </article>
 
-    </div>
+    </section>
 
-    <div class="dashboard-footer-note">
+    <!-- Occupancy insight -->
+    <section class="dashboard-insight">
 
-        <span>
-            Revenue, rental frequency and occupancy exclude
-            cancelled reservations.
-        </span>
+        <div class="dashboard-insight__icon"
+             aria-hidden="true">
+            %
+        </div>
 
-        <span>
-            Updated from the current DriveFleet reservation
-            and fleet data.
-        </span>
+        <div class="dashboard-insight__content">
 
-    </div>
+            <span>
+                FLEET UTILISATION
+            </span>
+
+            <h2>
+                @Model.FleetOccupancyRate.ToString(
+                    "0.##",
+                    CultureInfo.InvariantCulture)%
+                occupancy
+            </h2>
+
+            <p>
+                Occupancy measures non-cancelled rental time
+                against the total capacity of the fleet during
+                the selected period.
+            </p>
+
+        </div>
+
+        <div class="dashboard-insight__visual">
+
+            <div class="dashboard-insight__value">
+                @Model.TotalVehicles
+            </div>
+
+            <span>
+                vehicles
+            </span>
+
+        </div>
+
+    </section>
+
+    <p class="dashboard-footnote">
+        Revenue, rental frequency and fleet occupancy exclude
+        cancelled reservations.
+    </p>
 
 </section>
