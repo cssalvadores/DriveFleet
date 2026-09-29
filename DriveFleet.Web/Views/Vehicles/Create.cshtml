@@ -4,183 +4,610 @@
     ViewData["Title"] = "Create vehicle";
 }
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body p-3">
+<link rel="stylesheet"
+      href="~/css/vehicle-management.css"
+      asp-append-version="true" />
 
-                    <h1 class="h4 mb-3">
-                        Create vehicle
-                    </h1>
+<section class="vehicle-management-page">
 
-                    <form asp-controller="Vehicles"
-                          asp-action="Create"
-                          method="post">
+    <div class="vehicle-management-back">
 
-                        <div asp-validation-summary="ModelOnly"
-                             class="text-danger mb-3">
+        <a asp-controller="Vehicles"
+           asp-action="Index"
+           class="vehicle-management-back__link">
+
+            <span aria-hidden="true">
+                ←
+            </span>
+
+            <span>
+                Back to fleet
+            </span>
+
+        </a>
+
+    </div>
+
+    <!-- Hero -->
+    <header class="vehicle-management-hero">
+
+        <div class="vehicle-management-hero__content">
+
+            <div>
+
+                <span class="vehicle-management-eyebrow">
+                    FLEET MANAGEMENT
+                </span>
+
+                <h1>
+                    Create vehicle
+                </h1>
+
+                <p>
+                    Register a new vehicle in the DriveFleet fleet
+                    and configure its commercial and operational information.
+                </p>
+
+            </div>
+
+            <div class="vehicle-management-hero__badge">
+
+                <span class="vehicle-management-hero__badge-icon"
+                      aria-hidden="true">
+                    +
+                </span>
+
+                <div>
+                    <strong>
+                        New fleet asset
+                    </strong>
+
+                    <span>
+                        Vehicle registration
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="vehicle-management-hero__steps">
+
+            <div class="vehicle-management-hero-step vehicle-management-hero-step--active">
+
+                <span>
+                    01
+                </span>
+
+                <div>
+                    <strong>
+                        Identity
+                    </strong>
+
+                    <small>
+                        Vehicle information
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="vehicle-management-hero__line">
+            </div>
+
+            <div class="vehicle-management-hero-step vehicle-management-hero-step--active">
+
+                <span>
+                    02
+                </span>
+
+                <div>
+                    <strong>
+                        Classification
+                    </strong>
+
+                    <small>
+                        Category &amp; status
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="vehicle-management-hero__line">
+            </div>
+
+            <div class="vehicle-management-hero-step">
+
+                <span>
+                    03
+                </span>
+
+                <div>
+                    <strong>
+                        Photos
+                    </strong>
+
+                    <small>
+                        Added after creation
+                    </small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <form asp-controller="Vehicles"
+          asp-action="Create"
+          method="post"
+          asp-antiforgery="true">
+
+        <div asp-validation-summary="ModelOnly"
+             class="vehicle-management-validation"
+             role="alert">
+        </div>
+
+        <div class="vehicle-management-layout">
+
+            <!-- Main form -->
+            <div class="vehicle-management-main">
+
+                <!-- Identity -->
+                <section class="vehicle-form-card">
+
+                    <header class="vehicle-form-card__header">
+
+                        <span class="vehicle-form-card__number">
+                            01
+                        </span>
+
+                        <div>
+
+                            <span class="vehicle-form-card__eyebrow">
+                                VEHICLE IDENTITY
+                            </span>
+
+                            <h2>
+                                Basic information
+                            </h2>
+
+                            <p>
+                                Enter the identifying information
+                                used throughout DriveFleet.
+                            </p>
+
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-2">
-                                <label asp-for="Brand"
-                                       class="form-label">
-                                </label>
+                    </header>
 
-                                <input asp-for="Brand"
-                                       class="form-control form-control-sm" />
+                    <div class="vehicle-form-grid">
 
-                                <span asp-validation-for="Brand"
-                                      class="text-danger">
-                                </span>
-                            </div>
+                        <div class="vehicle-form-field">
 
-                            <div class="col-md-6 mb-2">
-                                <label asp-for="Model"
-                                       class="form-label">
-                                </label>
-
-                                <input asp-for="Model"
-                                       class="form-control form-control-sm" />
-
-                                <span asp-validation-for="Model"
-                                      class="text-danger">
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-2">
-                                <label asp-for="Year"
-                                       class="form-label">
-                                </label>
-
-                                <input asp-for="Year"
-                                       class="form-control form-control-sm" />
-
-                                <span asp-validation-for="Year"
-                                      class="text-danger">
-                                </span>
-                            </div>
-
-                            <div class="col-md-6 mb-2">
-                                <label asp-for="LicensePlate"
-                                       class="form-label">
-                                </label>
-
-                                <input asp-for="LicensePlate"
-                                       class="form-control form-control-sm" />
-
-                                <span asp-validation-for="LicensePlate"
-                                      class="text-danger">
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-2">
-                                <label asp-for="Seats"
-                                       class="form-label">
-                                </label>
-
-                                <input asp-for="Seats"
-                                       class="form-control form-control-sm" />
-
-                                <span asp-validation-for="Seats"
-                                      class="text-danger">
-                                </span>
-                            </div>
-
-                            <div class="col-md-6 mb-2">
-                                <label asp-for="DailyPrice"
-                                       class="form-label">
-                                </label>
-
-                                <input asp-for="DailyPrice"
-                                       class="form-control form-control-sm" />
-
-                                <span asp-validation-for="DailyPrice"
-                                      class="text-danger">
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-2">
-                                <label asp-for="CategoryId"
-                                       class="form-label">
-                                </label>
-
-                                <select asp-for="CategoryId"
-                                        asp-items="Model.Categories"
-                                        class="form-select form-select-sm">
-                                    <option value="0">
-                                        Select a category
-                                    </option>
-                                </select>
-
-                                <span asp-validation-for="CategoryId"
-                                      class="text-danger">
-                                </span>
-                            </div>
-
-                            <div class="col-md-6 mb-2">
-                                <label asp-for="VehicleStatusId"
-                                       class="form-label">
-                                </label>
-
-                                <select asp-for="VehicleStatusId"
-                                        asp-items="Model.VehicleStatuses"
-                                        class="form-select form-select-sm">
-                                    <option value="0">
-                                        Select a status
-                                    </option>
-                                </select>
-
-                                <span asp-validation-for="VehicleStatusId"
-                                      class="text-danger">
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Description"
-                                   class="form-label">
+                            <label asp-for="Brand">
                             </label>
 
-                            <textarea asp-for="Description"
-                                      class="form-control form-control-sm"
-                                      rows="3">
-                            </textarea>
+                            <input asp-for="Brand"
+                                   class="form-control"
+                                   placeholder="e.g. BMW" />
 
-                            <span asp-validation-for="Description"
-                                  class="text-danger">
+                            <span asp-validation-for="Brand"
+                                  class="vehicle-form-error">
+                            </span>
+
+                        </div>
+
+                        <div class="vehicle-form-field">
+
+                            <label asp-for="Model">
+                            </label>
+
+                            <input asp-for="Model"
+                                   class="form-control"
+                                   placeholder="e.g. 320i" />
+
+                            <span asp-validation-for="Model"
+                                  class="vehicle-form-error">
+                            </span>
+
+                        </div>
+
+                        <div class="vehicle-form-field">
+
+                            <label asp-for="Year">
+                            </label>
+
+                            <input asp-for="Year"
+                                   class="form-control"
+                                   placeholder="2026" />
+
+                            <span asp-validation-for="Year"
+                                  class="vehicle-form-error">
+                            </span>
+
+                        </div>
+
+                        <div class="vehicle-form-field">
+
+                            <label asp-for="LicensePlate">
+                            </label>
+
+                            <input asp-for="LicensePlate"
+                                   class="form-control"
+                                   placeholder="AA-00-AA" />
+
+                            <span asp-validation-for="LicensePlate"
+                                  class="vehicle-form-error">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- Commercial -->
+                <section class="vehicle-form-card">
+
+                    <header class="vehicle-form-card__header">
+
+                        <span class="vehicle-form-card__number">
+                            02
+                        </span>
+
+                        <div>
+
+                            <span class="vehicle-form-card__eyebrow">
+                                RENTAL CONFIGURATION
+                            </span>
+
+                            <h2>
+                                Commercial details
+                            </h2>
+
+                            <p>
+                                Configure vehicle capacity and
+                                the daily rental rate.
+                            </p>
+
+                        </div>
+
+                    </header>
+
+                    <div class="vehicle-form-grid">
+
+                        <div class="vehicle-form-field">
+
+                            <label asp-for="Seats">
+                            </label>
+
+                            <div class="vehicle-form-input-unit">
+
+                                <input asp-for="Seats"
+                                       class="form-control"
+                                       placeholder="5" />
+
+                                <span>
+                                    seats
+                                </span>
+
+                            </div>
+
+                            <span asp-validation-for="Seats"
+                                  class="vehicle-form-error">
+                            </span>
+
+                        </div>
+
+                        <div class="vehicle-form-field">
+
+                            <label asp-for="DailyPrice">
+                            </label>
+
+                            <div class="vehicle-form-input-unit">
+
+                                <input asp-for="DailyPrice"
+                                       class="form-control"
+                                       placeholder="0.00" />
+
+                                <span>
+                                    € / day
+                                </span>
+
+                            </div>
+
+                            <span asp-validation-for="DailyPrice"
+                                  class="vehicle-form-error">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- Classification -->
+                <section class="vehicle-form-card">
+
+                    <header class="vehicle-form-card__header">
+
+                        <span class="vehicle-form-card__number">
+                            03
+                        </span>
+
+                        <div>
+
+                            <span class="vehicle-form-card__eyebrow">
+                                FLEET CLASSIFICATION
+                            </span>
+
+                            <h2>
+                                Category and status
+                            </h2>
+
+                            <p>
+                                Define where the vehicle appears
+                                in the fleet and its initial operational state.
+                            </p>
+
+                        </div>
+
+                    </header>
+
+                    <div class="vehicle-form-grid">
+
+                        <div class="vehicle-form-field">
+
+                            <label asp-for="CategoryId">
+                            </label>
+
+                            <select asp-for="CategoryId"
+                                    asp-items="Model.Categories"
+                                    class="form-select">
+
+                                <option value="0">
+                                    Select a category
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="CategoryId"
+                                  class="vehicle-form-error">
+                            </span>
+
+                        </div>
+
+                        <div class="vehicle-form-field">
+
+                            <label asp-for="VehicleStatusId">
+                            </label>
+
+                            <select asp-for="VehicleStatusId"
+                                    asp-items="Model.VehicleStatuses"
+                                    class="form-select">
+
+                                <option value="0">
+                                    Select a status
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="VehicleStatusId"
+                                  class="vehicle-form-error">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- Description -->
+                <section class="vehicle-form-card">
+
+                    <header class="vehicle-form-card__header">
+
+                        <span class="vehicle-form-card__number">
+                            04
+                        </span>
+
+                        <div>
+
+                            <span class="vehicle-form-card__eyebrow">
+                                CATALOG CONTENT
+                            </span>
+
+                            <h2>
+                                Description
+                            </h2>
+
+                            <p>
+                                Add useful information that helps describe
+                                the vehicle in the catalog.
+                            </p>
+
+                        </div>
+
+                    </header>
+
+                    <div class="vehicle-form-field">
+
+                        <label asp-for="Description">
+                        </label>
+
+                        <textarea asp-for="Description"
+                                  class="form-control vehicle-form-description"
+                                  rows="5"
+                                  placeholder="Describe the vehicle, equipment, comfort or other relevant information...">
+                        </textarea>
+
+                        <div class="vehicle-form-helper">
+
+                            <span>
+                                Optional
+                            </span>
+
+                            <span>
+                                Maximum 1000 characters
+                            </span>
+
+                        </div>
+
+                        <span asp-validation-for="Description"
+                              class="vehicle-form-error">
+                        </span>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <!-- Summary -->
+            <aside class="vehicle-management-sidebar">
+
+                <div class="vehicle-management-summary">
+
+                    <span class="vehicle-management-summary__eyebrow">
+                        NEW VEHICLE
+                    </span>
+
+                    <h2>
+                        Fleet registration
+                    </h2>
+
+                    <p>
+                        Review the information before adding
+                        the vehicle to DriveFleet.
+                    </p>
+
+                    <div class="vehicle-management-summary__divider">
+                    </div>
+
+                    <div class="vehicle-management-summary__item">
+
+                        <span class="vehicle-management-summary__item-icon">
+                            01
+                        </span>
+
+                        <div>
+                            <strong>
+                                Vehicle data
+                            </strong>
+
+                            <span>
+                                Brand, model, year and plate
                             </span>
                         </div>
 
-                        <div class="d-flex gap-2">
-                            <button type="submit"
-                                    class="btn btn-primary btn-sm">
-                                Create vehicle
-                            </button>
+                    </div>
 
-                            <a asp-controller="Vehicles"
-                               asp-action="Index"
-                               class="btn btn-outline-secondary btn-sm">
-                                Cancel
-                            </a>
+                    <div class="vehicle-management-summary__item">
+
+                        <span class="vehicle-management-summary__item-icon">
+                            02
+                        </span>
+
+                        <div>
+                            <strong>
+                                Rental configuration
+                            </strong>
+
+                            <span>
+                                Seats and daily price
+                            </span>
                         </div>
 
-                    </form>
+                    </div>
+
+                    <div class="vehicle-management-summary__item">
+
+                        <span class="vehicle-management-summary__item-icon">
+                            03
+                        </span>
+
+                        <div>
+                            <strong>
+                                Operational state
+                            </strong>
+
+                            <span>
+                                Category and vehicle status
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="vehicle-management-summary__notice">
+
+                        <span aria-hidden="true">
+                            i
+                        </span>
+
+                        <p>
+                            Catalog photos are added after the vehicle
+                            has been created. DriveFleet supports up to
+                            three photos per vehicle.
+                        </p>
+
+                    </div>
+
+                    <div class="vehicle-management-summary__actions">
+
+                        <button type="submit"
+                                class="vehicle-management-submit">
+
+                            <span>
+                                Create vehicle
+                            </span>
+
+                            <span aria-hidden="true">
+                                →
+                            </span>
+
+                        </button>
+
+                        <a asp-controller="Vehicles"
+                           asp-action="Index"
+                           class="vehicle-management-cancel">
+                            Cancel
+                        </a>
+
+                    </div>
 
                 </div>
-            </div>
+
+                <div class="vehicle-management-security">
+
+                    <span class="vehicle-management-security__icon"
+                          aria-hidden="true">
+                        ✓
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Staff operation
+                        </strong>
+
+                        <span>
+                            Vehicle creation is restricted to
+                            authorized DriveFleet staff.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
         </div>
-    </div>
-</div>
+
+    </form>
+
+</section>
 
 @section Scripts
 {
-    <partial name="_ValidationScriptsPartial" />    
+    <partial name="_ValidationScriptsPartial" />
 }
