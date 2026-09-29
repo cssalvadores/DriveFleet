@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Net;
 using DriveFleet.Mobile.Models.Vehicles;
@@ -16,9 +17,23 @@ public partial class VehicleDetailsPage :
     IQueryAttributable
 {
     private int _vehicleId;
+
     private bool _isLoading;
-    private VehicleModel? _currentVehicle;
+
     private bool _isUpdatingStatus;
+
+    private bool _isLoadingHistory;
+
+    private VehicleModel? _currentVehicle;
+
+    /// <summary>
+    /// Gets the reservation history displayed
+    /// for the current vehicle.
+    /// </summary>
+    public ObservableCollection<VehicleReservationHistoryItemModel>
+        ReservationHistory
+    { get; } =
+            new();
 
     /// <summary>
     /// Initializes a new instance of the
@@ -27,6 +42,9 @@ public partial class VehicleDetailsPage :
     public VehicleDetailsPage()
     {
         InitializeComponent();
+
+        BindingContext =
+            this;
     }
 
     /// <summary>
@@ -55,7 +73,7 @@ public partial class VehicleDetailsPage :
     }
 
     /// <summary>
-    /// Loads the selected vehicle whenever
+    /// Refreshes the selected vehicle whenever
     /// the page becomes visible.
     /// </summary>
     protected override async void OnAppearing()
@@ -137,6 +155,8 @@ public partial class VehicleDetailsPage :
             PopulateVehicle(
                 result.Vehicle,
                 vehicleApiService);
+
+            await LoadReservationHistoryAsync();
         }
         catch (HttpRequestException)
         {
@@ -159,14 +179,174 @@ public partial class VehicleDetailsPage :
     }
 
     /// <summary>
-    /// Populates the premium vehicle details
-    /// interface with API information.
+    /// Loads all reservations associated
+    /// with the current vehicle.
+    /// </summary>
+    private async Task LoadReservationHistoryAsync()
+    {
+        if (_isLoadingHistory ||
+            _vehicleId <= 0)
+        {
+            return;
+        }
+
+        var services =
+            IPlatformApplication
+                .Current?
+                .Services;
+
+        var sessionService =
+            services?
+                .GetService<SessionService>();
+
+        var reservationApiService =
+            services?
+                .GetService<ReservationApiService>();
+
+        if (sessionService is null ||
+            reservationApiService is null)
+        {
+            ShowHistoryError(
+                "The reservation history service is unavailable.");
+
+            return;
+        }
+
+        var session =
+            await sessionService.GetAsync();
+
+        if (session is null)
+        {
+            await Shell.Current.GoToAsync(
+                "//LoginPage");
+
+            return;
+        }
+
+        try
+        {
+            _isLoadingHistory =
+                true;
+
+            ShowHistoryLoading();
+
+            var result =
+                await reservationApiService.GetAllAsync(
+                    session.AccessToken);
+
+            if (result.StatusCode ==
+                HttpStatusCode.Unauthorized)
+            {
+                sessionService.Clear();
+
+                await Shell.Current.GoToAsync(
+                    "//LoginPage");
+
+                return;
+            }
+
+            if (result.StatusCode ==
+                HttpStatusCode.Forbidden)
+            {
+                ShowHistoryError(
+                    "You are not authorized to view reservation history.");
+
+                return;
+            }
+
+            if (result.StatusCode !=
+                HttpStatusCode.OK)
+            {
+                ShowHistoryError(
+                    string.IsNullOrWhiteSpace(
+                        result.Detail)
+                        ? "The reservation history could not be loaded."
+                        : result.Detail);
+
+                return;
+            }
+
+            var history =
+                result.Reservations
+                    .SelectMany(
+                        reservation =>
+                            reservation.Vehicles
+                                .Where(vehicle =>
+                                    vehicle.VehicleId ==
+                                    _vehicleId)
+                                .Select(vehicle =>
+                                    new VehicleReservationHistoryItemModel
+                                    {
+                                        ReservationId =
+                                            reservation.ReservationId,
+
+                                        CustomerName =
+                                            reservation.UserFullName,
+
+                                        ReservationStatusName =
+                                            reservation.ReservationStatusName,
+
+                                        StartDate =
+                                            vehicle.StartDate,
+
+                                        EndDate =
+                                            vehicle.EndDate,
+
+                                        VehicleTotalValue =
+                                            vehicle.TotalValue
+                                    }))
+                    .OrderByDescending(item =>
+                        item.StartDate)
+                    .ThenByDescending(item =>
+                        item.ReservationId)
+                    .ToList();
+
+            ReservationHistory.Clear();
+
+            foreach (var item in history)
+            {
+                ReservationHistory.Add(
+                    item);
+            }
+
+            HistoryErrorContainer.IsVisible =
+                false;
+
+            HistoryListContainer.IsVisible =
+                ReservationHistory.Count > 0;
+
+            HistoryEmptyContainer.IsVisible =
+                ReservationHistory.Count == 0;
+        }
+        catch (HttpRequestException)
+        {
+            ShowHistoryError(
+                "Unable to connect to the DriveFleet API.");
+        }
+        catch (TaskCanceledException)
+        {
+            ShowHistoryError(
+                "The reservation history request timed out.");
+        }
+        finally
+        {
+            _isLoadingHistory =
+                false;
+
+            HistoryLoadingContainer.IsVisible =
+                false;
+        }
+    }
+
+    /// <summary>
+    /// Populates the vehicle details interface.
     /// </summary>
     private void PopulateVehicle(
         VehicleModel vehicle,
         VehicleApiService vehicleApiService)
     {
-        _currentVehicle = vehicle;
+        _currentVehicle =
+            vehicle;
 
         VehicleNameLabel.Text =
             $"{vehicle.Brand} {vehicle.Model}";
@@ -199,7 +379,8 @@ public partial class VehicleDetailsPage :
                 .ToUpperInvariant();
 
         DescriptionLabel.Text =
-            vehicle.Description ?? string.Empty;
+            vehicle.Description ??
+            string.Empty;
 
         DescriptionCard.IsVisible =
             !string.IsNullOrWhiteSpace(
@@ -243,8 +424,7 @@ public partial class VehicleDetailsPage :
     }
 
     /// <summary>
-    /// Applies DriveFleet status colors
-    /// to the current vehicle status.
+    /// Applies the appropriate status colors.
     /// </summary>
     private void ApplyStatusAppearance(
         string statusName)
@@ -335,8 +515,7 @@ public partial class VehicleDetailsPage :
     }
 
     /// <summary>
-    /// Updates the current vehicle operational
-    /// status through the authenticated API.
+    /// Updates the current vehicle operational status.
     /// </summary>
     private async Task UpdateVehicleStatusAsync(
         int targetStatusId,
@@ -493,7 +672,171 @@ public partial class VehicleDetailsPage :
     }
 
     /// <summary>
-    /// Returns to the fleet list.
+    /// Updates the availability of status buttons.
+    /// </summary>
+    private void UpdateStatusButtons(
+        int vehicleStatusId)
+    {
+        MarkAvailableButton.IsEnabled =
+            vehicleStatusId !=
+            VehicleStatusIds.Available;
+
+        MarkUnavailableButton.IsEnabled =
+            vehicleStatusId !=
+            VehicleStatusIds.Unavailable;
+    }
+
+    /// <summary>
+    /// Updates the status controls while
+    /// a request is running.
+    /// </summary>
+    private void SetStatusUpdatingState(
+        bool isUpdating)
+    {
+        if (isUpdating)
+        {
+            MarkAvailableButton.IsEnabled =
+                false;
+
+            MarkUnavailableButton.IsEnabled =
+                false;
+
+            return;
+        }
+
+        if (_currentVehicle is not null)
+        {
+            UpdateStatusButtons(
+                _currentVehicle.VehicleStatusId);
+        }
+    }
+
+    /// <summary>
+    /// Displays a successful status message.
+    /// </summary>
+    private void ShowStatusSuccess(
+        string message)
+    {
+        StatusMessageBorder.BackgroundColor =
+            GetColorResource(
+                "DriveFleetSuccessSoft");
+
+        StatusMessageLabel.TextColor =
+            GetColorResource(
+                "DriveFleetSuccess");
+
+        StatusMessageLabel.Text =
+            message;
+
+        StatusMessageBorder.IsVisible =
+            true;
+    }
+
+    /// <summary>
+    /// Displays a status update error.
+    /// </summary>
+    private void ShowStatusError(
+        string message)
+    {
+        StatusMessageBorder.BackgroundColor =
+            GetColorResource(
+                "DriveFleetDangerSoft");
+
+        StatusMessageLabel.TextColor =
+            GetColorResource(
+                "DriveFleetDanger");
+
+        StatusMessageLabel.Text =
+            message;
+
+        StatusMessageBorder.IsVisible =
+            true;
+    }
+
+    /// <summary>
+    /// Clears the current status message.
+    /// </summary>
+    private void HideStatusMessage()
+    {
+        StatusMessageLabel.Text =
+            string.Empty;
+
+        StatusMessageBorder.IsVisible =
+            false;
+    }
+
+    /// <summary>
+    /// Displays the history loading state.
+    /// </summary>
+    private void ShowHistoryLoading()
+    {
+        HistoryLoadingContainer.IsVisible =
+            true;
+
+        HistoryErrorContainer.IsVisible =
+            false;
+
+        HistoryEmptyContainer.IsVisible =
+            false;
+
+        HistoryListContainer.IsVisible =
+            false;
+    }
+
+    /// <summary>
+    /// Displays a reservation history error.
+    /// </summary>
+    private void ShowHistoryError(
+        string message)
+    {
+        HistoryLoadingContainer.IsVisible =
+            false;
+
+        HistoryEmptyContainer.IsVisible =
+            false;
+
+        HistoryListContainer.IsVisible =
+            false;
+
+        HistoryErrorLabel.Text =
+            message;
+
+        HistoryErrorContainer.IsVisible =
+            true;
+    }
+
+    /// <summary>
+    /// Retries loading reservation history.
+    /// </summary>
+    private async void OnRetryHistoryClicked(
+        object sender,
+        EventArgs e)
+    {
+        await LoadReservationHistoryAsync();
+    }
+
+    /// <summary>
+    /// Opens the selected reservation.
+    /// </summary>
+    private async void OnHistoryReservationTapped(
+        object sender,
+        TappedEventArgs e)
+    {
+        if (e.Parameter is null ||
+            !int.TryParse(
+                e.Parameter.ToString(),
+                out var reservationId) ||
+            reservationId <= 0)
+        {
+            return;
+        }
+
+        await Shell.Current.GoToAsync(
+            $"//ReservationDetailsPage?reservationId={reservationId}");
+    }
+
+    /// <summary>
+    /// Returns to the vehicle inventory.
     /// </summary>
     private async void OnBackClicked(
         object sender,
@@ -504,7 +847,7 @@ public partial class VehicleDetailsPage :
     }
 
     /// <summary>
-    /// Retries loading the selected vehicle.
+    /// Retries loading the vehicle.
     /// </summary>
     private async void OnRetryClicked(
         object sender,
@@ -545,101 +888,6 @@ public partial class VehicleDetailsPage :
 
         ErrorContainer.IsVisible =
             true;
-    }
-
-    /// <summary>
-    /// Enables or disables status actions according
-    /// to the current vehicle status.
-    /// </summary>
-    private void UpdateStatusButtons(
-        int vehicleStatusId)
-    {
-        MarkAvailableButton.IsEnabled =
-            vehicleStatusId !=
-            VehicleStatusIds.Available;
-
-        MarkUnavailableButton.IsEnabled =
-            vehicleStatusId !=
-            VehicleStatusIds.Unavailable;
-    }
-
-    /// <summary>
-    /// Updates the status controls while an
-    /// API request is running.
-    /// </summary>
-    private void SetStatusUpdatingState(
-        bool isUpdating)
-    {
-        if (isUpdating)
-        {
-            MarkAvailableButton.IsEnabled =
-                false;
-
-            MarkUnavailableButton.IsEnabled =
-                false;
-
-            return;
-        }
-
-        if (_currentVehicle is not null)
-        {
-            UpdateStatusButtons(
-                _currentVehicle.VehicleStatusId);
-        }
-    }
-
-    /// <summary>
-    /// Displays a successful vehicle status message.
-    /// </summary>
-    private void ShowStatusSuccess(
-        string message)
-    {
-        StatusMessageBorder.BackgroundColor =
-            GetColorResource(
-                "DriveFleetSuccessSoft");
-
-        StatusMessageLabel.TextColor =
-            GetColorResource(
-                "DriveFleetSuccess");
-
-        StatusMessageLabel.Text =
-            message;
-
-        StatusMessageBorder.IsVisible =
-            true;
-    }
-
-    /// <summary>
-    /// Displays a vehicle status update error.
-    /// </summary>
-    private void ShowStatusError(
-        string message)
-    {
-        StatusMessageBorder.BackgroundColor =
-            GetColorResource(
-                "DriveFleetDangerSoft");
-
-        StatusMessageLabel.TextColor =
-            GetColorResource(
-                "DriveFleetDanger");
-
-        StatusMessageLabel.Text =
-            message;
-
-        StatusMessageBorder.IsVisible =
-            true;
-    }
-
-    /// <summary>
-    /// Clears the current vehicle status message.
-    /// </summary>
-    private void HideStatusMessage()
-    {
-        StatusMessageLabel.Text =
-            string.Empty;
-
-        StatusMessageBorder.IsVisible =
-            false;
     }
 
     /// <summary>

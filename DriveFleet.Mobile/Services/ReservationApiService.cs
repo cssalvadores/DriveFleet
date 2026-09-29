@@ -24,11 +24,13 @@ public class ReservationApiService
         _httpClient =
             httpClient;
     }
+
     /// <summary>
     /// Retrieves reservations associated
     /// with the supplied calendar date.
     /// </summary>
-    public async Task<ReservationListApiResult>GetByDateAsync(
+    public async Task<ReservationListApiResult>
+        GetByDateAsync(
             string accessToken,
             DateTime date,
             CancellationToken cancellationToken = default)
@@ -44,13 +46,9 @@ public class ReservationApiService
             $"&toDate={formattedDate}";
 
         using var request =
-            new HttpRequestMessage(
+            CreateAuthenticatedRequest(
                 HttpMethod.Get,
-                requestUri);
-
-        request.Headers.Authorization =
-            new AuthenticationHeaderValue(
-                "Bearer",
+                requestUri,
                 accessToken);
 
         using var response =
@@ -88,6 +86,58 @@ public class ReservationApiService
                     cancellationToken)
         };
     }
+
+    /// <summary>
+    /// Retrieves all reservations available
+    /// to the authenticated employee.
+    /// </summary>
+    public async Task<ReservationListApiResult>
+        GetAllAsync(
+            string accessToken,
+            CancellationToken cancellationToken = default)
+    {
+        using var request =
+            CreateAuthenticatedRequest(
+                HttpMethod.Get,
+                "api/reservations",
+                accessToken);
+
+        using var response =
+            await _httpClient.SendAsync(
+                request,
+                cancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var reservations =
+                await response.Content
+                    .ReadFromJsonAsync<List<ReservationModel>>(
+                        cancellationToken:
+                            cancellationToken);
+
+            return new ReservationListApiResult
+            {
+                StatusCode =
+                    response.StatusCode,
+
+                Reservations =
+                    reservations ??
+                    new List<ReservationModel>()
+            };
+        }
+
+        return new ReservationListApiResult
+        {
+            StatusCode =
+                response.StatusCode,
+
+            Detail =
+                await ReadProblemDetailAsync(
+                    response,
+                    cancellationToken)
+        };
+    }
+
     /// <summary>
     /// Retrieves a reservation by its identifier.
     /// </summary>
@@ -98,13 +148,9 @@ public class ReservationApiService
             CancellationToken cancellationToken = default)
     {
         using var request =
-            new HttpRequestMessage(
+            CreateAuthenticatedRequest(
                 HttpMethod.Get,
-                $"api/reservations/{reservationId}");
-
-        request.Headers.Authorization =
-            new AuthenticationHeaderValue(
-                "Bearer",
+                $"api/reservations/{reservationId}",
                 accessToken);
 
         using var response =
@@ -141,6 +187,7 @@ public class ReservationApiService
                     cancellationToken)
         };
     }
+
     /// <summary>
     /// Starts a pending reservation.
     /// </summary>
@@ -156,6 +203,7 @@ public class ReservationApiService
             "start",
             cancellationToken);
     }
+
     /// <summary>
     /// Completes an active reservation.
     /// </summary>
@@ -171,9 +219,10 @@ public class ReservationApiService
             "complete",
             cancellationToken);
     }
+
     /// <summary>
-    /// Sends an authenticated reservation status
-    /// action to the DriveFleet API.
+    /// Sends an authenticated reservation
+    /// workflow action to the DriveFleet API.
     /// </summary>
     private async Task<ReservationActionApiResult>
         SendReservationActionAsync(
@@ -183,13 +232,9 @@ public class ReservationApiService
             CancellationToken cancellationToken)
     {
         using var request =
-            new HttpRequestMessage(
+            CreateAuthenticatedRequest(
                 HttpMethod.Patch,
-                $"api/reservations/{reservationId}/{actionName}");
-
-        request.Headers.Authorization =
-            new AuthenticationHeaderValue(
-                "Bearer",
+                $"api/reservations/{reservationId}/{actionName}",
                 accessToken);
 
         using var response =
@@ -210,11 +255,36 @@ public class ReservationApiService
                         cancellationToken)
         };
     }
+
+    /// <summary>
+    /// Creates an authenticated HTTP request
+    /// for the DriveFleet API.
+    /// </summary>
+    private static HttpRequestMessage
+        CreateAuthenticatedRequest(
+            HttpMethod method,
+            string requestUri,
+            string accessToken)
+    {
+        var request =
+            new HttpRequestMessage(
+                method,
+                requestUri);
+
+        request.Headers.Authorization =
+            new AuthenticationHeaderValue(
+                "Bearer",
+                accessToken);
+
+        return request;
+    }
+
     /// <summary>
     /// Reads ProblemDetails information returned
     /// by the DriveFleet API.
     /// </summary>
-    private static async Task<string?>ReadProblemDetailAsync(
+    private static async Task<string?>
+        ReadProblemDetailAsync(
             HttpResponseMessage response,
             CancellationToken cancellationToken)
     {
@@ -235,9 +305,10 @@ public class ReservationApiService
             return null;
         }
     }
+
     /// <summary>
-    /// Represents relevant ProblemDetails
-    /// information returned by the API.
+    /// Represents relevant ProblemDetails information
+    /// returned by the DriveFleet API.
     /// </summary>
     private sealed class ApiProblemDetails
     {
