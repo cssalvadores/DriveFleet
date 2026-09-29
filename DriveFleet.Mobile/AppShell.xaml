@@ -28,4 +28,9 @@
     Route="VehicleDetailsPage"
     ContentTemplate="{DataTemplate pages:VehicleDetailsPage}" />
 
+    <ShellContent
+    Title="Today's Reservations"
+    Route="TodayReservationsPage"
+    ContentTemplate="{DataTemplate pages:TodayReservationsPage}" />
+
 </Shell>

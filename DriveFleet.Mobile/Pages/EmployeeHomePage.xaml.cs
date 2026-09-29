@@ -164,6 +164,18 @@ public partial class EmployeeHomePage : ContentPage
     }
 
     /// <summary>
+    /// Opens the reservations scheduled
+    /// for the current day.
+    /// </summary>
+    private async void OnTodayReservationsTapped(
+        object sender,
+        TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync(
+            "//TodayReservationsPage");
+    }
+
+    /// <summary>
     /// Revokes the current access token,
     /// clears the local employee session,
     /// and returns to the login page.

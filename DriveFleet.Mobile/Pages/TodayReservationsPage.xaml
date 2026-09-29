@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    x:Class="DriveFleet.Mobile.Pages.TodayReservationsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:DriveFleet.Mobile.Models.Reservations"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{StaticResource DriveFleetBackground}">
+
+    <ContentPage.Resources>
+
+        <Style
+            x:Key="ReservationStatusBorderStyle"
+            TargetType="Border">
+
+            <Setter
+                Property="StrokeThickness"
+                Value="0" />
+
+            <Setter
+                Property="Padding"
+                Value="10,5" />
+
+            <Setter
+                Property="BackgroundColor"
+                Value="{StaticResource DriveFleetAccentSoft}" />
+
+            <Setter Property="StrokeShape">
+                <Setter.Value>
+                    <RoundRectangle
+                        CornerRadius="16" />
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+
+                <DataTrigger
+                    TargetType="Border"
+                    Binding="{Binding ReservationStatusName}"
+                    Value="Pending">
+
+                    <Setter
+                        Property="BackgroundColor"
+                        Value="{StaticResource DriveFleetWarningSoft}" />
+
+                </DataTrigger>
+
+                <DataTrigger
+                    TargetType="Border"
+                    Binding="{Binding ReservationStatusName}"
+                    Value="Active">
+
+                    <Setter
+                        Property="BackgroundColor"
+                        Value="{StaticResource DriveFleetInfoSoft}" />
+
+                </DataTrigger>
+
+                <DataTrigger
+                    TargetType="Border"
+                    Binding="{Binding ReservationStatusName}"
+                    Value="Completed">
+
+                    <Setter
+                        Property="BackgroundColor"
+                        Value="{StaticResource DriveFleetSuccessSoft}" />
+
+                </DataTrigger>
+
+                <DataTrigger
+                    TargetType="Border"
+                    Binding="{Binding ReservationStatusName}"
+                    Value="Cancelled">
+
+                    <Setter
+                        Property="BackgroundColor"
+                        Value="{StaticResource DriveFleetDangerSoft}" />
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+        <Style
+            x:Key="ReservationStatusLabelStyle"
+            TargetType="Label">
+
+            <Setter
+                Property="TextColor"
+                Value="{StaticResource DriveFleetAccent}" />
+
+            <Setter
+                Property="FontSize"
+                Value="9" />
+
+            <Setter
+                Property="FontAttributes"
+                Value="Bold" />
+
+            <Setter
+                Property="CharacterSpacing"
+                Value="0.7" />
+
+            <Style.Triggers>
+
+                <DataTrigger
+                    TargetType="Label"
+                    Binding="{Binding ReservationStatusName}"
+                    Value="Pending">
+
+                    <Setter
+                        Property="TextColor"
+                        Value="{StaticResource DriveFleetWarning}" />
+
+                </DataTrigger>
+
+                <DataTrigger
+                    TargetType="Label"
+                    Binding="{Binding ReservationStatusName}"
+                    Value="Active">
+
+                    <Setter
+                        Property="TextColor"
+                        Value="{StaticResource DriveFleetInfo}" />
+
+                </DataTrigger>
+
+                <DataTrigger
+                    TargetType="Label"
+                    Binding="{Binding ReservationStatusName}"
+                    Value="Completed">
+
+                    <Setter
+                        Property="TextColor"
+                        Value="{StaticResource DriveFleetSuccess}" />
+
+                </DataTrigger>
+
+                <DataTrigger
+                    TargetType="Label"
+                    Binding="{Binding ReservationStatusName}"
+                    Value="Cancelled">
+
+                    <Setter
+                        Property="TextColor"
+                        Value="{StaticResource DriveFleetDanger}" />
+
+                </DataTrigger>
+
+            </Style.Triggers>
+
+        </Style>
+
+    </ContentPage.Resources>
+
+    <Grid
+        RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Border
+            Grid.Row="0"
+            StrokeThickness="0"
+            Padding="22,24,22,24">
+
+            <Border.Background>
+
+                <LinearGradientBrush
+                    StartPoint="0,0"
+                    EndPoint="1,1">
+
+                    <GradientStop
+                        Color="{StaticResource DriveFleetNavyDark}"
+                        Offset="0" />
+
+                    <GradientStop
+                        Color="{StaticResource DriveFleetNavy}"
+                        Offset="0.7" />
+
+                    <GradientStop
+                        Color="#244867"
+                        Offset="1" />
+
+                </LinearGradientBrush>
+
+            </Border.Background>
+
+            <Border.StrokeShape>
+                <RoundRectangle
+                    CornerRadius="0,0,28,28" />
+            </Border.StrokeShape>
+
+            <Grid
+                ColumnDefinitions="Auto,*,Auto"
+                ColumnSpacing="14">
+
+                <Button
+                    Grid.Column="0"
+                    Text="←"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    Padding="0"
+                    CornerRadius="22"
+                    BackgroundColor="#1D3852"
+                    TextColor="White"
+                    FontSize="19"
+                    Clicked="OnBackClicked" />
+
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    VerticalOptions="Center"
+                    Spacing="2">
+
+                    <Label
+                        Text="Today's reservations"
+                        TextColor="White"
+                        FontSize="23"
+                        FontAttributes="Bold" />
+
+                    <Label
+                        x:Name="CurrentDateLabel"
+                        TextColor="#A9BAC9"
+                        FontSize="11" />
+
+                </VerticalStackLayout>
+
+                <Border
+                    Grid.Column="2"
+                    VerticalOptions="Center"
+                    BackgroundColor="#1D3852"
+                    StrokeThickness="0"
+                    Padding="10,5">
+
+                    <Border.StrokeShape>
+                        <RoundRectangle
+                            CornerRadius="16" />
+                    </Border.StrokeShape>
+
+                    <Label
+                        x:Name="ReservationCountLabel"
+                        Text="0"
+                        TextColor="#D8E4EC"
+                        FontSize="10"
+                        FontAttributes="Bold" />
+
+                </Border>
+
+            </Grid>
+
+        </Border>
+
+        <!-- Content -->
+        <Grid
+            Grid.Row="1"
+            Padding="20,22,20,30">
+
+            <!-- Loading -->
+            <VerticalStackLayout
+                x:Name="LoadingContainer"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Spacing="12">
+
+                <ActivityIndicator
+                    IsRunning="True"
+                    WidthRequest="34"
+                    HeightRequest="34"
+                    Color="{StaticResource DriveFleetNavy}" />
+
+                <Label
+                    Text="Loading today's reservations..."
+                    Style="{StaticResource BodyTextStyle}" />
+
+            </VerticalStackLayout>
+
+            <!-- Error -->
+            <Border
+                x:Name="ErrorContainer"
+                IsVisible="False"
+                MaximumWidthRequest="500"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Style="{StaticResource CardStyle}">
+
+                <VerticalStackLayout
+                    Spacing="14">
+
+                    <Label
+                        Text="Unable to load reservations"
+                        HorizontalTextAlignment="Center"
+                        TextColor="{StaticResource DriveFleetTextPrimary}"
+                        FontSize="18"
+                        FontAttributes="Bold" />
+
+                    <Label
+                        x:Name="ErrorMessageLabel"
+                        HorizontalTextAlignment="Center"
+                        Style="{StaticResource BodyTextStyle}" />
+
+                    <Button
+                        Text="Try again"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Clicked="OnRetryClicked" />
+
+                </VerticalStackLayout>
+
+            </Border>
+
+            <!-- Empty -->
+            <VerticalStackLayout
+                x:Name="EmptyContainer"
+                IsVisible="False"
+                MaximumWidthRequest="420"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Spacing="10">
+
+                <Border
+                    WidthRequest="56"
+                    HeightRequest="56"
+                    HorizontalOptions="Center"
+                    StrokeThickness="0"
+                    BackgroundColor="{StaticResource DriveFleetAccentSoft}">
+
+                    <Border.StrokeShape>
+                        <RoundRectangle
+                            CornerRadius="28" />
+                    </Border.StrokeShape>
+
+                    <Label
+                        Text="✓"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        TextColor="{StaticResource DriveFleetAccent}"
+                        FontSize="22" />
+
+                </Border>
+
+                <Label
+                    Text="No reservations today"
+                    HorizontalTextAlignment="Center"
+                    TextColor="{StaticResource DriveFleetTextPrimary}"
+                    FontSize="19"
+                    FontAttributes="Bold" />
+
+                <Label
+                    Text="There are no scheduled rentals for this date."
+                    HorizontalTextAlignment="Center"
+                    Style="{StaticResource BodyTextStyle}" />
+
+            </VerticalStackLayout>
+
+            <!-- Reservations -->
+            <CollectionView
+                x:Name="ReservationsCollectionView"
+                IsVisible="False"
+                SelectionMode="None">
+
+                <CollectionView.ItemsLayout>
+
+                    <LinearItemsLayout
+                        Orientation="Vertical"
+                        ItemSpacing="15" />
+
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+
+                    <DataTemplate
+                        x:DataType="models:TodayReservationItemModel">
+
+                        <Border
+                            Style="{StaticResource CardStyle}"
+                            Padding="18">
+
+                            <VerticalStackLayout
+                                Spacing="15">
+
+                                <Grid
+                                    ColumnDefinitions="*,Auto"
+                                    ColumnSpacing="12">
+
+                                    <VerticalStackLayout
+                                        Grid.Column="0"
+                                        Spacing="3">
+
+                                        <Label
+                                            Text="{Binding ReservationNumber}"
+                                            TextColor="{StaticResource DriveFleetTextPrimary}"
+                                            FontSize="17"
+                                            FontAttributes="Bold" />
+
+                                        <Label
+                                            Text="{Binding VehicleCountText}"
+                                            Style="{StaticResource CaptionStyle}" />
+
+                                    </VerticalStackLayout>
+
+                                    <Border
+                                        Grid.Column="1"
+                                        VerticalOptions="Start"
+                                        Style="{StaticResource ReservationStatusBorderStyle}">
+
+                                        <Label
+                                            Text="{Binding ReservationStatusName}"
+                                            TextTransform="Uppercase"
+                                            Style="{StaticResource ReservationStatusLabelStyle}" />
+
+                                    </Border>
+
+                                </Grid>
+
+                                <BoxView
+                                    HeightRequest="1"
+                                    BackgroundColor="{StaticResource DriveFleetBorder}" />
+
+                                <VerticalStackLayout
+                                    Spacing="4">
+
+                                    <Label
+                                        Text="CUSTOMER"
+                                        Style="{StaticResource CaptionStyle}" />
+
+                                    <Label
+                                        Text="{Binding CustomerName}"
+                                        TextColor="{StaticResource DriveFleetTextPrimary}"
+                                        FontSize="14"
+                                        FontAttributes="Bold" />
+
+                                    <Label
+                                        Text="{Binding CustomerEmail}"
+                                        Style="{StaticResource CaptionStyle}"
+                                        LineBreakMode="TailTruncation" />
+
+                                </VerticalStackLayout>
+
+                                <Grid
+                                    ColumnDefinitions="*,*"
+                                    ColumnSpacing="16">
+
+                                    <VerticalStackLayout
+                                        Grid.Column="0"
+                                        Spacing="4">
+
+                                        <Label
+                                            Text="VEHICLES"
+                                            Style="{StaticResource CaptionStyle}" />
+
+                                        <Label
+                                            Text="{Binding VehicleSummary}"
+                                            TextColor="{StaticResource DriveFleetTextPrimary}"
+                                            FontSize="13"
+                                            FontAttributes="Bold"
+                                            LineBreakMode="WordWrap" />
+
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout
+                                        Grid.Column="1"
+                                        Spacing="4">
+
+                                        <Label
+                                            Text="PERIOD"
+                                            Style="{StaticResource CaptionStyle}" />
+
+                                        <Label
+                                            Text="{Binding PeriodSummary}"
+                                            TextColor="{StaticResource DriveFleetTextPrimary}"
+                                            FontSize="13"
+                                            FontAttributes="Bold"
+                                            LineBreakMode="WordWrap" />
+
+                                    </VerticalStackLayout>
+
+                                </Grid>
+
+                                <BoxView
+                                    HeightRequest="1"
+                                    BackgroundColor="{StaticResource DriveFleetBorder}" />
+
+                                <Grid
+                                    ColumnDefinitions="*,Auto">
+
+                                    <Label
+                                        Grid.Column="0"
+                                        Text="Reservation total"
+                                        VerticalOptions="Center"
+                                        Style="{StaticResource CaptionStyle}" />
+
+                                    <Label
+                                        Grid.Column="1"
+                                        Text="{Binding TotalValue, StringFormat='€{0:F2}'}"
+                                        TextColor="{StaticResource DriveFleetNavy}"
+                                        FontSize="17"
+                                        FontAttributes="Bold" />
+
+                                </Grid>
+
+                            </VerticalStackLayout>
+
+                        </Border>
+
+                    </DataTemplate>
+
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

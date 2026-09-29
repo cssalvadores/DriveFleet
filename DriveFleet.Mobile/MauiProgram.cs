@@ -34,6 +34,8 @@ namespace DriveFleet.Mobile
 
             builder.Services.AddSingleton<VehicleApiService>();
 
+            builder.Services.AddSingleton<ReservationApiService>();
+
 #if DEBUG
             builder.Logging.AddDebug();
             #endif
