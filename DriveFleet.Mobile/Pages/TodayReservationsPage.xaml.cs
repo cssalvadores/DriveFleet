@@ -263,7 +263,25 @@ public partial class TodayReservationsPage : ContentPage
             $"{start:dd MMM HH:mm} → " +
             $"{end:dd MMM HH:mm}";
     }
+    /// <summary>
+    /// Opens the selected reservation details.
+    /// </summary>
+    private async void OnReservationTapped(
+        object sender,
+        TappedEventArgs e)
+    {
+        if (e.Parameter is null ||
+            !int.TryParse(
+                e.Parameter.ToString(),
+                out var reservationId) ||
+            reservationId <= 0)
+        {
+            return;
+        }
 
+        await Shell.Current.GoToAsync(
+            $"//ReservationDetailsPage?reservationId={reservationId}");
+    }
     /// <summary>
     /// Returns to the employee home page.
     /// </summary>
@@ -274,7 +292,6 @@ public partial class TodayReservationsPage : ContentPage
         await Shell.Current.GoToAsync(
             "//EmployeeHomePage");
     }
-
     /// <summary>
     /// Retries loading today's reservations.
     /// </summary>
@@ -284,7 +301,6 @@ public partial class TodayReservationsPage : ContentPage
     {
         await LoadReservationsAsync();
     }
-
     /// <summary>
     /// Displays the reservation loading state.
     /// </summary>
@@ -305,7 +321,6 @@ public partial class TodayReservationsPage : ContentPage
         ReservationCountLabel.Text =
             "...";
     }
-
     /// <summary>
     /// Displays a reservation loading error.
     /// </summary>

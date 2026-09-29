@@ -374,6 +374,14 @@
                             Style="{StaticResource CardStyle}"
                             Padding="18">
 
+                            <Border.GestureRecognizers>
+
+                                <TapGestureRecognizer
+                                    Tapped="OnReservationTapped"
+                                    CommandParameter="{Binding ReservationId}" />
+
+                            </Border.GestureRecognizers>
+
                             <VerticalStackLayout
                                 Spacing="15">
 

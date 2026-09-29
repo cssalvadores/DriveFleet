@@ -24,13 +24,18 @@
         ContentTemplate="{DataTemplate pages:VehiclesPage}" />
 
     <ShellContent
-    Title="Vehicle Details"
-    Route="VehicleDetailsPage"
-    ContentTemplate="{DataTemplate pages:VehicleDetailsPage}" />
+        Title="Vehicle Details"
+        Route="VehicleDetailsPage"
+        ContentTemplate="{DataTemplate pages:VehicleDetailsPage}" />
 
     <ShellContent
-    Title="Today's Reservations"
-    Route="TodayReservationsPage"
-    ContentTemplate="{DataTemplate pages:TodayReservationsPage}" />
+        Title="Today's Reservations"
+        Route="TodayReservationsPage"
+        ContentTemplate="{DataTemplate pages:TodayReservationsPage}" />
+
+    <ShellContent
+        Title="Reservation Details"
+        Route="ReservationDetailsPage"
+        ContentTemplate="{DataTemplate pages:ReservationDetailsPage}" />
 
 </Shell>

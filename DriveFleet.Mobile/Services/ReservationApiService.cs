@@ -24,13 +24,11 @@ public class ReservationApiService
         _httpClient =
             httpClient;
     }
-
     /// <summary>
     /// Retrieves reservations associated
     /// with the supplied calendar date.
     /// </summary>
-    public async Task<ReservationListApiResult>
-        GetByDateAsync(
+    public async Task<ReservationListApiResult>GetByDateAsync(
             string accessToken,
             DateTime date,
             CancellationToken cancellationToken = default)
@@ -90,13 +88,133 @@ public class ReservationApiService
                     cancellationToken)
         };
     }
+    /// <summary>
+    /// Retrieves a reservation by its identifier.
+    /// </summary>
+    public async Task<ReservationDetailsApiResult>
+        GetByIdAsync(
+            string accessToken,
+            int reservationId,
+            CancellationToken cancellationToken = default)
+    {
+        using var request =
+            new HttpRequestMessage(
+                HttpMethod.Get,
+                $"api/reservations/{reservationId}");
 
+        request.Headers.Authorization =
+            new AuthenticationHeaderValue(
+                "Bearer",
+                accessToken);
+
+        using var response =
+            await _httpClient.SendAsync(
+                request,
+                cancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var reservation =
+                await response.Content
+                    .ReadFromJsonAsync<ReservationModel>(
+                        cancellationToken:
+                            cancellationToken);
+
+            return new ReservationDetailsApiResult
+            {
+                StatusCode =
+                    response.StatusCode,
+
+                Reservation =
+                    reservation
+            };
+        }
+
+        return new ReservationDetailsApiResult
+        {
+            StatusCode =
+                response.StatusCode,
+
+            Detail =
+                await ReadProblemDetailAsync(
+                    response,
+                    cancellationToken)
+        };
+    }
+    /// <summary>
+    /// Starts a pending reservation.
+    /// </summary>
+    public Task<ReservationActionApiResult>
+        StartAsync(
+            string accessToken,
+            int reservationId,
+            CancellationToken cancellationToken = default)
+    {
+        return SendReservationActionAsync(
+            accessToken,
+            reservationId,
+            "start",
+            cancellationToken);
+    }
+    /// <summary>
+    /// Completes an active reservation.
+    /// </summary>
+    public Task<ReservationActionApiResult>
+        CompleteAsync(
+            string accessToken,
+            int reservationId,
+            CancellationToken cancellationToken = default)
+    {
+        return SendReservationActionAsync(
+            accessToken,
+            reservationId,
+            "complete",
+            cancellationToken);
+    }
+    /// <summary>
+    /// Sends an authenticated reservation status
+    /// action to the DriveFleet API.
+    /// </summary>
+    private async Task<ReservationActionApiResult>
+        SendReservationActionAsync(
+            string accessToken,
+            int reservationId,
+            string actionName,
+            CancellationToken cancellationToken)
+    {
+        using var request =
+            new HttpRequestMessage(
+                HttpMethod.Patch,
+                $"api/reservations/{reservationId}/{actionName}");
+
+        request.Headers.Authorization =
+            new AuthenticationHeaderValue(
+                "Bearer",
+                accessToken);
+
+        using var response =
+            await _httpClient.SendAsync(
+                request,
+                cancellationToken);
+
+        return new ReservationActionApiResult
+        {
+            StatusCode =
+                response.StatusCode,
+
+            Detail =
+                response.IsSuccessStatusCode
+                    ? null
+                    : await ReadProblemDetailAsync(
+                        response,
+                        cancellationToken)
+        };
+    }
     /// <summary>
     /// Reads ProblemDetails information returned
     /// by the DriveFleet API.
     /// </summary>
-    private static async Task<string?>
-        ReadProblemDetailAsync(
+    private static async Task<string?>ReadProblemDetailAsync(
             HttpResponseMessage response,
             CancellationToken cancellationToken)
     {
@@ -117,7 +235,6 @@ public class ReservationApiService
             return null;
         }
     }
-
     /// <summary>
     /// Represents relevant ProblemDetails
     /// information returned by the API.

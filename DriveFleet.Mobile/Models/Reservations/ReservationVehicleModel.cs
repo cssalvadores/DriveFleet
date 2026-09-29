@@ -35,4 +35,28 @@ public class ReservationVehicleModel
 
     public List<ReservationExtraModel> Extras { get; set; } =
         new();
+
+    /// <summary>
+    /// Gets the vehicle display name.
+    /// </summary>
+    public string DisplayName =>
+        $"{VehicleBrand} {VehicleModel}";
+
+    /// <summary>
+    /// Gets the formatted rental period.
+    /// </summary>
+    public string PeriodText =>
+        $"{StartDate:dd MMM yyyy HH:mm} → " +
+        $"{EndDate:dd MMM yyyy HH:mm}";
+
+    /// <summary>
+    /// Gets a readable extras summary.
+    /// </summary>
+    public string ExtrasSummary =>
+        Extras.Count == 0
+            ? "No extras"
+            : string.Join(
+                ", ",
+                Extras.Select(extra =>
+                    $"{extra.Name} x{extra.Quantity}"));
 }
