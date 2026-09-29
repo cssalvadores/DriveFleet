@@ -1,243 +1,736 @@
 ﻿@model DriveFleet.Web.Models.Reservations.CreateReservationViewModel
 
+@using System.Globalization
+
 @{
     ViewData["Title"] = "Create reservation";
+
+    var portugueseCulture =
+        CultureInfo.GetCultureInfo("pt-PT");
 }
 
-<div class="container mt-4 mb-4"
-     style="max-width: 1050px;">
+<link rel="stylesheet"
+      href="~/css/reservations.css"
+      asp-append-version="true" />
 
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
-        <div>
-            <h1 class="h3 mb-1">
-                Create reservation
-            </h1>
+<section class="reservation-create-page">
 
-            <p class="text-muted mb-0">
-                Choose the rental period and extras for each vehicle.
-            </p>
+    <!-- Back navigation -->
+    <div class="reservation-create-back">
+
+        <a asp-controller="Vehicles"
+           asp-action="Index"
+           class="reservation-create-back__link">
+
+            <span aria-hidden="true">
+                ←
+            </span>
+
+            <span>
+                Back to fleet
+            </span>
+
+        </a>
+
+    </div>
+
+    <!-- Hero -->
+    <header class="reservation-create-hero">
+
+        <div class="reservation-create-hero__content">
+
+            <span class="reservation-create-eyebrow">
+                NEW RENTAL
+            </span>
+
+            <div class="reservation-create-hero__main">
+
+                <div>
+
+                    <h1>
+                        Create reservation
+                    </h1>
+
+                    <p>
+                        Configure the rental period, optional extras
+                        and vehicles included in your booking.
+                    </p>
+
+                </div>
+
+                <div class="reservation-create-hero__counter">
+
+                    <strong>
+                        @Model.Vehicles.Count
+                    </strong>
+
+                    <span>
+                        @(Model.Vehicles.Count == 1
+                            ? "vehicle selected"
+                            : "vehicles selected")
+                    </span>
+
+                </div>
+
+            </div>
+
         </div>
 
-        <a asp-controller="Reservations"
-           asp-action="Index"
-           class="btn btn-outline-secondary btn-sm">
-            Back to reservations
-        </a>
-    </div>
+        <!-- Progress -->
+        <div class="reservation-create-progress">
+
+            <div class="reservation-create-step reservation-create-step--active">
+
+                <span>
+                    01
+                </span>
+
+                <div>
+                    <strong>
+                        Vehicles
+                    </strong>
+
+                    <small>
+                        Selected fleet
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="reservation-create-progress__line">
+            </div>
+
+            <div class="reservation-create-step reservation-create-step--active">
+
+                <span>
+                    02
+                </span>
+
+                <div>
+                    <strong>
+                        Rental period
+                    </strong>
+
+                    <small>
+                        Pick-up & return
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="reservation-create-progress__line">
+            </div>
+
+            <div class="reservation-create-step reservation-create-step--active">
+
+                <span>
+                    03
+                </span>
+
+                <div>
+                    <strong>
+                        Extras
+                    </strong>
+
+                    <small>
+                        Optional services
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="reservation-create-progress__line">
+            </div>
+
+            <div class="reservation-create-step">
+
+                <span>
+                    04
+                </span>
+
+                <div>
+                    <strong>
+                        Confirm
+                    </strong>
+
+                    <small>
+                        Create booking
+                    </small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
 
     <form asp-controller="Reservations"
           asp-action="Create"
           method="post"
           asp-antiforgery="true">
 
+        <!-- Validation summary -->
         <div asp-validation-summary="ModelOnly"
-             class="text-danger small mb-3">
+             class="reservation-create-validation"
+             role="alert">
         </div>
 
         @if (Model.Vehicles.Count == 0)
         {
-            <div class="alert alert-info"
-                 role="alert">
-                There are currently no vehicles selected
-                for this reservation.
-            </div>
+            <section class="reservation-create-empty">
+
+                <div class="reservation-create-empty__icon">
+                    +
+                </div>
+
+                <h2>
+                    No vehicles selected
+                </h2>
+
+                <p>
+                    Select a vehicle from the fleet before creating
+                    a reservation.
+                </p>
+
+                <a asp-controller="Vehicles"
+                   asp-action="Index"
+                   class="reservation-create-primary-link">
+
+                    Browse vehicles
+
+                    <span aria-hidden="true">
+                        →
+                    </span>
+
+                </a>
+
+            </section>
         }
         else
         {
-            @for (var vehicleIndex = 0;
-                  vehicleIndex < Model.Vehicles.Count;
-                  vehicleIndex++)
-            {
-                var vehicle =
-                    Model.Vehicles[vehicleIndex];
+            <div class="reservation-create-layout">
 
-                <div class="card shadow-sm mb-3">
-                    <div class="card-header bg-light py-2">
-                        <div class="d-flex justify-content-between align-items-center gap-3">
-                            <div>
-                                <div class="fw-bold">
-                                    @vehicle.Brand @vehicle.Model
-                                </div>
+                <!-- Main reservation configuration -->
+                <div class="reservation-create-main">
 
-                                <div class="small text-muted">
-                                    @vehicle.LicensePlate
-                                    ·
-                                    @vehicle.DailyPrice.ToString("C") / day
-                                </div>
-                            </div>
+                    <div class="reservation-create-section-heading">
 
-                            <div class="d-flex align-items-center gap-2">
-                                <a asp-controller="Vehicles"
-                                   asp-action="Details"
-                                   asp-route-vehicleId="@vehicle.VehicleId"
-                                   class="btn btn-sm btn-outline-secondary">
-                                    Details
-                                </a>
+                        <div>
 
-                                @if (Model.Vehicles.Count > 1)
-                                {
-                                    <button type="submit"
-                                            name="VehicleToRemoveId"
-                                            value="@vehicle.VehicleId"
-                                            class="btn btn-sm btn-outline-danger"
-                                            formnovalidate>
-                                        Remove
-                                    </button>
-                                }
-                            </div>
+                            <span>
+                                RESERVATION CONFIGURATION
+                            </span>
+
+                            <h2>
+                                Selected vehicles
+                            </h2>
+
+                            <p>
+                                Each vehicle can have its own rental period
+                                and optional extras.
+                            </p>
+
                         </div>
+
+                        <div class="reservation-create-section-count">
+                            @Model.Vehicles.Count
+                            @(Model.Vehicles.Count == 1
+                                ? "vehicle"
+                                : "vehicles")
+                        </div>
+
                     </div>
 
-                    <div class="card-body p-3">
-                        <input asp-for="Vehicles[vehicleIndex].VehicleId"
-                               type="hidden" />
+                    <div class="reservation-create-vehicle-list">
 
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label asp-for="Vehicles[vehicleIndex].StartDate"
-                                       class="form-label small fw-semibold mb-1">
-                                    Start date and time
-                                </label>
+                        @for (var vehicleIndex = 0;
+                              vehicleIndex < Model.Vehicles.Count;
+                              vehicleIndex++)
+                        {
+                            var vehicle =
+                                Model.Vehicles[vehicleIndex];
 
-                                <input asp-for="Vehicles[vehicleIndex].StartDate"
-                                       type="datetime-local"
-                                       class="form-control form-control-sm"
-                                       asp-format="{0:yyyy-MM-ddTHH:mm}" />
+                            <article class="reservation-create-vehicle">
 
-                                <span asp-validation-for="Vehicles[vehicleIndex].StartDate"
-                                      class="text-danger small">
-                                </span>
-                            </div>
+                                <input asp-for="Vehicles[vehicleIndex].VehicleId"
+                                       type="hidden" />
 
-                            <div class="col-md-6">
-                                <label asp-for="Vehicles[vehicleIndex].EndDate"
-                                       class="form-label small fw-semibold mb-1">
-                                    End date and time
-                                </label>
+                                <!-- Vehicle header -->
+                                <div class="reservation-create-vehicle__header">
 
-                                <input asp-for="Vehicles[vehicleIndex].EndDate"
-                                       type="datetime-local"
-                                       class="form-control form-control-sm"
-                                       asp-format="{0:yyyy-MM-ddTHH:mm}" />
+                                    <div class="reservation-create-vehicle__index">
+                                        @(vehicleIndex + 1)
+                                    </div>
 
-                                <span asp-validation-for="Vehicles[vehicleIndex].EndDate"
-                                      class="text-danger small">
-                                </span>
-                            </div>
+                                    <div class="reservation-create-vehicle__identity">
+
+                                        <span>
+                                            VEHICLE @(vehicleIndex + 1)
+                                        </span>
+
+                                        <h3>
+                                            @vehicle.Brand @vehicle.Model
+                                        </h3>
+
+                                        <div>
+                                            <span>
+                                                @vehicle.LicensePlate
+                                            </span>
+
+                                            <span aria-hidden="true">
+                                                ·
+                                            </span>
+
+                                            <strong>
+                                                @vehicle.DailyPrice.ToString(
+                                                    "C2",
+                                                    portugueseCulture)
+                                                / day
+                                            </strong>
+                                        </div>
+
+                                    </div>
+
+                                    <a asp-controller="Vehicles"
+                                       asp-action="Details"
+                                       asp-route-vehicleId="@vehicle.VehicleId"
+                                       class="reservation-create-vehicle__details">
+
+                                        Vehicle details
+
+                                        <span aria-hidden="true">
+                                            →
+                                        </span>
+
+                                    </a>
+
+                                </div>
+
+                                <div class="reservation-create-vehicle__body">
+
+                                    <!-- Rental period -->
+                                    <section class="reservation-create-block">
+
+                                        <div class="reservation-create-block__heading">
+
+                                            <div class="reservation-create-block__number">
+                                                01
+                                            </div>
+
+                                            <div>
+
+                                                <h4>
+                                                    Rental period
+                                                </h4>
+
+                                                <p>
+                                                    Choose the pick-up and return
+                                                    date and time for this vehicle.
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="reservation-create-date-grid">
+
+                                            <div class="reservation-create-field">
+
+                                                <label asp-for="Vehicles[vehicleIndex].StartDate">
+                                                    Pick-up date and time
+                                                </label>
+
+                                                <div class="reservation-create-input-wrap">
+
+                                                    <span class="reservation-create-input-icon"
+                                                          aria-hidden="true">
+                                                        ↑
+                                                    </span>
+
+                                                    <input asp-for="Vehicles[vehicleIndex].StartDate"
+                                                           type="datetime-local"
+                                                           class="form-control"
+                                                           asp-format="{0:yyyy-MM-ddTHH:mm}" />
+
+                                                </div>
+
+                                                <span asp-validation-for="Vehicles[vehicleIndex].StartDate"
+                                                      class="reservation-create-field-error">
+                                                </span>
+
+                                            </div>
+
+                                            <div class="reservation-create-period-arrow"
+                                                 aria-hidden="true">
+                                                →
+                                            </div>
+
+                                            <div class="reservation-create-field">
+
+                                                <label asp-for="Vehicles[vehicleIndex].EndDate">
+                                                    Return date and time
+                                                </label>
+
+                                                <div class="reservation-create-input-wrap">
+
+                                                    <span class="reservation-create-input-icon"
+                                                          aria-hidden="true">
+                                                        ↓
+                                                    </span>
+
+                                                    <input asp-for="Vehicles[vehicleIndex].EndDate"
+                                                           type="datetime-local"
+                                                           class="form-control"
+                                                           asp-format="{0:yyyy-MM-ddTHH:mm}" />
+
+                                                </div>
+
+                                                <span asp-validation-for="Vehicles[vehicleIndex].EndDate"
+                                                      class="reservation-create-field-error">
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    </section>
+
+                                    <!-- Extras -->
+                                    <section class="reservation-create-block reservation-create-block--extras">
+
+                                        <div class="reservation-create-block__heading">
+
+                                            <div class="reservation-create-block__number">
+                                                02
+                                            </div>
+
+                                            <div>
+
+                                                <h4>
+                                                    Optional extras
+                                                </h4>
+
+                                                <p>
+                                                    Add services to this vehicle.
+                                                    Leave quantity at 0 when not required.
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                        @if (vehicle.Extras.Count > 0)
+                                        {
+                                            <div class="reservation-create-extras-grid">
+
+                                                @for (var extraIndex = 0;
+                                                      extraIndex < vehicle.Extras.Count;
+                                                      extraIndex++)
+                                                {
+                                                    var extra =
+                                                        vehicle.Extras[extraIndex];
+
+                                                    <div class="reservation-create-extra">
+
+                                                        <input asp-for="Vehicles[vehicleIndex].Extras[extraIndex].ExtraId"
+                                                               type="hidden" />
+
+                                                        <div class="reservation-create-extra__top">
+
+                                                            <div class="reservation-create-extra__icon"
+                                                                 aria-hidden="true">
+                                                                +
+                                                            </div>
+
+                                                            <div class="reservation-create-extra__price">
+
+                                                                <strong>
+                                                                    @extra.Price.ToString(
+                                                                        "C2",
+                                                                        portugueseCulture)
+                                                                </strong>
+
+                                                                <span>
+                                                                    each
+                                                                </span>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                        <div class="reservation-create-extra__content">
+
+                                                            <strong>
+                                                                @extra.Name
+                                                            </strong>
+
+                                                            <span>
+                                                                Optional rental service
+                                                            </span>
+
+                                                        </div>
+
+                                                        <div class="reservation-create-extra__quantity">
+
+                                                            <label asp-for="Vehicles[vehicleIndex].Extras[extraIndex].Quantity">
+                                                                Quantity
+                                                            </label>
+
+                                                            <div class="reservation-create-quantity">
+
+                                                                <input asp-for="Vehicles[vehicleIndex].Extras[extraIndex].Quantity"
+                                                                       type="number"
+                                                                       min="0"
+                                                                       step="1"
+                                                                       class="form-control" />
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+                                                }
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="reservation-create-no-extras">
+
+                                                <span aria-hidden="true">
+                                                    —
+                                                </span>
+
+                                                <div>
+
+                                                    <strong>
+                                                        No extras available
+                                                    </strong>
+
+                                                    <p>
+                                                        There are currently no optional
+                                                        services available for this vehicle.
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+                                        }
+
+                                    </section>
+
+                                </div>
+
+                            </article>
+                        }
+
+                    </div>
+
+                    <!-- Add vehicle -->
+                    <section class="reservation-create-add">
+
+                        <div>
+
+                            <span class="reservation-create-add__eyebrow">
+                                MULTI-VEHICLE BOOKING
+                            </span>
+
+                            <h3>
+                                Need another vehicle?
+                            </h3>
+
+                            <p>
+                                Add another available vehicle to the same reservation.
+                            </p>
+
                         </div>
 
-                        @if (vehicle.Extras.Count > 0)
+                        @if (Model.AvailableVehicles.Count > 0)
                         {
-                            <div class="border-top pt-3">
-                                <div class="small fw-semibold mb-2">
-                                    Optional extras
-                                </div>
+                            <button type="button"
+                                    class="reservation-create-add__button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#addVehicleModal">
 
-                                <div class="row g-2">
-                                    @for (var extraIndex = 0;
-                                          extraIndex < vehicle.Extras.Count;
-                                          extraIndex++)
-                                    {
-                                        var extra =
-                                            vehicle.Extras[extraIndex];
+                                <span aria-hidden="true">
+                                    +
+                                </span>
 
-                                        <div class="col-md-4">
-                                            <div class="border rounded p-2 h-100">
-                                                <input asp-for="Vehicles[vehicleIndex].Extras[extraIndex].ExtraId"
-                                                       type="hidden" />
+                                Add another vehicle
 
-                                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                                                    <span class="small fw-semibold">
-                                                        @extra.Name
-                                                    </span>
-
-                                                    <span class="small text-muted text-nowrap">
-                                                        @extra.Price.ToString("C")
-                                                    </span>
-                                                </div>
-
-                                                <div class="input-group input-group-sm">
-                                                    <span class="input-group-text">
-                                                        Qty
-                                                    </span>
-
-                                                    <input asp-for="Vehicles[vehicleIndex].Extras[extraIndex].Quantity"
-                                                           type="number"
-                                                           min="0"
-                                                           step="1"
-                                                           class="form-control" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
+                            </button>
                         }
                         else
                         {
-                            <div class="small text-muted border-top pt-3">
-                                No extras are currently available.
-                            </div>
+                            <span class="reservation-create-add__unavailable">
+                                No other vehicles are currently available.
+                            </span>
                         }
-                    </div>
-                </div>
-            }
 
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                <div>
-                    @if (Model.AvailableVehicles.Count > 0)
-                    {
-                        <button type="button"
-                                class="btn btn-outline-primary btn-sm"
-                                data-bs-toggle="modal"
-                                data-bs-target="#addVehicleModal">
-                            + Add another vehicle
-                        </button>
-                    }
-                    else
-                    {
-                        <span class="small text-muted">
-                            No other vehicles are currently available.
+                    </section>
+
+                </div>
+
+                <!-- Booking summary -->
+                <aside class="reservation-create-summary">
+
+                    <div class="reservation-create-summary__card">
+
+                        <span class="reservation-create-summary__eyebrow">
+                            BOOKING SUMMARY
                         </span>
-                    }
-                </div>
 
-                <div class="d-flex gap-2">
-                    <a asp-controller="Reservations"
-                       asp-action="Index"
-                       class="btn btn-outline-secondary btn-sm">
-                        Cancel
-                    </a>
+                        <h2>
+                            Your reservation
+                        </h2>
 
-                    <button type="submit"
-                            class="btn btn-primary btn-sm">
-                        Create reservation
-                    </button>
-                </div>
+                        <p>
+                            Review the vehicles included before confirming.
+                        </p>
+
+                        <div class="reservation-create-summary__divider">
+                        </div>
+
+                        <div class="reservation-create-summary__vehicles">
+
+                            @for (var summaryIndex = 0;
+                                  summaryIndex < Model.Vehicles.Count;
+                                  summaryIndex++)
+                            {
+                                var summaryVehicle =
+                                    Model.Vehicles[summaryIndex];
+
+                                <div class="reservation-create-summary__vehicle">
+
+                                    <div class="reservation-create-summary__vehicle-number">
+                                        @(summaryIndex + 1)
+                                    </div>
+
+                                    <div>
+
+                                        <strong>
+                                            @summaryVehicle.Brand
+                                            @summaryVehicle.Model
+                                        </strong>
+
+                                        <span>
+                                            @summaryVehicle.LicensePlate
+                                        </span>
+
+                                    </div>
+
+                                    <strong class="reservation-create-summary__rate">
+                                        @summaryVehicle.DailyPrice.ToString(
+                                            "C2",
+                                            portugueseCulture)
+                                        <small>
+                                            / day
+                                        </small>
+                                    </strong>
+
+                                </div>
+                            }
+
+                        </div>
+
+                        <div class="reservation-create-summary__divider">
+                        </div>
+
+                        <div class="reservation-create-summary__notice">
+
+                            <span aria-hidden="true">
+                                i
+                            </span>
+
+                            <p>
+                                The final amount is calculated by DriveFleet
+                                after the reservation is submitted, based on
+                                rental duration and selected extras.
+                            </p>
+
+                        </div>
+
+                        <div class="reservation-create-summary__actions">
+
+                            <button type="submit"
+                                    class="reservation-create-submit">
+
+                                Create reservation
+
+                                <span aria-hidden="true">
+                                    →
+                                </span>
+
+                            </button>
+
+                            <a asp-controller="Reservations"
+                               asp-action="Index"
+                               class="reservation-create-cancel">
+                                Cancel
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    <div class="reservation-create-security">
+
+                        <div class="reservation-create-security__icon"
+                             aria-hidden="true">
+                            ✓
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Secure reservation
+                            </strong>
+
+                            <span>
+                                Availability and final pricing are validated
+                                by DriveFleet before the booking is created.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </aside>
+
             </div>
         }
 
+        <!-- Add vehicle modal -->
         @if (Model.AvailableVehicles.Count > 0)
         {
-            <div class="modal fade"
+            <div class="modal fade reservation-vehicle-modal"
                  id="addVehicleModal"
                  tabindex="-1"
                  aria-labelledby="addVehicleModalLabel"
                  aria-hidden="true">
 
-                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-dialog modal-xl modal-dialog-scrollable">
+
                     <div class="modal-content">
-                        <div class="modal-header py-2">
+
+                        <div class="modal-header reservation-vehicle-modal__header">
+
                             <div>
-                                <h2 class="modal-title fs-5"
+
+                                <span>
+                                    AVAILABLE FLEET
+                                </span>
+
+                                <h2 class="modal-title"
                                     id="addVehicleModalLabel">
                                     Add another vehicle
                                 </h2>
 
-                                <p class="small text-muted mb-0">
-                                    Choose another vehicle to include
+                                <p>
+                                    Select another vehicle to include
                                     in this reservation.
                                 </p>
+
                             </div>
 
                             <button type="button"
@@ -245,103 +738,155 @@
                                     data-bs-dismiss="modal"
                                     aria-label="Close">
                             </button>
+
                         </div>
 
-                        <div class="modal-body p-3">
-                            <div class="row g-2">
+                        <div class="modal-body reservation-vehicle-modal__body">
+
+                            <div class="reservation-vehicle-modal__grid">
+
                                 @foreach (var availableVehicle
                                     in Model.AvailableVehicles)
                                 {
-                                    <div class="col-md-6">
-                                        <div class="card h-100">
-                                            <div class="card-body p-2">
-                                                <div class="d-flex gap-3">
-                                                    <div class="flex-shrink-0">
-                                                        @if (!string.IsNullOrWhiteSpace(
-                                                            availableVehicle.MainPhotoUrl))
-                                                        {
-                                                            <img src="@availableVehicle.MainPhotoUrl"
-                                                                 alt="@availableVehicle.Brand @availableVehicle.Model"
-                                                                 class="rounded"
-                                                                 style="width: 105px;
-                                                            height: 90px;
-                                                            object-fit: cover;" />
-                                                        }
-                                                        else
-                                                        {
-                                                            <div class="rounded bg-light d-flex align-items-center justify-content-center text-muted text-center small"
-                                                                 style="width: 105px;
-                                                                height: 90px;">
-                                                                No photo
-                                                            </div>
-                                                        }
-                                                    </div>
+                                    <article class="reservation-vehicle-option">
 
-                                                    <div class="flex-grow-1 min-width-0">
-                                                        <div class="fw-bold">
-                                                            @availableVehicle.Brand
-                                                            @availableVehicle.Model
-                                                        </div>
+                                        <div class="reservation-vehicle-option__image">
 
-                                                        <div class="small text-muted mb-2">
-                                                            @availableVehicle.Year
-                                                            ·
-                                                            @availableVehicle.CategoryName
-                                                            ·
-                                                            @availableVehicle.Seats seats
-                                                        </div>
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                availableVehicle.MainPhotoUrl))
+                                            {
+                                                <img src="@availableVehicle.MainPhotoUrl"
+                                                     alt="@availableVehicle.Brand @availableVehicle.Model"
+                                                     loading="lazy" />
+                                            }
+                                            else
+                                            {
+                                                <div class="reservation-vehicle-option__placeholder">
 
-                                                        <div class="d-flex justify-content-between gap-2 small">
-                                                            <span class="text-muted">
-                                                                Plate
-                                                            </span>
+                                                    <span>
+                                                        DRIVEFLEET
+                                                    </span>
 
-                                                            <span>
-                                                                @availableVehicle.LicensePlate
-                                                            </span>
-                                                        </div>
+                                                    <small>
+                                                        No photo available
+                                                    </small>
 
-                                                        <div class="d-flex justify-content-between gap-2 small">
-                                                            <span class="text-muted">
-                                                                Price
-                                                            </span>
-
-                                                            <span class="fw-semibold">
-                                                                @availableVehicle.DailyPrice.ToString("C") / day
-                                                            </span>
-                                                        </div>
-                                                    </div>
                                                 </div>
+                                            }
 
-                                                <div class="d-flex justify-content-end mt-2">
-                                                    <button type="submit"
-                                                            name="VehicleToAddId"
-                                                            value="@availableVehicle.VehicleId"
-                                                            class="btn btn-primary btn-sm"
-                                                            formnovalidate>
-                                                        Add vehicle
-                                                    </button>
-                                                </div>
-                                            </div>
                                         </div>
-                                    </div>
+
+                                        <div class="reservation-vehicle-option__body">
+
+                                            <div class="reservation-vehicle-option__heading">
+
+                                                <div>
+
+                                                    <span>
+                                                        @availableVehicle.CategoryName
+                                                    </span>
+
+                                                    <h3>
+                                                        @availableVehicle.Brand
+                                                        @availableVehicle.Model
+                                                    </h3>
+
+                                                </div>
+
+                                                <strong>
+                                                    @availableVehicle.DailyPrice.ToString(
+                                                        "C2",
+                                                        portugueseCulture)
+                                                    <small>
+                                                        / day
+                                                    </small>
+                                                </strong>
+
+                                            </div>
+
+                                            <div class="reservation-vehicle-option__meta">
+
+                                                <div>
+
+                                                    <span>
+                                                        YEAR
+                                                    </span>
+
+                                                    <strong>
+                                                        @availableVehicle.Year
+                                                    </strong>
+
+                                                </div>
+
+                                                <div>
+
+                                                    <span>
+                                                        SEATS
+                                                    </span>
+
+                                                    <strong>
+                                                        @availableVehicle.Seats
+                                                    </strong>
+
+                                                </div>
+
+                                                <div>
+
+                                                    <span>
+                                                        PLATE
+                                                    </span>
+
+                                                    <strong>
+                                                        @availableVehicle.LicensePlate
+                                                    </strong>
+
+                                                </div>
+
+                                            </div>
+
+                                            <button type="submit"
+                                                    name="VehicleToAddId"
+                                                    value="@availableVehicle.VehicleId"
+                                                    class="reservation-vehicle-option__button"
+                                                    formnovalidate>
+
+                                                Add vehicle
+
+                                                <span aria-hidden="true">
+                                                    +
+                                                </span>
+
+                                            </button>
+
+                                        </div>
+
+                                    </article>
                                 }
+
                             </div>
+
                         </div>
 
-                        <div class="modal-footer py-2">
+                        <div class="modal-footer reservation-vehicle-modal__footer">
+
                             <button type="button"
-                                    class="btn btn-outline-secondary btn-sm"
+                                    class="reservation-vehicle-modal__close"
                                     data-bs-dismiss="modal">
                                 Close
                             </button>
+
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
         }
+
     </form>
-</div>
+
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
