@@ -53,14 +53,31 @@ public interface IAuthService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Authenticates a user through Google OAuth
+    /// and returns a DriveFleet JWT access token.
+    /// </summary>
+    /// <param name="request">
+    /// The Google authentication information.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the asynchronous operation if needed.
+    /// </param>
+    /// <returns>
+    /// The authenticated user's information and JWT access token.
+    /// </returns>
+    Task<LoginResponse> GoogleLoginAsync(
+        GoogleLoginRequest request,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// 
     /// </summary>
     /// <param name="request"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<ForgotPasswordResponse> ForgotPasswordAsync(
-    ForgotPasswordRequest request,
-    CancellationToken cancellationToken = default);
+        ForgotPasswordRequest request,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Resets a user's password using a valid password reset token.

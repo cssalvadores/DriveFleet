@@ -15,6 +15,12 @@ namespace DriveFleet.Web.Controllers;
 /// </summary>
 public class AccountController : Controller
 {
+    private const string GoogleAuthenticationScheme =
+        "Google";
+
+    private const string GoogleExternalCookieScheme =
+        "GoogleExternal";
+
     private readonly AuthApiClient _authApiClient;
     private readonly ILogger<AccountController> _logger;
 
@@ -124,6 +130,7 @@ public class AccountController : Controller
             return View(model);
         }
     }
+
 
     /// <summary>
     /// Authenticates a user and creates the web authentication cookie.
@@ -256,7 +263,6 @@ public class AccountController : Controller
             return View(model);
         }
     }
-
     /// <summary>
     /// Displays the login form.
     /// </summary>
@@ -356,6 +362,219 @@ public class AccountController : Controller
                 "The password recovery service is temporarily unavailable.");
 
             return View(model);
+        }
+    }
+    /// <summary>
+    /// Starts the Google OAuth authentication flow.
+    /// </summary>
+    [HttpGet("/account/google-login")]
+    public IActionResult GoogleLogin()
+    {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction(
+                "Index",
+                "Home");
+        }
+
+        var authenticationProperties =
+            new AuthenticationProperties
+            {
+                RedirectUri = Url.Action(
+                    nameof(GoogleCallback),
+                    "Account")
+            };
+
+        return Challenge(
+            authenticationProperties,
+            GoogleAuthenticationScheme);
+    }
+    /// <summary>
+    /// Completes Google authentication and creates
+    /// the normal DriveFleet authenticated session.
+    /// </summary>
+    [HttpGet("/account/google-callback")]
+    public async Task<IActionResult> GoogleCallback(
+        CancellationToken cancellationToken)
+    {
+        var externalAuthentication =
+            await HttpContext.AuthenticateAsync(
+                GoogleExternalCookieScheme);
+
+        if (!externalAuthentication.Succeeded ||
+            externalAuthentication.Principal is null)
+        {
+            await HttpContext.SignOutAsync(
+                GoogleExternalCookieScheme);
+
+            ModelState.AddModelError(
+                string.Empty,
+                "Google authentication failed.");
+
+            return View(
+                "Login",
+                new LoginViewModel());
+        }
+
+        var googleAccessToken =
+            externalAuthentication.Properties?
+                .GetTokenValue(
+                    "access_token");
+
+        if (string.IsNullOrWhiteSpace(
+            googleAccessToken))
+        {
+            await HttpContext.SignOutAsync(
+                GoogleExternalCookieScheme);
+
+            ModelState.AddModelError(
+                string.Empty,
+                "Google did not return a valid authentication token.");
+
+            return View(
+                "Login",
+                new LoginViewModel());
+        }
+
+        try
+        {
+            var result =
+                await _authApiClient.GoogleLoginAsync(
+                    googleAccessToken,
+                    cancellationToken);
+
+            if (result.StatusCode !=
+                    HttpStatusCode.OK ||
+                result.UserId is null ||
+                string.IsNullOrWhiteSpace(
+                    result.Email) ||
+                string.IsNullOrWhiteSpace(
+                    result.Role) ||
+                string.IsNullOrWhiteSpace(
+                    result.AccessToken) ||
+                result.ExpiresAt is null)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    string.IsNullOrWhiteSpace(
+                        result.Detail)
+                        ? "We could not sign you in with Google."
+                        : result.Detail);
+
+                return View(
+                    "Login",
+                    new LoginViewModel());
+            }
+
+            var fullName =
+                string.Join(
+                    " ",
+                    new[]
+                    {
+                    result.FirstName,
+                    result.LastName
+                    }
+                    .Where(
+                        value =>
+                            !string.IsNullOrWhiteSpace(
+                                value)));
+
+            var claims =
+                new List<Claim>
+                {
+                new(
+                    ClaimTypes.NameIdentifier,
+                    result.UserId.Value
+                        .ToString()),
+
+                new(
+                    ClaimTypes.Name,
+                    string.IsNullOrWhiteSpace(
+                        fullName)
+                        ? result.Email
+                        : fullName),
+
+                new(
+                    ClaimTypes.Email,
+                    result.Email),
+
+                new(
+                    ClaimTypes.Role,
+                    result.Role)
+                };
+
+            var identity =
+                new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults
+                        .AuthenticationScheme);
+
+            var principal =
+                new ClaimsPrincipal(
+                    identity);
+
+            var authenticationProperties =
+                new AuthenticationProperties
+                {
+                    IsPersistent =
+                        false,
+
+                    ExpiresUtc =
+                        new DateTimeOffset(
+                            DateTime.SpecifyKind(
+                                result.ExpiresAt.Value,
+                                DateTimeKind.Utc))
+                };
+
+            /*
+             * Stores only the DriveFleet JWT.
+             * The Google access token is not retained
+             * in the final application session.
+             */
+            authenticationProperties.StoreTokens(
+            [
+                new AuthenticationToken
+            {
+                Name =
+                    "access_token",
+
+                Value =
+                    result.AccessToken
+            }
+            ]);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults
+                    .AuthenticationScheme,
+                principal,
+                authenticationProperties);
+
+            return RedirectToAction(
+                "Index",
+                "Home");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unable to communicate with the DriveFleet API during Google login.");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "The Google login service is temporarily unavailable.");
+
+            return View(
+                "Login",
+                new LoginViewModel());
+        }
+        finally
+        {
+            /*
+             * Always removes the temporary
+             * Google external authentication cookie.
+             */
+            await HttpContext.SignOutAsync(
+                GoogleExternalCookieScheme);
         }
     }
 

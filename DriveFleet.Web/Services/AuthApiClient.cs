@@ -99,6 +99,92 @@ public class AuthApiClient
             Detail = detail
         };
     }
+    /// <summary>
+    /// Sends a Google OAuth access token
+    /// to the DriveFleet API.
+    /// </summary>
+    public async Task<LoginApiResult> GoogleLoginAsync(
+        string accessToken,
+        CancellationToken cancellationToken = default)
+    {
+        var request =
+            new GoogleLoginRequest
+            {
+                AccessToken =
+                    accessToken
+            };
+
+        using var response =
+            await _httpClient.PostAsJsonAsync(
+                "api/auth/google",
+                request,
+                cancellationToken);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var loginResponse =
+                await response.Content
+                    .ReadFromJsonAsync<LoginResponse>(
+                        cancellationToken:
+                            cancellationToken);
+
+            return new LoginApiResult
+            {
+                StatusCode =
+                    response.StatusCode,
+
+                UserId =
+                    loginResponse?.UserId,
+
+                FirstName =
+                    loginResponse?.FirstName,
+
+                LastName =
+                    loginResponse?.LastName,
+
+                Email =
+                    loginResponse?.Email,
+
+                Role =
+                    loginResponse?.Role,
+
+                AccessToken =
+                    loginResponse?.AccessToken,
+
+                ExpiresAt =
+                    loginResponse?.ExpiresAt
+            };
+        }
+
+        string? detail =
+            null;
+
+        try
+        {
+            var problemDetails =
+                await response.Content
+                    .ReadFromJsonAsync<ApiProblemDetails>(
+                        cancellationToken:
+                            cancellationToken);
+
+            detail =
+                problemDetails?.Detail;
+        }
+        catch (JsonException)
+        {
+            // Keeps the error detail empty
+            // when the API response is not JSON.
+        }
+
+        return new LoginApiResult
+        {
+            StatusCode =
+                response.StatusCode,
+
+            Detail =
+                detail
+        };
+    }
 
     /// <summary>
     /// Sends registration information to the DriveFleet API.
@@ -513,6 +599,14 @@ public class AuthApiClient
         public string Email { get; set; } = string.Empty;
 
         public string Password { get; set; } = string.Empty;
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    private sealed class GoogleLoginRequest
+    {
+        public string AccessToken { get; set; } =
+            string.Empty;
     }
 
     /// <summary>

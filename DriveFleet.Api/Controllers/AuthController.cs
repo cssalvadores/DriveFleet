@@ -132,9 +132,7 @@ public class AuthController : ControllerBase
     /// The authenticated user's information and JWT access token.
     /// </returns>
     [HttpPost("login")]
-    [ProducesResponseType(
-        typeof(LoginResponse),
-        StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResponse),StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -171,7 +169,47 @@ public class AuthController : ControllerBase
                 });
         }
     }
+    /// <summary>
+    /// Authenticates a user using Google OAuth.
+    /// </summary>
+    [HttpPost("google")]
+    [ProducesResponseType(
+        typeof(LoginResponse),
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<LoginResponse>>
+        GoogleLogin(
+            GoogleLoginRequest request,
+            CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response =
+                await _authService.GoogleLoginAsync(
+                    request,
+                    cancellationToken);
 
+            return Ok(response);
+        }
+        catch (InvalidCredentialsException exception)
+        {
+            return Unauthorized(
+                new ProblemDetails
+                {
+                    Title =
+                        "Google authentication failed",
+
+                    Detail =
+                        exception.Message,
+
+                    Status =
+                        StatusCodes.Status401Unauthorized
+                });
+        }
+    }
     /// <summary>
     /// Starts the password recovery process for a user account.
     /// </summary>

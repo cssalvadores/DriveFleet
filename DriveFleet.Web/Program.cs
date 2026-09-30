@@ -1,9 +1,12 @@
 using System.Globalization;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using DriveFleet.Web.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+const string googleAuthenticationScheme = "Google";
+const string googleExternalCookieScheme = "GoogleExternal";
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -26,23 +29,108 @@ builder.Services.Configure<RequestLocalizationOptions>(
             supportedCultures;
     });
 
+// ---------------------------------------------------------
+// Authentication
+// ---------------------------------------------------------
+
+var googleClientId =
+    builder.Configuration["Authentication:Google:ClientId"];
+
+var googleClientSecret =
+    builder.Configuration["Authentication:Google:ClientSecret"];
+
+if (string.IsNullOrWhiteSpace(googleClientId))
+{
+    throw new InvalidOperationException(
+        "The Google OAuth Client ID is not configured.");
+}
+
+if (string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    throw new InvalidOperationException(
+        "The Google OAuth Client Secret is not configured.");
+}
+
 builder.Services
     .AddAuthentication(
         CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/account/login";
-        options.AccessDeniedPath = "/account/access-denied";
 
-        options.Cookie.Name = "DriveFleet.Auth";
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy =
-            CookieSecurePolicy.Always;
-        options.Cookie.SameSite =
-            SameSiteMode.Lax;
+    // Main DriveFleet authentication cookie.
+    .AddCookie(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        options =>
+        {
+            options.LoginPath =
+                "/account/login";
 
-        options.SlidingExpiration = false;
-    });
+            options.AccessDeniedPath =
+                "/account/access-denied";
+
+            options.Cookie.Name =
+                "DriveFleet.Auth";
+
+            options.Cookie.HttpOnly =
+                true;
+
+            options.Cookie.SecurePolicy =
+                CookieSecurePolicy.Always;
+
+            options.Cookie.SameSite =
+                SameSiteMode.Lax;
+
+            options.SlidingExpiration =
+                false;
+        })
+
+    // Temporary cookie used while processing
+    // the Google authentication result.
+    .AddCookie(
+        googleExternalCookieScheme,
+        options =>
+        {
+            options.Cookie.Name =
+                "DriveFleet.GoogleExternal";
+
+            options.Cookie.HttpOnly =
+                true;
+
+            options.Cookie.SecurePolicy =
+                CookieSecurePolicy.Always;
+
+            options.Cookie.SameSite =
+                SameSiteMode.Lax;
+
+            options.ExpireTimeSpan =
+                TimeSpan.FromMinutes(5);
+
+            options.SlidingExpiration =
+                false;
+        })
+
+    // Google OAuth 2.0.
+    .AddGoogle(
+        googleAuthenticationScheme,
+        options =>
+        {
+            options.ClientId =
+                googleClientId;
+
+            options.ClientSecret =
+                googleClientSecret;
+
+            options.SignInScheme =
+                googleExternalCookieScheme;
+
+            options.CallbackPath =
+                "/signin-google";
+
+            options.SaveTokens = 
+                true;
+        });
+
+// ---------------------------------------------------------
+// API clients
+// ---------------------------------------------------------
 
 builder.Services.AddHttpClient<AuthApiClient>(
     (serviceProvider, httpClient) =>
@@ -165,12 +253,14 @@ app.UseRequestLocalization();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler(
+        "/Home/Error");
+
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+
 app.UseRouting();
 
 app.UseAuthentication();
@@ -179,9 +269,9 @@ app.UseAuthorization();
 app.MapStaticAssets();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+        name: "default",
+        pattern:
+            "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();

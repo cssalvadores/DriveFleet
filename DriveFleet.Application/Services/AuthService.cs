@@ -24,13 +24,15 @@ public class AuthService : IAuthService
     private readonly IPasswordHasher _passwordHasher;
     private readonly ISecureTokenService _secureTokenService;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IGoogleTokenValidator
+        _googleTokenValidator;
     private readonly IRegistrationRepository _registrationRepository;
     private readonly IEmailConfirmationTokenRepository
-    _emailConfirmationTokenRepository;
+        _emailConfirmationTokenRepository;
     private readonly IPasswordResetTokenRepository
-    _passwordResetTokenRepository;
+        _passwordResetTokenRepository;
     private readonly IRevokedJwtTokenRepository
-    _revokedJwtTokenRepository;
+        _revokedJwtTokenRepository;
     private readonly IEmailSender _emailSender;
     private readonly ApplicationUrlSettings _applicationUrls;
 
@@ -66,6 +68,7 @@ public class AuthService : IAuthService
         IPasswordHasher passwordHasher,
         ISecureTokenService secureTokenService,
         IJwtTokenService jwtTokenService,
+        IGoogleTokenValidator googleTokenValidator,
         IRegistrationRepository registrationRepository,
         IEmailConfirmationTokenRepository emailConfirmationTokenRepository,
         IPasswordResetTokenRepository passwordResetTokenRepository,
@@ -77,6 +80,7 @@ public class AuthService : IAuthService
         _passwordHasher = passwordHasher;
         _secureTokenService = secureTokenService;
         _jwtTokenService = jwtTokenService;
+        _googleTokenValidator = googleTokenValidator;
         _registrationRepository = registrationRepository;
         _emailConfirmationTokenRepository =
             emailConfirmationTokenRepository;
@@ -372,7 +376,193 @@ public class AuthService : IAuthService
             ExpiresAt = tokenResult.ExpiresAt
         };
     }
+    /// <summary>
+    /// Authenticates or creates a DriveFleet user
+    /// from a validated Google OAuth identity.
+    /// </summary>
+    public async Task<LoginResponse> GoogleLoginAsync(
+        GoogleLoginRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var googleIdentity =
+            await _googleTokenValidator.ValidateAsync(
+                request.AccessToken,
+                cancellationToken);
 
+        if (googleIdentity is null)
+        {
+            throw new InvalidCredentialsException(
+                "The Google authentication information is invalid.");
+        }
+
+        var email =
+            googleIdentity.Email
+                .Trim()
+                .ToLowerInvariant();
+
+        var existingUser =
+            await _userRepository.GetByEmailAsync(
+                email,
+                cancellationToken);
+
+        User user;
+
+        if (existingUser is null)
+        {
+            var firstName =
+                string.IsNullOrWhiteSpace(
+                    googleIdentity.FirstName)
+                    ? "Google user"
+                    : googleIdentity.FirstName.Trim();
+
+            if (firstName.Length > 100)
+            {
+                firstName =
+                    firstName[..100];
+            }
+
+            var lastName =
+                string.IsNullOrWhiteSpace(
+                    googleIdentity.LastName)
+                    ? null
+                    : googleIdentity.LastName.Trim();
+
+            if (lastName?.Length > 100)
+            {
+                lastName =
+                    lastName[..100];
+            }
+
+            var now =
+                DateTime.UtcNow;
+
+            user =
+                new User
+                {
+                    FirstName =
+                        firstName,
+
+                    LastName =
+                        lastName,
+
+                    Email =
+                        email,
+
+                    Phone =
+                        null,
+
+                    PasswordHash =
+                        null,
+
+                    Photo =
+                        null,
+
+                    Provider =
+                        "Google",
+
+                    EmailConfirmed =
+                        true,
+
+                    RoleId =
+                        RoleIds.Client,
+
+                    CreatedAt =
+                        now,
+
+                    UpdatedAt =
+                        null
+                };
+
+            await _userRepository.AddAsync(
+                user,
+                cancellationToken);
+        }
+        else
+        {
+            /*
+             * GetByEmailAsync uses a no-tracking query.
+             * Reloads the user through GetByIdAsync so
+             * changes can be persisted safely.
+             */
+            user =
+                await _userRepository.GetByIdAsync(
+                    existingUser.UserId,
+                    cancellationToken)
+                ?? throw new InvalidOperationException(
+                    "The authenticated user could not be found.");
+
+            var userChanged =
+                false;
+
+            if (!user.EmailConfirmed)
+            {
+                user.EmailConfirmed =
+                    true;
+
+                userChanged =
+                    true;
+            }
+
+            if (!string.Equals(
+                user.Provider,
+                "Google",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                user.Provider =
+                    "Google";
+
+                userChanged =
+                    true;
+            }
+
+            if (userChanged)
+            {
+                user.UpdatedAt =
+                    DateTime.UtcNow;
+
+                await _userRepository.SaveChangesAsync(
+                    cancellationToken);
+            }
+        }
+
+        /*
+         * Existing users keep their current role.
+         * Newly created Google accounts are Clients.
+         */
+        var role =
+            ResolveRoleName(
+                user.RoleId);
+
+        var tokenResult =
+            _jwtTokenService.GenerateToken(
+                user.UserId,
+                user.Email,
+                role);
+
+        return new LoginResponse
+        {
+            UserId =
+                user.UserId,
+
+            FirstName =
+                user.FirstName,
+
+            LastName =
+                user.LastName,
+
+            Email =
+                user.Email,
+
+            Role =
+                role,
+
+            AccessToken =
+                tokenResult.AccessToken,
+
+            ExpiresAt =
+                tokenResult.ExpiresAt
+        };
+    }
     public async Task<ForgotPasswordResponse> ForgotPasswordAsync(
     ForgotPasswordRequest request,
     CancellationToken cancellationToken = default)

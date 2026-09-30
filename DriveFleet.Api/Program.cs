@@ -6,6 +6,8 @@ using DriveFleet.Application.Interfaces;
 using DriveFleet.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using DriveFleet.Application.Options;
+using DriveFleet.Infrastructure.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -141,6 +143,23 @@ builder.Services
 
 // Registers ASP.NET Core authorization services.
 builder.Services.AddAuthorization();
+
+builder.Services.Configure<GoogleAuthenticationSettings>(
+    builder.Configuration.GetSection(
+        GoogleAuthenticationSettings.SectionName));
+
+builder.Services.AddHttpClient<
+    IGoogleTokenValidator,
+    GoogleTokenValidator>(
+        httpClient =>
+        {
+            httpClient.BaseAddress =
+                new Uri(
+                    "https://www.googleapis.com/");
+
+            httpClient.Timeout =
+                TimeSpan.FromSeconds(10);
+        });
 
 var app = builder.Build();
 

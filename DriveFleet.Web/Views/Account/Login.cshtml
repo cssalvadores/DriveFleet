@@ -54,6 +54,44 @@
                 </div>
             }
 
+            <div class="account-social-login">
+
+                <a asp-controller="Account"
+                   asp-action="GoogleLogin"
+                   class="account-google-button">
+
+                    <svg class="account-google-icon"
+                         viewBox="0 0 24 24"
+                         aria-hidden="true">
+
+                        <path fill="#4285F4"
+                              d="M21.35 12.18c0-.74-.07-1.45-.19-2.13H12v4.03h5.24a4.48 4.48 0 0 1-1.94 2.94v2.44h3.14c1.84-1.69 2.91-4.18 2.91-7.28z" />
+
+                        <path fill="#34A853"
+                              d="M12 21.68c2.62 0 4.82-.87 6.43-2.36l-3.14-2.44c-.87.58-1.98.93-3.29.93-2.53 0-4.67-1.71-5.44-4.01H3.32v2.52A9.72 9.72 0 0 0 12 21.68z" />
+
+                        <path fill="#FBBC05"
+                              d="M6.56 13.8A5.85 5.85 0 0 1 6.25 12c0-.63.11-1.23.31-1.8V7.68H3.32A9.68 9.68 0 0 0 2.28 12c0 1.56.37 3.04 1.04 4.32l3.24-2.52z" />
+
+                        <path fill="#EA4335"
+                              d="M12 6.19c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.82 3.27 14.62 2.32 12 2.32a9.72 9.72 0 0 0-8.68 5.36l3.24 2.52C7.33 7.9 9.47 6.19 12 6.19z" />
+
+                    </svg>
+
+                    <span>
+                        Continue with Google
+                    </span>
+
+                </a>
+
+            </div>
+
+            <div class="account-divider">
+                <span>
+                    or
+                </span>
+            </div>
+
             <form asp-controller="Account"
                   asp-action="Login"
                   method="post">
