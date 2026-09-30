@@ -15,6 +15,11 @@ namespace DriveFleet.Web.Controllers
         {
             return View();
         }
+        [HttpGet("/contact")]
+        public IActionResult Contact()
+        {
+            return View();
+        }
         public IActionResult Privacy()
         {
             return View();

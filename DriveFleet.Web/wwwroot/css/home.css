@@ -480,3 +480,394 @@
             border-bottom: 0;
         }
 }
+/* =========================================================
+   DRIVEFLEET CONTACT PAGE
+   ========================================================= */
+
+.drivefleet-contact {
+    min-height: calc(100vh - 92px);
+    padding: clamp(4rem, 7vw, 6.5rem) 0;
+    background: radial-gradient( circle at 78% 15%, rgba(21, 156, 255, 0.07), transparent 28% ), #f7f9fb;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.drivefleet-contact-header {
+    max-width: 760px;
+    margin: 0 auto 3.5rem;
+    text-align: center;
+}
+
+.drivefleet-contact-eyebrow {
+    margin-bottom: 1rem;
+    color: #159cff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2rem;
+}
+
+.drivefleet-contact-title {
+    margin-bottom: 1.1rem;
+    color: #102537;
+    font-size: clamp(2.8rem, 5vw, 4.4rem);
+    font-weight: 650;
+    line-height: 1.05;
+    letter-spacing: -0.09rem;
+}
+
+.drivefleet-contact-lead {
+    max-width: 670px;
+    margin: 0 auto;
+    color: #687889;
+    font-size: 1.05rem;
+    line-height: 1.75;
+}
+
+/* =========================================================
+   MAIN CONTACT CARD
+   ========================================================= */
+
+.drivefleet-contact-card,
+.drivefleet-support-card {
+    height: 100%;
+    border: 1px solid #e0e7ed;
+    border-radius: 26px;
+    background: #ffffff;
+    box-shadow: 0 22px 60px rgba(7, 37, 59, 0.07);
+}
+
+.drivefleet-contact-card {
+    padding: clamp(1.75rem, 4vw, 3rem);
+}
+
+.drivefleet-contact-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.drivefleet-contact-card-kicker {
+    display: block;
+    margin-bottom: 0.6rem;
+    color: #159cff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.15rem;
+}
+
+.drivefleet-contact-card h2,
+.drivefleet-support-card h2 {
+    margin: 0;
+    color: #102537;
+    font-size: 1.7rem;
+    font-weight: 650;
+    letter-spacing: -0.04rem;
+}
+
+.drivefleet-contact-card-description {
+    max-width: 620px;
+    margin-bottom: 2rem;
+    color: #72808e;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.drivefleet-contact-status {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 0.8rem;
+    border: 1px solid #dcebe3;
+    border-radius: 999px;
+    background: #f6fbf8;
+    color: #347154;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.drivefleet-contact-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #3ca36b;
+    box-shadow: 0 0 0 4px rgba(60, 163, 107, 0.12);
+}
+
+/* =========================================================
+   CONTACT DETAILS
+   ========================================================= */
+
+.drivefleet-contact-details {
+    display: grid;
+    gap: 1rem;
+}
+
+.drivefleet-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.15rem;
+    border: 1px solid #e6ecf1;
+    border-radius: 18px;
+    background: #fafcfd;
+    transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+}
+
+    .drivefleet-contact-item:hover {
+        border-color: #cbd9e4;
+        background: #ffffff;
+        transform: translateY(-1px);
+    }
+
+.drivefleet-contact-icon {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    background: #eaf6ff;
+    color: #0d8fe6;
+}
+
+    .drivefleet-contact-icon svg {
+        width: 21px;
+        height: 21px;
+        fill: currentColor;
+    }
+
+.drivefleet-contact-item-content {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.drivefleet-contact-label {
+    margin-bottom: 0.15rem;
+    color: #8b97a3;
+    font-size: 0.69rem;
+    font-weight: 700;
+    letter-spacing: 0.08rem;
+    text-transform: uppercase;
+}
+
+.drivefleet-contact-value {
+    color: #163750;
+    font-size: 1rem;
+    font-weight: 650;
+    text-decoration: none;
+    word-break: break-word;
+}
+
+    .drivefleet-contact-value:hover {
+        color: #0d8fe6;
+    }
+
+.drivefleet-contact-helper {
+    margin-top: 0.18rem;
+    color: #87939f;
+    font-size: 0.8rem;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.drivefleet-contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 1.75rem;
+}
+
+.drivefleet-contact-primary-action,
+.drivefleet-contact-secondary-action {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0 1.35rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 650;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.drivefleet-contact-primary-action {
+    border: 1px solid #119df7;
+    background: #119df7;
+    color: #ffffff;
+    box-shadow: 0 12px 26px rgba(0, 125, 210, 0.2);
+}
+
+    .drivefleet-contact-primary-action:hover {
+        background: #008ee7;
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 15px 30px rgba(0, 125, 210, 0.26);
+    }
+
+.drivefleet-contact-secondary-action {
+    border: 1px solid #d2dce4;
+    background: #ffffff;
+    color: #28445b;
+}
+
+    .drivefleet-contact-secondary-action:hover {
+        border-color: #159cff;
+        background: #f7fbfe;
+        color: #087fc9;
+        transform: translateY(-1px);
+    }
+
+    .drivefleet-contact-primary-action svg,
+    .drivefleet-contact-secondary-action svg {
+        width: 17px;
+        height: 17px;
+        fill: currentColor;
+    }
+
+/* =========================================================
+   SUPPORT CARD
+   ========================================================= */
+
+.drivefleet-support-card {
+    padding: clamp(1.75rem, 4vw, 2.5rem);
+    background: linear-gradient( 155deg, #092b45 0%, #061e32 100% );
+    color: #ffffff;
+}
+
+    .drivefleet-support-card h2 {
+        color: #ffffff;
+    }
+
+    .drivefleet-support-card p {
+        margin: 1rem 0 0;
+        color: rgba(255, 255, 255, 0.68);
+        line-height: 1.7;
+    }
+
+.drivefleet-support-divider {
+    height: 1px;
+    margin: 1.8rem 0;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.drivefleet-support-heading {
+    display: block;
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.82rem;
+    font-weight: 650;
+}
+
+.drivefleet-support-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+    .drivefleet-support-list li {
+        position: relative;
+        padding: 0.6rem 0 0.6rem 1.6rem;
+        color: rgba(255, 255, 255, 0.73);
+        font-size: 0.9rem;
+    }
+
+        .drivefleet-support-list li::before {
+            content: "";
+            position: absolute;
+            top: 1rem;
+            left: 0;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #159cff;
+        }
+
+.drivefleet-support-note {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-top: 2rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+    .drivefleet-support-note span {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.72rem;
+    }
+
+    .drivefleet-support-note strong {
+        color: #ffffff;
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 767.98px) {
+
+    .drivefleet-contact {
+        padding: 3.5rem 0;
+    }
+
+    .drivefleet-contact-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .drivefleet-contact-title {
+        letter-spacing: -0.06rem;
+    }
+
+    .drivefleet-contact-card-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .drivefleet-contact-actions {
+        flex-direction: column;
+    }
+
+    .drivefleet-contact-primary-action,
+    .drivefleet-contact-secondary-action {
+        width: 100%;
+    }
+}
+
+@media (max-width: 575.98px) {
+
+    .drivefleet-contact-card,
+    .drivefleet-support-card {
+        border-radius: 20px;
+    }
+
+    .drivefleet-contact-card {
+        padding: 1.4rem;
+    }
+
+    .drivefleet-support-card {
+        padding: 1.5rem;
+    }
+
+    .drivefleet-contact-item {
+        align-items: flex-start;
+        padding: 1rem;
+    }
+}
