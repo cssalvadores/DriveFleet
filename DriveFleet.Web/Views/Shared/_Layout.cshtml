@@ -18,6 +18,17 @@
             "Index",
             StringComparison.OrdinalIgnoreCase);
 
+    var isAboutPage =
+        string.Equals(
+            currentController,
+            "Home",
+            StringComparison.OrdinalIgnoreCase)
+        &&
+        string.Equals(
+            currentAction,
+            "About",
+            StringComparison.OrdinalIgnoreCase);
+
     var isVehicleCatalogPage =
         string.Equals(
             currentController,
@@ -190,6 +201,18 @@
                                asp-action="Index"
                                aria-current="@(isHomePage ? "page" : null)">
                                 Home
+                            </a>
+
+                        </li>
+
+                        <li class="nav-item">
+
+                            <a class="nav-link @(isAboutPage ? "active" : null)"
+                               asp-area=""
+                               asp-controller="Home"
+                               asp-action="About"
+                               aria-current="@(isAboutPage ? "page" : null)">
+                                About
                             </a>
 
                         </li>
